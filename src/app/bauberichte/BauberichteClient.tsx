@@ -86,6 +86,25 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
                       />
                     </div>
                   </div>
+                  
+                  {report.pdfUrl && (
+                    <div style={{ marginTop: '2rem' }}>
+                      <a href={report.pdfUrl} target="_blank" rel="noreferrer" className="btn-pdf-download">
+                        <FileText size={18} /> GANZES PDF DOKUMENT MANTELBOGEN HERUNTERLADEN
+                      </a>
+                    </div>
+                  )}
+
+                  {report.images && report.images.length > 0 && (
+                    <div className="report-images-grid" style={{ gridColumn: '1 / -1', marginTop: '2rem' }}>
+                      <h4 style={{ fontSize: '0.85rem', color: '#567eb6', marginBottom: '1rem', fontWeight: 800, letterSpacing: '1px' }}>PROJEKTFOTOS</h4>
+                      <div className="images-grid">
+                        {report.images.map((imgUrl: string, idx: number) => (
+                          <img key={idx} src={imgUrl} alt={`Baubericht Foto ${idx+1}`} className="report-grid-img" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="report-footer">
@@ -173,6 +192,18 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
         .report-footer { padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05); }
         .btn-read-more { color: #567eb6; font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; transition: gap 0.2s; }
         .btn-read-more:hover { gap: 15px; }
+
+        .btn-pdf-download {
+          display: inline-flex; align-items: center; gap: 10px;
+          background: rgba(34, 197, 94, 0.1); color: #4ade80;
+          padding: 12px 20px; border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.2);
+          font-weight: 800; font-size: 0.8rem; text-transform: uppercase; transition: all 0.2s;
+        }
+        .btn-pdf-download:hover { background: rgba(34, 197, 94, 0.2); transform: translateY(-2px); }
+
+        .images-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+        .report-grid-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+
 
         .submit-cta { 
           padding: 3rem; border-radius: 40px; display: flex; align-items: center; gap: 2.5rem; 

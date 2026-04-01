@@ -96,6 +96,39 @@ export default function BauberichteAdminPage() {
               <textarea name="desc" defaultValue={editingItem.desc} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', minHeight: '120px' }} required />
             </div>
 
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontWeight: 'bold' }}>Baubericht als PDF (Optional)</label>
+                <input 
+                  type="file"
+                  name="pdfFile" 
+                  accept=".pdf"
+                  style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} 
+                />
+                {editingItem.pdfUrl && <p style={{ fontSize: '0.8rem', color: '#4ade80' }}>✓ PDF vorhanden: <a href={editingItem.pdfUrl} target="_blank" rel="noreferrer" style={{ color: '#4ade80', textDecoration: 'underline' }}>Ansehen</a></p>}
+              </div>
+
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontWeight: 'bold' }}>Bilder hinzufügen (Mehrfachauswahl möglich)</label>
+                <input 
+                  type="file"
+                  name="imageFiles" 
+                  accept="image/*"
+                  multiple
+                  style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} 
+                />
+                {editingItem.images && editingItem.images.length > 0 && (
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <p style={{ fontSize: '0.8rem', color: '#4ade80', marginBottom: '0.5rem' }}>✓ {editingItem.images.length} Bild(er) vorhanden</p>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#ef4444' }}>
+                      <input type="checkbox" name="clearImages" value="true" />
+                      Alle vorhandenen Bilder löschen & ersetzen?
+                    </label>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
               <button type="submit" style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
                 Speichern

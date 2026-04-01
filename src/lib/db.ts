@@ -64,6 +64,8 @@ export interface BauberichtItem {
   date: string;
   desc: string;
   tech: string;
+  pdfUrl?: string; // Optional PDF file
+  images?: string[]; // Optional array of image URLs
 }
 
 export interface ArchiveDoc {
