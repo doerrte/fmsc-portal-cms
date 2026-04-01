@@ -22,7 +22,7 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
   const updates = report.updates || [];
 
   return (
-    <main style={{ background: '#0a0c10', color: 'var(--foreground)', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--background)', color: 'var(--foreground)', minHeight: '100vh' }}>
       <Navbar />
 
       <section style={{ paddingTop: '120px', paddingBottom: '40px' }}>
@@ -31,7 +31,7 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
             <ArrowLeft size={16} /> Zurück zur Übersicht
           </Link>
 
-          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '3rem' }}>
+          <div style={{ background: 'var(--card-bg)', padding: '3rem', borderRadius: '32px', border: '1px solid var(--card-border)', marginBottom: '3rem', backdropFilter: 'blur(20px)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '2rem' }}>
               <div>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Logbuch • {report.pilot}</span>
@@ -45,8 +45,8 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-secondary)' }}>FORTSCHRITT</span>
-                  <div style={{ width: '150px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${report.progress}%`, background: 'linear-gradient(90deg, #567eb6, #4ade80)', borderRadius: '3px' }} />
+                  <div style={{ width: '150px', height: '6px', background: 'var(--card-border)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${report.progress}%`, background: 'linear-gradient(90deg, #567eb6, var(--status-clear))', borderRadius: '3px' }} />
                   </div>
                   <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{report.progress}%</span>
                 </div>
@@ -56,7 +56,7 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
           
           {report.pdfUrl && (
             <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
-              <a href={report.pdfUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'rgba(34, 197, 94, 0.1)', color: '#4ade80', padding: '16px 32px', borderRadius: '12px', border: '1px solid rgba(34, 197, 94, 0.2)', fontWeight: '800', textDecoration: 'none' }}>
+              <a href={report.pdfUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'rgba(34, 197, 94, 0.1)', color: 'var(--status-clear)', padding: '16px 32px', borderRadius: '12px', border: '1px solid rgba(34, 197, 94, 0.2)', fontWeight: '800', textDecoration: 'none' }}>
                 <FileText size={20} /> PDF DOKUMENT ÖFFNEN
               </a>
             </div>
@@ -64,14 +64,14 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
 
           <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative' }}>
             {/* Timeline line */}
-            <div style={{ position: 'absolute', left: '20px', top: '0', bottom: '0', width: '2px', background: 'rgba(255,255,255,0.1)' }} />
+            <div style={{ position: 'absolute', left: '20px', top: '0', bottom: '0', width: '2px', background: 'var(--card-border)' }} />
 
             {updates.length === 0 ? (
               <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Noch keine Logbucheinträge vorhanden.</p>
             ) : updates.map((update, idx) => (
               <div key={update.id} style={{ position: 'relative', paddingLeft: '60px', marginBottom: '4rem' }}>
                 {/* Timeline dot */}
-                <div style={{ position: 'absolute', left: '16px', top: '5px', width: '10px', height: '10px', borderRadius: '50%', background: '#f97316', boxShadow: '0 0 0 4px #0a0c10' }} />
+                <div style={{ position: 'absolute', left: '16px', top: '5px', width: '10px', height: '10px', borderRadius: '50%', background: '#f97316', boxShadow: '0 0 0 4px var(--background)' }} />
                 
                 <span style={{ fontSize: '0.9rem', color: '#f97316', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
                   <Clock size={14} /> Update vom {update.date}
@@ -84,7 +84,7 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
                 {update.images && update.images.length > 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     {update.images.map((imgUrl, i) => (
-                      <img key={i} src={imgUrl} alt={`Foto ${i}`} style={{ width: '100%', height: 'auto', maxHeight: '600px', objectFit: 'contain', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }} />
+                      <img key={i} src={imgUrl} alt={`Foto ${i}`} style={{ width: '100%', height: 'auto', maxHeight: '600px', objectFit: 'contain', borderRadius: '12px', background: 'var(--background)', border: '1px solid var(--card-border)' }} />
                     ))}
                   </div>
                 )}
