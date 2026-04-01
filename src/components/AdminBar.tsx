@@ -12,10 +12,6 @@ export default async function AdminBar() {
     <div className="admin-bar">
       <div className="admin-bar-links">
         <span style={{ fontWeight: '900', color: '#f97316', fontSize: '1.1rem' }}>🛠️ Admin-Modus aktiv</span>
-        <span className="admin-bar-separator">|</span>
-        <Link href="/admin" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Dashboard-Übersicht</Link>
-        <Link href="/admin/news" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>News erstellen</Link>
-        <Link href="/admin/events" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Termin erstellen</Link>
       </div>
       <div>
         <form action={logoutAction}>
