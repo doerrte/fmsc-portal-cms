@@ -153,6 +153,8 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
         display: 'flex',
         flexDirection: 'column',
         userSelect: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTouchCallout: 'none',
         touchAction: 'none' // Strict touch behavior needed for pointer events
       }}
     >
