@@ -101,7 +101,7 @@ const NewsClient = ({ news }: { news: any[] }) => {
 
       <Footer />
 
-      <style jsx>{`
+      <style jsx global>{`
         .news-page {
           min-height: 100vh;
           background: var(--background);

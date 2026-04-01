@@ -301,7 +301,7 @@ const Navbar = () => {
           gap: 14px;
           padding: 14px 18px;
           border-radius: 14px;
-          color: rgba(255, 255, 255, 0.8) !important;
+          color: var(--foreground) !important;
           font-size: 0.95rem;
           font-weight: 600;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
