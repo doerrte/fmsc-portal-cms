@@ -138,19 +138,57 @@ export default function BauberichteAdminPage() {
           {editingItem.updates && editingItem.updates.length > 0 && (
             <div style={{ marginTop: '3rem' }}>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Bisherige Logbuch-Einträge</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 {editingItem.updates.map(update => (
                   <div key={update.id} style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginBottom: '0.8rem', fontWeight: 'bold' }}>Eintrag vom {update.date}</p>
-                    <p style={{ marginBottom: '1rem', whiteSpace: 'pre-wrap' }}>{update.text}</p>
-                    {update.images && update.images.length > 0 && (
-                      <p style={{ fontSize: '0.8rem', color: '#4ade80' }}>✓ {update.images.length} Bilder in diesem Eintrag</p>
-                    )}
-                    <form action={async (fd) => { await saveBaubericht(fd); window.location.reload(); }} style={{ marginTop: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', fontWeight: 'bold' }}>Eintrag vom {update.date}</p>
+                      
+                      <form action={async (fd) => { await saveBaubericht(fd); window.location.reload(); }}>
+                        <input type="hidden" name="id" value={editingItem.id} />
+                        <input type="hidden" name="updateId" value={update.id} />
+                        <input type="hidden" name="action" value="deleteUpdate" />
+                        <button type="submit" style={{ background: 'transparent', border: '1px solid rgba(239,68,68,0.5)', color: '#ef4444', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}>Ganzen Eintrag komplett verwerfen</button>
+                      </form>
+                    </div>
+
+                    <form action={async (fd) => { await saveBaubericht(fd); window.location.reload(); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <input type="hidden" name="id" value={editingItem.id} />
                       <input type="hidden" name="updateId" value={update.id} />
-                      <input type="hidden" name="action" value="deleteUpdate" />
-                      <button type="submit" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer' }}>Eintrag verwerfen</button>
+                      <input type="hidden" name="action" value="editUpdate" />
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#567eb6' }}>Text bearbeiten</label>
+                        <textarea name="updateText" defaultValue={update.text} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'white', minHeight: '100px' }} required />
+                      </div>
+
+                      {update.images && update.images.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#567eb6' }}>Bestehende Bilder (Klicke auf X zum Löschen)</label>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                            {update.images.map((imgUrl, imgIdx) => (
+                              <div key={imgIdx} style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.2)' }}>
+                                <img src={imgUrl} alt="Update" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <button 
+                                  formAction={async (fd) => { fd.set('imageUrl', imgUrl); fd.set('action', 'deleteUpdateImage'); await saveBaubericht(fd); window.location.reload(); }}
+                                  style={{ position: 'absolute', top: '4px', right: '4px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
+                                >
+                                  X
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px' }}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Zusätzliche Bilder zu diesem Eintrag hochladen</label>
+                        <input type="file" name="imageFiles" accept="image/*" multiple style={{ padding: '8px', borderRadius: '6px', border: '1px dashed rgba(255,255,255,0.2)', color: 'white', fontSize: '0.8rem' }} />
+                      </div>
+
+                      <div style={{ alignSelf: 'flex-start' }}>
+                        <button type="submit" style={{ background: '#567eb6', color: 'white', padding: '8px 16px', borderRadius: '6px', border: 'none', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer' }}>Text & neue Bilder speichern</button>
+                      </div>
                     </form>
                   </div>
                 ))}
