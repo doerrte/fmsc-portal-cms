@@ -1,16 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Die Middleware wird auf jedem Seitenaufruf aufgerufen
 export function middleware(request: NextRequest) {
   const url = request.nextUrl;
+  const authCookie = request.cookies.get('auth')?.value;
   
-  // Schütze alles unterhalb von /admin
+  // Parse Cookie payload (e.g. "uuid|admin" or "uuid|member")
+  const role = authCookie ? authCookie.split('|')[1] : null;
+
   if (url.pathname.startsWith('/admin')) {
-    // Überprüfe, ob der "Opa-Keks" existiert
-    const authCookie = request.cookies.get('auth');
-    if (!authCookie || authCookie.value !== 'admin') {
-      // Wenn nicht eingeloggt, schicke ihn zum Login
+    if (!role || role !== 'admin') {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
+  if (url.pathname.startsWith('/dashboard')) {
+    if (!role || (role !== 'admin' && role !== 'member')) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
@@ -18,7 +23,6 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Definiere die Pfade, auf die die Middleware anspringen soll
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/dashboard/:path*'],
 };

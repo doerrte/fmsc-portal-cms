@@ -7,6 +7,7 @@ import { Settings, Newspaper, Calendar, Users, Info, Image as ImageIcon, FileTex
 
 const tileIcons: Record<string, React.ReactNode> = {
   website: <Home size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
+  members: <Users size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
   settings: <Settings size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
   news: <Newspaper size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
   events: <Calendar size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
@@ -20,6 +21,7 @@ const tileIcons: Record<string, React.ReactNode> = {
 
 const DEFAULT_TILES = [
   { id: 'website', title: 'Zur Webseite', desc: 'Verlasse den Admin-Bereich und öffne die reguläre Besucher-Ansicht.', href: '/', btn: 'Webseite öffnen' },
+  { id: 'members', title: 'Mitglieder verwalten', desc: 'Lege neue Accounts an und editiere Passwörter.', href: '/admin/members', btn: 'Nutzer verwalten' },
   { id: 'settings', title: 'Startseite anpassen', desc: 'Ändere die Texte, die Besucher direkt auf der Startseite sehen.', href: '/admin/settings', btn: 'Texte ändern' },
   { id: 'news', title: 'News verwalten', desc: 'Schreibe neue Meldungen oder bearbeite alte News-Einträge.', href: '/admin/news', btn: 'Zu den News' },
   { id: 'events', title: 'Termine verwalten', desc: 'Plane den Vereinskalender und kündige Events an.', href: '/admin/events', btn: 'Zum Kalender' },

@@ -16,11 +16,16 @@ const LoginPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
+    formData.append('email', email);
     formData.append('password', password);
     const res = await loginAction(formData);
     if (res.success) {
-      router.push('/admin'); // Springe direkt ins Admin-Dashboard!
-      router.refresh();
+      if (res.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+      setTimeout(() => router.refresh(), 100);
     } else {
       setError(res.error || 'Fehler beim Einloggen');
     }

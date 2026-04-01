@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Plane, Calendar, Clock, Plus, History, LogOut, LayoutDashboard, Database } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { logoutAction } from '@/app/login/actions';
 
 interface FlightRecord {
   id: string;
@@ -57,7 +58,11 @@ const DashboardPage = () => {
           <nav className="sidebar-nav">
             <a href="#" className="nav-item active"><Database size={18} /> Flugbuch</a>
             <a href="#" className="nav-item"><History size={18} /> Meine Flüge</a>
-            <a href="#" className="nav-item logout"><LogOut size={18} /> Abmelden</a>
+            <form action={logoutAction} style={{ margin: 0, padding: 0 }}>
+              <button type="submit" className="nav-item logout" style={{ background: 'transparent', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <LogOut size={18} /> Abmelden
+              </button>
+            </form>
           </nav>
         </aside>
 

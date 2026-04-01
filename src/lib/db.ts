@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { supabase } from './supabase';
+import crypto from 'crypto';
+
+export function hashPassword(password: string): string {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 export interface Settings {
   homepageHeroTitle: string;
@@ -111,6 +116,15 @@ export interface InfoSettings {
   docs: InfoDocItem[];
 }
 
+export interface MemberItem {
+  id: string;
+  email: string;
+  name: string;
+  passwordHash: string;
+  role: 'admin' | 'member';
+  createdAt: string;
+}
+
 export interface DbSchema {
   settings: Settings;
   about: AboutSettings;
@@ -122,6 +136,7 @@ export interface DbSchema {
   bauberichte: BauberichtItem[];
   archiv_docs: ArchiveDoc[];
   archiv_milestones: ArchiveMilestone[];
+  members: MemberItem[];
 }
 
 const dbPath = path.join(process.cwd(), 'data.json');
@@ -162,6 +177,7 @@ export async function getDbData(): Promise<DbSchema> {
     if (!data.gallery) data.gallery = [];
     if (!data.archiv_docs) data.archiv_docs = [];
     if (!data.archiv_milestones) data.archiv_milestones = [];
+    if (!data.members) data.members = [];
     
     if (!data.bauberichte) {
       data.bauberichte = [];
@@ -227,6 +243,7 @@ function createEmptyDb(): DbSchema {
       gallery: [],
       bauberichte: [],
       archiv_docs: [],
-      archiv_milestones: []
+      archiv_milestones: [],
+      members: []
     };
 }
