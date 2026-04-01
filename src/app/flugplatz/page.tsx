@@ -127,7 +127,7 @@ const FlugplatzPage = () => {
 
       <style jsx>{`
         .flugplatz-page {
-          background: #0a0c10;
+          background: var(--background);
           color: white;
           min-height: 100vh;
         }
@@ -293,7 +293,7 @@ const FlugplatzPage = () => {
           position: absolute;
           bottom: 20px;
           left: 20px;
-          background: rgba(10, 12, 16, 0.8);
+          background: var(--glass-bg);
           padding: 10px 15px;
           border-radius: 10px;
           font-family: monospace;

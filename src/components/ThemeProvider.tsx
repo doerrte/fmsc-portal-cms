@@ -16,19 +16,25 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Permanently set to dark mode
-  const [theme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('dark');
   const [primaryColor, setPrimaryColor] = useState('#567eb6');
   const [heroImage, setHeroImage] = useState('/hero-plane.png');
 
   useEffect(() => {
-    // Always apply dark theme attribute to document
-    document.documentElement.setAttribute('data-theme', 'dark');
+    const saved = localStorage.getItem('fmsc_theme');
+    if (saved === 'light' || saved === 'dark') {
+      setTheme(saved as Theme);
+      document.documentElement.setAttribute('data-theme', saved);
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
   }, []);
 
   const toggleTheme = () => {
-    // No-op: Toggle is disabled as per user request
-    console.log('Theme toggle is disabled. Application is locked to Dark Mode.');
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('fmsc_theme', nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
   };
 
   return (

@@ -171,7 +171,7 @@ const DashboardPage = () => {
       <style jsx>{`
         .dashboard-page {
           min-height: 100vh;
-          background: #0a0c10;
+          background: var(--background);
         }
 
         .dashboard-container {

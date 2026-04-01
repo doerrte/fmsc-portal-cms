@@ -104,7 +104,7 @@ const NewsClient = ({ news }: { news: any[] }) => {
       <style jsx>{`
         .news-page {
           min-height: 100vh;
-          background: #0a0c10;
+          background: var(--background);
         }
 
         .news-hero {

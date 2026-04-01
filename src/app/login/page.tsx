@@ -80,7 +80,7 @@ const LoginPage = () => {
       <style jsx>{`
         .login-page {
           min-height: 100vh;
-          background: #0a0c10;
+          background: var(--background);
           display: flex;
           flex-direction: column;
         }

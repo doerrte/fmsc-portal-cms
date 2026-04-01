@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Plane, User, ChevronDown, LayoutDashboard, Info, Users, MapPin, Calendar, MessageSquare, Newspaper, Image, FileText, Archive, PlayCircle } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, Info, Users, MapPin, Calendar, MessageSquare, Newspaper, Image, FileText, Archive, PlayCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -132,6 +133,8 @@ const Navbar = () => {
             <Link href="/info" className={`nav-link ${pathname === '/info' ? 'active' : ''}`}>Infos</Link>
             <Link href="/contact" className={`nav-link ${pathname === '/contact' ? 'active' : ''}`}>Kontakt</Link>
 
+            <ThemeToggle />
+
             <Link href="/login" className="login-btn">
               <LayoutDashboard size={18} />
               <span>Intern</span>
@@ -149,6 +152,9 @@ const Navbar = () => {
           </select>
           <ChevronDown className="select-icon" size={20} />
         </div>
+        <div className="mobile-toggle">
+          <ThemeToggle />
+        </div>
       </div>
 
       <style jsx>{`
@@ -165,9 +171,9 @@ const Navbar = () => {
 
         .navbar.scrolled {
           height: 70px;
-          background: rgba(10, 12, 16, 0.9);
+          background: var(--glass-bg);
           backdrop-filter: blur(20px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          border-bottom: 1px solid var(--card-border);
         }
 
         .nav-content {
@@ -272,8 +278,8 @@ const Navbar = () => {
           display: flex !important;
           flex-direction: column !important;
           gap: 6px;
-          border: 1px solid rgba(255, 255, 255, 0.12) !important;
-          background: rgba(10, 12, 16, 0.9) !important;
+          border: 1px solid var(--card-border) !important;
+          background: var(--card-bg) !important;
           backdrop-filter: blur(30px) !important;
           -webkit-backdrop-filter: blur(30px) !important;
           z-index: 10000;
@@ -288,7 +294,7 @@ const Navbar = () => {
           transform: translateX(-50%);
           border-left: 10px solid transparent;
           border-right: 10px solid transparent;
-          border-bottom: 10px solid rgba(255, 255, 255, 0.12);
+          border-bottom: 10px solid var(--card-border);
         }
 
         :global(.dropdown-item) {
@@ -315,7 +321,8 @@ const Navbar = () => {
 
         :global(.dropdown-item svg) {
           transition: transform 0.3s ease;
-          color: rgba(255, 255, 255, 0.3);
+          color: var(--foreground);
+          opacity: 0.5;
           flex-shrink: 0;
         }
 
@@ -383,6 +390,25 @@ const Navbar = () => {
           transform: translateY(-50%);
           pointer-events: none;
           color: #567eb6;
+        }
+
+        .mobile-toggle {
+          background: var(--card-bg);
+          border: 1px solid var(--card-border);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 5px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mobile-nav-wrapper {
+          position: fixed;
+          bottom: 1.5rem; left: 1.5rem; right: 1.5rem;
+          z-index: 2000;
+          display: flex;
+          gap: 10px;
         }
       `}</style>
     </>

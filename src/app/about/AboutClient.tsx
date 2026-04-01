@@ -128,7 +128,7 @@ const AboutClient = ({ about }: { about: any }) => {
 
       <style jsx>{`
         .about-page {
-          background: #0a0c10;
+          background: var(--background);
           color: white;
           min-height: 100vh;
           overflow-x: hidden;

@@ -126,7 +126,7 @@ export default function InfoClient({ info }: { info: InfoSettings }) {
 
       <style jsx>{`
         .info-page {
-          background: #0a0c10;
+          background: var(--background);
           color: white;
           min-height: 100vh;
         }

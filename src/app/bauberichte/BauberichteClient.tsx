@@ -139,7 +139,7 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
       <Footer />
 
       <style jsx>{`
-        .reports-page { background: #0a0c10; color: white; min-height: 100vh; }
+        .reports-page { background: var(--background); color: white; min-height: 100vh; }
 
         .reports-hero {
           position: relative; height: 50vh; min-height: 400px; display: flex; align-items: center;

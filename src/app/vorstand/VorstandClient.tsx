@@ -100,7 +100,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
       <style jsx>{`
         .vorstand-page {
-          background: #0a0c10;
+          background: var(--background);
           color: white;
           min-height: 100vh;
         }

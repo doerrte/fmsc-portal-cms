@@ -141,7 +141,7 @@ const ArchiveClient = ({ docs, milestones }: { docs: ArchiveDoc[], milestones: A
       <Footer />
 
       <style jsx>{`
-        .archive-page { background: #0a0c10; color: white; min-height: 100vh; }
+        .archive-page { background: var(--background); color: white; min-height: 100vh; }
 
         .archive-hero {
           position: relative; height: 50vh; min-height: 400px; display: flex; align-items: center;
