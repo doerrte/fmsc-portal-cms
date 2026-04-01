@@ -9,22 +9,10 @@ export default async function AdminBar() {
   if (!isAdmin) return null;
 
   return (
-    <div style={{
-      background: '#0f172a',
-      color: '#fff',
-      padding: '12px 24px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      borderBottom: '3px solid #f97316',
-      position: 'sticky',
-      top: 0,
-      zIndex: 99999,
-      fontFamily: 'sans-serif'
-    }}>
-      <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+    <div className="admin-bar">
+      <div className="admin-bar-links">
         <span style={{ fontWeight: '900', color: '#f97316', fontSize: '1.1rem' }}>🛠️ Admin-Modus aktiv</span>
-        <span style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>
+        <span className="admin-bar-separator">|</span>
         <Link href="/admin" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Dashboard-Übersicht</Link>
         <Link href="/admin/news" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>News erstellen</Link>
         <Link href="/admin/events" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Termin erstellen</Link>

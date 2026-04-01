@@ -4,9 +4,9 @@ import { Settings, Newspaper, Calendar, Home, Image as ImageIcon, FileText, Arch
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: '#0a0c10', color: 'white' }}>
-      <aside style={{ width: '250px', background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
-        <h2 style={{ marginBottom: '2rem', fontSize: '1.5rem', fontWeight: 'bold' }}>FMSC Panel</h2>
+    <div className="admin-layout">
+      <aside className="admin-sidebar">
+        <h2>FMSC Panel</h2>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <Link href="/admin" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>
             <Home size={18} /> Übersicht
@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </nav>
       </aside>
-      <main style={{ flex: 1, padding: '3rem', overflowY: 'auto' }}>
+      <main className="admin-main">
         {children}
       </main>
     </div>
