@@ -201,8 +201,8 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
         }
         .btn-pdf-download:hover { background: rgba(34, 197, 94, 0.2); transform: translateY(-2px); }
 
-        .images-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-        .report-grid-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+        .images-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+        .report-grid-img { width: 100%; height: auto; max-height: 600px; object-fit: contain; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
 
 
         .submit-cta { 
