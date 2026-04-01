@@ -272,7 +272,7 @@ const Navbar = () => {
           width: 280px;
           padding: 10px;
           border-radius: 20px;
-          box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(86, 126, 182, 0.1);
+          box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.2), 0 0 20px rgba(86, 126, 182, 0.05);
           display: flex !important;
           flex-direction: column !important;
           gap: 6px;
@@ -350,11 +350,12 @@ const Navbar = () => {
           position: fixed;
           bottom: 1.5rem; left: 1.5rem; right: 1.5rem;
           z-index: 2000;
-          display: block;
+          display: flex;
+          gap: 10px;
         }
 
         @media (min-width: 1024px) {
-          .mobile-nav-wrapper { display: none; }
+          .mobile-nav-wrapper { display: none !important; }
         }
 
         .select-container {
@@ -362,15 +363,15 @@ const Navbar = () => {
           width: 100%;
           max-width: 500px;
           margin: 0 auto;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
           border-radius: 16px;
         }
 
         .mobile-select {
           appearance: none;
-          background: rgba(20, 25, 35, 0.9);
+          background: var(--card-bg);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          border: 1px solid var(--card-border);
           color: var(--foreground);
           padding: 14px 20px;
           border-radius: 16px;
@@ -399,14 +400,6 @@ const Navbar = () => {
           justify-content: center;
           padding: 0 5px;
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-        
-        .mobile-nav-wrapper {
-          position: fixed;
-          bottom: 1.5rem; left: 1.5rem; right: 1.5rem;
-          z-index: 2000;
-          display: flex;
-          gap: 10px;
         }
       `}</style>
     </>

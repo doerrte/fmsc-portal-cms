@@ -13,6 +13,8 @@
   --primary-hover: #45689a;
   --secondary: #e2e8f0; 
   --accent: #c00000;
+  --status-clear: #15803d;
+  --status-caution: #dc2626;
   
   --card-bg: rgba(255, 255, 255, 0.7);
   --card-border: rgba(15, 23, 42, 0.1);
@@ -36,6 +38,8 @@
   --hero-gradient-end: transparent;
   --logo-filter: invert(0);
   
+  --status-clear: #4ade80;
+  --status-caution: #f87171;
   --card-bg: rgba(15, 23, 42, 0.4);
   --card-border: rgba(255, 255, 255, 0.08);
   --glass-bg: rgba(10, 12, 16, 0.7);

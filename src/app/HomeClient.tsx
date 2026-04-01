@@ -154,7 +154,7 @@ export default function HomeClient({ data }: { data: any }) {
           font-size: 2.5rem;
           font-weight: 800;
           margin-bottom: 0.5rem;
-          background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.4) 100%);
+          background: linear-gradient(135deg, var(--foreground) 0%, var(--text-tertiary) 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
@@ -162,8 +162,8 @@ export default function HomeClient({ data }: { data: any }) {
         .news-teaser {
           padding: 3rem;
           border-radius: 32px;
-          background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, rgba(30, 41, 59, 0.5) 100%);
-          border: 1px solid rgba(251, 146, 60, 0.1);
+          background: linear-gradient(135deg, rgba(86, 126, 182, 0.05) 0%, var(--glass-bg) 100%);
+          border: 1px solid var(--card-border);
         }
 
         .teaser-tag {

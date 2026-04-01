@@ -517,8 +517,8 @@ const LiveWeather = () => {
           text-align: center;
         }
 
-        .status-banner.clear { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
-        .status-banner.caution { background: rgba(220, 38, 38, 0.1); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.2); }
+        .status-banner.clear { background: rgba(34, 197, 94, 0.1); color: var(--status-clear); border: 1px solid rgba(34, 197, 94, 0.2); }
+        .status-banner.caution { background: rgba(220, 38, 38, 0.1); color: var(--status-caution); border: 1px solid rgba(220, 38, 38, 0.2); }
 
         .weather-skeleton {
           height: 480px;
