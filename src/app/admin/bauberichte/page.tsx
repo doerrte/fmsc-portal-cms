@@ -91,11 +91,6 @@ export default function BauberichteAdminPage() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontWeight: 'bold' }}>Projekt-Beschreibung</label>
-              <textarea name="desc" defaultValue={editingItem.desc} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', minHeight: '120px' }} required />
-            </div>
-
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Baubericht als PDF (Optional)</label>
@@ -105,11 +100,21 @@ export default function BauberichteAdminPage() {
                   accept=".pdf"
                   style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} 
                 />
-                {editingItem.pdfUrl && <p style={{ fontSize: '0.8rem', color: '#4ade80' }}>✓ PDF vorhanden: <a href={editingItem.pdfUrl} target="_blank" rel="noreferrer" style={{ color: '#4ade80', textDecoration: 'underline' }}>Ansehen</a></p>}
+                {editingItem.pdfUrl && <p style={{ fontSize: '0.8rem', color: '#4ade80' }}>✓ PDF vorhanden</p>}
+              </div>
+            </div>
+
+            <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem', color: '#f97316' }}>Neuen Logbuch-Eintrag hinzufügen</h3>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Erzähle von den neuesten Baufortschritten und lade direkt passende Bilder dazu hoch.</p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                <label style={{ fontWeight: 'bold' }}>Text für das Update</label>
+                <textarea name="newUpdateText" placeholder="Was gibt es Neues?..." style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white', minHeight: '120px' }} />
               </div>
 
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: 'bold' }}>Bilder hinzufügen (Mehrfachauswahl möglich)</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontWeight: 'bold' }}>Bilder zum Update (Mehrfachauswahl möglich)</label>
                 <input 
                   type="file"
                   name="imageFiles" 
@@ -117,15 +122,6 @@ export default function BauberichteAdminPage() {
                   multiple
                   style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} 
                 />
-                {editingItem.images && editingItem.images.length > 0 && (
-                  <div style={{ marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.8rem', color: '#4ade80', marginBottom: '0.5rem' }}>✓ {editingItem.images.length} Bild(er) vorhanden</p>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#ef4444' }}>
-                      <input type="checkbox" name="clearImages" value="true" />
-                      Alle vorhandenen Bilder löschen & ersetzen?
-                    </label>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -138,6 +134,29 @@ export default function BauberichteAdminPage() {
               </button>
             </div>
           </form>
+
+          {editingItem.updates && editingItem.updates.length > 0 && (
+            <div style={{ marginTop: '3rem' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Bisherige Logbuch-Einträge</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {editingItem.updates.map(update => (
+                  <div key={update.id} style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginBottom: '0.8rem', fontWeight: 'bold' }}>Eintrag vom {update.date}</p>
+                    <p style={{ marginBottom: '1rem', whiteSpace: 'pre-wrap' }}>{update.text}</p>
+                    {update.images && update.images.length > 0 && (
+                      <p style={{ fontSize: '0.8rem', color: '#4ade80' }}>✓ {update.images.length} Bilder in diesem Eintrag</p>
+                    )}
+                    <form action={async (fd) => { await saveBaubericht(fd); window.location.reload(); }} style={{ marginTop: '1rem' }}>
+                      <input type="hidden" name="id" value={editingItem.id} />
+                      <input type="hidden" name="updateId" value={update.id} />
+                      <input type="hidden" name="action" value="deleteUpdate" />
+                      <button type="submit" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer' }}>Eintrag verwerfen</button>
+                    </form>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

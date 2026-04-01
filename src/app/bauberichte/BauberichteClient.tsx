@@ -7,6 +7,8 @@ import { FileText, Cpu, CheckCircle, Clock, ArrowRight, Gauge, Layers as LayersI
 import { motion } from 'framer-motion';
 import EditButton from '@/components/EditButton';
 
+import Link from 'next/link';
+
 const BauberichteClient = ({ items }: { items: any[] }) => {
   return (
     <main className="reports-page">
@@ -38,7 +40,9 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
       <section className="reports-section">
         <div className="container">
           <div className="reports-grid">
-            {items.map((report, index) => (
+            {items.map((report, index) => {
+              const latestUpdate = report.updates?.[0];
+              return (
               <motion.article 
                 key={report.id || index}
                 initial={{ opacity: 0, y: 30 }}
@@ -50,7 +54,7 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
                 <div className="report-header">
                   <div className="report-icon"><LayersIcon size={24} /></div>
                   <div className="header-text">
-                    <span className="report-date">{report.date}</span>
+                    <span className="report-date">{latestUpdate ? latestUpdate.date : report.date}</span>
                     <h2 className="report-title">{report.title}</h2>
                   </div>
                   <div className={`status-tag ${report.status.toLowerCase().replace(/ /g, '-')}`}>
@@ -59,7 +63,7 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
                 </div>
 
                 <div className="report-body">
-                  <p className="report-desc">{report.desc}</p>
+                  <p className="report-desc" style={{ whiteSpace: 'pre-wrap' }}>{latestUpdate ? latestUpdate.text : report.desc}</p>
                   
                   <div className="tech-specs">
                     <div className="spec">
@@ -95,11 +99,11 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
                     </div>
                   )}
 
-                  {report.images && report.images.length > 0 && (
+                  {latestUpdate?.images && latestUpdate.images.length > 0 && (
                     <div className="report-images-grid" style={{ gridColumn: '1 / -1', marginTop: '2rem' }}>
-                      <h4 style={{ fontSize: '0.85rem', color: '#567eb6', marginBottom: '1rem', fontWeight: 800, letterSpacing: '1px' }}>PROJEKTFOTOS</h4>
+                      <h4 style={{ fontSize: '0.85rem', color: '#567eb6', marginBottom: '1rem', fontWeight: 800, letterSpacing: '1px' }}>FOTO VOM LETZTEN UPDATE</h4>
                       <div className="images-grid">
-                        {report.images.map((imgUrl: string, idx: number) => (
+                        {latestUpdate.images.map((imgUrl: string, idx: number) => (
                           <img key={idx} src={imgUrl} alt={`Baubericht Foto ${idx+1}`} className="report-grid-img" />
                         ))}
                       </div>
@@ -108,12 +112,12 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
                 </div>
 
                 <div className="report-footer">
-                  <button className="btn-read-more">
+                  <Link href={`/bauberichte/${report.id}`} className="btn-read-more" style={{ textDecoration: 'none' }}>
                     VOLLSTÄNDIGES LOGBUCH <ArrowRight size={16} />
-                  </button>
+                  </Link>
                 </div>
               </motion.article>
-            ))}
+            )})}
             {items.length === 0 && (
               <div style={{ padding: '2rem', textAlign: 'center', gridColumn: '1 / -1' }}>
                 <p>Noch keine Projekte eingetragen. Klicke auf "Bauberichte verwalten", um welche hinzuzufügen.</p>

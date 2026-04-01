@@ -55,6 +55,13 @@ export interface GalleryItem {
   videoUrl?: string; // YouTube Link
 }
 
+export interface BauberichtUpdate {
+  id: string;
+  date: string;
+  text: string;
+  images?: string[];
+}
+
 export interface BauberichtItem {
   id: string;
   title: string;
@@ -62,10 +69,11 @@ export interface BauberichtItem {
   status: string;
   progress: number;
   date: string;
-  desc: string;
+  desc?: string; // Legacy
   tech: string;
   pdfUrl?: string; // Optional PDF file
-  images?: string[]; // Optional array of image URLs
+  images?: string[]; // Legacy
+  updates?: BauberichtUpdate[];
 }
 
 export interface ArchiveDoc {
@@ -152,9 +160,29 @@ export async function getDbData(): Promise<DbSchema> {
     if (!data.vorstand) data.vorstand = [];
     if (!data.events) data.events = [];
     if (!data.gallery) data.gallery = [];
-    if (!data.bauberichte) data.bauberichte = [];
     if (!data.archiv_docs) data.archiv_docs = [];
     if (!data.archiv_milestones) data.archiv_milestones = [];
+    
+    if (!data.bauberichte) {
+      data.bauberichte = [];
+    } else {
+      // Migrate legacy Bauberichte
+      data.bauberichte.forEach((b) => {
+        if (!b.updates) {
+          b.updates = [];
+          // If legacy desc exists, push it as the first update
+          if (b.desc) {
+            b.updates.push({
+              id: Date.now().toString() + Math.random().toString(),
+              date: b.date || new Date().toISOString().split('T')[0],
+              text: b.desc,
+              images: b.images || [],
+            });
+            // Don't delete desc immediately to avoid breaking if frontend updates aren't ready
+          }
+        }
+      });
+    }
     
     return data;
   } catch (error) {
