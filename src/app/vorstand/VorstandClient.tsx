@@ -113,12 +113,14 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
                 transition={{ delay: index * 0.05 }}
                 className="extended-card glass"
               >
-                <div className="ext-icon">
-                  <span className="monogram-small">{getInitials(member.name)}</span>
-                </div>
-                <div className="ext-info">
-                  <span className="ext-role active-role">{member.role}</span>
-                  <p className="ext-name">{member.name}</p>
+                <div className="card-top" style={{ flexDirection: 'column', textAlign: 'center', gap: '12px' }}>
+                  <div className="member-avatar" style={{ width: '56px', height: '56px' }}>
+                    <span className="monogram" style={{ fontSize: '1.2rem' }}>{getInitials(member.name)}</span>
+                  </div>
+                  <div className="member-info" style={{ alignItems: 'center' }}>
+                    <span className="member-role active-role" style={{ fontSize: '0.65rem' }}>{member.role}</span>
+                    <h3 className="member-name" style={{ fontSize: '1.15rem' }}>{member.name}</h3>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -218,7 +220,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
         .member-card {
           position: relative;
           padding: 2.5rem;
-          border-radius: 40px;
+          border-radius: 40px !important;
           background: var(--card-bg);
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
           display: flex;
@@ -227,14 +229,13 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
           transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
           backdrop-filter: blur(25px);
           overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: none !important;
         }
 
         .member-card:hover {
           transform: translateY(-8px);
           box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
-          background: rgba(255, 255, 255, 0.03);
-          border-color: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.05);
         }
 
         .president-card {
@@ -243,7 +244,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
           text-align: center;
           align-items: center;
           background: linear-gradient(135deg, var(--card-bg) 0%, rgba(86, 126, 182, 0.05) 100%) !important;
-          box-shadow: 0 20px 50px rgba(86, 126, 182, 0.15);
+          box-shadow: 0 20px 50px rgba(86, 126, 182, 0.15) !important;
         }
 
         .president-crown {
@@ -347,17 +348,21 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
         .extended-team-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
           gap: 1.5rem;
+          justify-content: center;
         }
 
         .extended-card {
           padding: 1.5rem;
-          border-radius: 30px;
+          border-radius: 40px !important;
           display: flex;
+          flex-direction: column;
           align-items: center;
-          gap: 15px;
-          border: 1px solid rgba(255,255,255,0.05);
+          justify-content: center;
+          text-align: center;
+          gap: 10px;
+          border: none !important;
           background: var(--card-bg);
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
           transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -366,34 +371,8 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
         .extended-card:hover {
           transform: translateY(-5px) scale(1.02);
           box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-          background: rgba(255, 255, 255, 0.03);
-          border-color: rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.05);
         }
-
-        .ext-icon {
-          width: 50px;
-          height: 50px;
-          background: rgba(86, 126, 182, 0.1);
-          border: 1px solid rgba(86, 126, 182, 0.2);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #567eb6;
-        }
-        
-        .monogram-small {
-          font-size: 1.2rem;
-          font-weight: 800;
-        }
-
-        .ext-info {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .ext-role { font-size: 0.65rem; font-weight: 800; color: rgba(255, 255, 255, 0.4); letter-spacing: 1px; }
-        .ext-name { font-weight: 700; font-size: 0.95rem; }
 
         .mt-12 { margin-top: 4rem; }
       `}</style>
