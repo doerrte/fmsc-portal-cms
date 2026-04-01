@@ -84,14 +84,13 @@ export default function AdminDashboard() {
 import { useRouter } from 'next/navigation';
 import { useDragControls } from 'framer-motion';
 import { useRef } from 'react';
+import { GripHorizontal } from 'lucide-react';
 
 function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
   const router = useRouter();
   const controls = useDragControls();
   const [isMobile, setIsMobile] = useState(false);
   const [isHolding, setIsHolding] = useState(false);
-  const [wasLongPressed, setWasLongPressed] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setIsMobile(window.matchMedia("(max-width: 768px)").matches);
@@ -100,46 +99,29 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handlePointerDown = (e: React.PointerEvent) => {
+  const handleDragInitiate = (e: React.PointerEvent) => {
     if (isMobile) {
-      setWasLongPressed(false);
       setIsHolding(true);
-      timerRef.current = setTimeout(() => {
-        setIsHolding(false);
-        setWasLongPressed(true); // Verhindert den späteren Klick
-        controls.start(e); // Trigger Framer Motion Drag!
-      }, 2000);
+      controls.start(e);
     }
   };
 
   const handlePointerUp = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    if (isHolding) {
-      setIsHolding(false);
-    }
+    setIsHolding(false);
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    if (isMobile && wasLongPressed) {
-      // Verhindere Klick, wenn die Kachel zuvor verschoben wurde
-      e.preventDefault();
-      return;
-    }
     router.push(tile.href);
   };
 
   return (
     <Reorder.Item 
       value={tile}
-      dragListener={false} // NIEMALS automatisch draggable (weder Desktop noch Mobile)
+      dragListener={false} // Nur über den Drag Handle verschiebbar
       dragControls={controls}
       whileDrag={{ scale: 1.05, zIndex: 10, cursor: 'grabbing', boxShadow: '0 25px 30px -5px rgba(0, 0, 0, 0.7)' }}
-      animate={isHolding ? { scale: 0.96, opacity: 0.8 } : { scale: 1, opacity: 1 }}
+      animate={isHolding ? { scale: 1.05, opacity: 0.9 } : { scale: 1, opacity: 1 }}
       transition={{ duration: 0.2 }}
-      onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
       onClick={handleClick}
@@ -152,14 +134,36 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
         cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column',
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
-        WebkitTouchCallout: 'none'
+        position: 'relative' // Für den Drag-Grip
       }}
     >
+      {/* Drag Handle - Nur auf Mobile sichtbar */}
+      {isMobile && (
+        <div 
+          onPointerDown={handleDragInitiate}
+          onClick={(e) => e.stopPropagation()} // Verhindert dass ein Klick auf den Grip die Seite öffnet
+          style={{
+            position: 'absolute',
+            top: '0',
+            right: '0',
+            padding: '1.5rem',
+            cursor: 'grab',
+            touchAction: 'none', // Erlaubt Dragging NUR auf diesem Element!
+            color: 'rgba(255,255,255,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'transparent',
+            zIndex: 20
+          }}
+        >
+          <GripHorizontal size={28} />
+        </div>
+      )}
+
       <div>
         {tileIcons[tile.id]}
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'white' }}>{tile.title}</h2>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'white', paddingRight: isMobile ? '2rem' : '0' }}>{tile.title}</h2>
         <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem', minHeight: '48px' }}>{tile.desc}</p>
       </div>
       <div style={{ marginTop: 'auto' }}>
