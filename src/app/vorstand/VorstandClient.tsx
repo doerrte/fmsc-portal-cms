@@ -71,9 +71,6 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
                   </div>
                 </div>
                 <p className="member-desc president-desc">{president.desc}</p>
-                <div className="card-footer" style={{ justifyContent: 'center', marginTop: 'auto' }}>
-                  <button className="contact-small premium-btn"><Mail size={16} /> Nachricht an den Präsidenten</button>
-                </div>
               </motion.div>
             </div>
           )}
@@ -98,9 +95,6 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
                   </div>
                 </div>
                 <p className="member-desc">{member.desc}</p>
-                <div className="card-footer">
-                  <button className="contact-small"><Mail size={14} /> Kontakt</button>
-                </div>
               </motion.div>
             ))}
           </div>
@@ -224,50 +218,32 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
         .member-card {
           position: relative;
           padding: 2.5rem;
-          border-radius: 24px;
+          border-radius: 40px;
           background: var(--card-bg);
-          border: 1px solid var(--card-border);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          backdrop-filter: blur(20px);
+          transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+          backdrop-filter: blur(25px);
           overflow: hidden;
-        }
-
-        .member-card::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: 24px;
-          padding: 2px;
-          background: linear-gradient(135deg, rgba(86, 126, 182, 0.5), transparent, transparent, rgba(192, 0, 0, 0.5));
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          opacity: 0;
-          transition: opacity 0.4s ease;
+          border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .member-card:hover {
           transform: translateY(-8px);
-          box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+          background: rgba(255, 255, 255, 0.03);
+          border-color: rgba(255, 255, 255, 0.2);
         }
 
-        .member-card:hover::before { opacity: 1; }
-
         .president-card {
-          border: none !important;
-          background: linear-gradient(135deg, var(--card-bg) 0%, rgba(86, 126, 182, 0.1) 100%) !important;
           width: 100%;
           max-width: 450px;
           text-align: center;
           align-items: center;
-        }
-
-        .president-card::before {
-          opacity: 1;
-          background: linear-gradient(135deg, #567eb6 0%, #c00000 100%) !important;
+          background: linear-gradient(135deg, var(--card-bg) 0%, rgba(86, 126, 182, 0.05) 100%) !important;
+          box-shadow: 0 20px 50px rgba(86, 126, 182, 0.15);
         }
 
         .president-crown {
@@ -369,50 +345,6 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
           z-index: 2;
         }
 
-        .card-footer {
-          margin-top: auto;
-          display: flex;
-          gap: 10px;
-          position: relative;
-          z-index: 2;
-        }
-
-        .contact-small {
-          background: rgba(255, 255, 255, 0.05);
-          color: var(--text-secondary);
-          padding: 10px 20px;
-          border-radius: 12px;
-          font-size: 0.85rem;
-          font-weight: 700;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          border: 1px solid var(--card-border);
-          transition: all 0.3s;
-          width: 100%;
-          justify-content: center;
-        }
-
-        .contact-small:hover { 
-          background: #567eb6; 
-          border-color: #567eb6; 
-          color: white; 
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(86, 126, 182, 0.3);
-        }
-        
-        .premium-btn {
-          background: linear-gradient(135deg, #567eb6 0%, #3b5a83 100%);
-          color: white;
-          border: none;
-          max-width: 250px;
-        }
-        
-        .premium-btn:hover {
-          background: linear-gradient(135deg, #6b93d1 0%, #4a72a5 100%);
-          box-shadow: 0 6px 15px rgba(86, 126, 182, 0.4);
-        }
-
         .extended-team-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -421,19 +353,21 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
         .extended-card {
           padding: 1.5rem;
-          border-radius: 20px;
+          border-radius: 30px;
           display: flex;
           align-items: center;
           gap: 15px;
-          border: 1px solid var(--card-border);
+          border: 1px solid rgba(255,255,255,0.05);
           background: var(--card-bg);
-          transition: transform 0.3s, box-shadow 0.3s;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+          transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         
         .extended-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-          border-color: rgba(86, 126, 182, 0.4);
+          transform: translateY(-5px) scale(1.02);
+          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+          background: rgba(255, 255, 255, 0.03);
+          border-color: rgba(255, 255, 255, 0.15);
         }
 
         .ext-icon {
