@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { getDbData, NewsItem } from '@/lib/db';
 import { saveNews } from './actions';
 
-export default async function NewsPage() {
+export default function NewsPage() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
