@@ -8,8 +8,9 @@ import { motion } from 'framer-motion';
 import EditButton from '@/components/EditButton';
 
 const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
-  const mainVorstand = vorstand.filter(v => v.type === 'main');
-  const extendedVorstand = vorstand.filter(v => v.type === 'extended');
+  const president = vorstand.find(v => v.role.toLowerCase().includes('sident'));
+  const mainVorstand = vorstand.filter(v => v.type === 'main' && v !== president);
+  const extendedVorstand = vorstand.filter(v => v.type === 'extended' && v !== president);
 
   return (
     <main className="vorstand-page">
@@ -43,6 +44,32 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
           <div className="section-header">
             <h2 className="title-gradient">Geschäftsführender Vorstand</h2>
           </div>
+
+          {president && (
+            <div className="president-wrapper" style={{ display: 'flex', justifyContent: 'center', marginBottom: '4rem' }}>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="member-card glass"
+                style={{ width: '100%', maxWidth: '400px', border: '2px solid #567eb6', boxShadow: '0 15px 30px rgba(86, 126, 182, 0.15)' }}
+              >
+                <div className="card-top">
+                  <div className="member-avatar" style={{ background: '#567eb6' }}>
+                    <Award size={32} style={{ color: 'white' }} />
+                  </div>
+                  <div className="member-info">
+                    <span className="member-role">{president.role}</span>
+                    <h3 className="member-name">{president.name}</h3>
+                  </div>
+                </div>
+                <p className="member-desc">{president.desc}</p>
+                <div className="card-footer" style={{ justifyContent: 'center', marginTop: '1rem' }}>
+                  <button className="contact-small"><Mail size={14} /> Nachricht</button>
+                </div>
+              </motion.div>
+            </div>
+          )}
 
           <div className="main-team-grid">
             {mainVorstand.map((member, index) => (
