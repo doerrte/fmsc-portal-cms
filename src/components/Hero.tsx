@@ -1,0 +1,254 @@
+'use client';
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Play, ArrowRight } from 'lucide-react';
+import EditButton from './EditButton';
+
+const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string, bgImage?: string }) => {
+  const imageUrl = bgImage || '/hero_modelflying_jet_cinematic_1774782875980.png';
+  return (
+    <section className="hero" style={{ background: `#020617 url('${imageUrl}') center/cover no-repeat` }}>
+      <div className="hero-overlay" />
+      <div className="hero-grid" />
+
+      <div className="container hero-container">
+        <div className="hero-branding">
+          <motion.img
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            src="/logo_clean.png?v=8"
+            alt="FMSC Logo v8"
+            className="official-logo block mx-auto lg:w-[1300px] h-auto"
+            style={{ width: '220px', maxWidth: '220px' }}
+          />
+        </div>
+
+        <div className="hero-content">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="hero-badge"
+          >
+            <span className="dot" />
+            Flugbetrieb Aktiv
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="hero-title"
+          >
+            {title || 'Faszination Modellflug in Königshoven'}
+            <EditButton href="/admin/settings" label="Titel bearbeiten" />
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="hero-description"
+          >
+            {subtitle || 'Willkommen beim FMSC Königshoven 1975 e.V. – Ihrem Verein für hochwertigen Modellflugsport und technisches Know-how in Bedburg.'}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="hero-actions"
+          >
+            <button className="btn-primary">
+              Jetzt Mitfliegen <ArrowRight size={20} />
+            </button>
+            <button className="btn-secondary">
+              < Play size={20} className="fill-current" /> Verein Entdecken
+            </button>
+          </motion.div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .hero {
+          position: relative;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+        }
+
+        .hero-branding {
+          grid-column: 1 / -1;
+          display: flex;
+          justify-content: center;
+          margin-bottom: 4rem;
+          width: 100%;
+          position: relative;
+          z-index: 20;
+        }
+
+        .official-logo {
+          transition: all 0.3s ease;
+          opacity: 0.95;
+        }
+
+        .official-logo:hover {
+          opacity: 1;
+          transform: translateY(-2px) scale(1.05);
+          filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+        }
+
+        @media (max-width: 1024px) {
+          .hero-branding { 
+            justify-content: center; 
+            margin-bottom: 2rem;
+            grid-column: 1 / -1;
+          }
+        }
+
+        .hero-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            to right,
+            rgba(2, 6, 23, 0.9) 0%,
+            rgba(2, 6, 23, 0.6) 40%,
+            transparent 100%
+          );
+        }
+
+        .hero-grid {
+          position: absolute;
+          inset: 0;
+          background-image: radial-gradient(rgba(86, 126, 182, 0.1) 1px, transparent 1px);
+          background-size: 40px 40px;
+          mask-image: linear-gradient(to bottom, white, transparent);
+        }
+
+        .hero-container {
+          position: relative;
+          z-index: 10;
+          display: grid;
+          grid-template-columns: 1.2fr 1fr;
+          gap: 4rem;
+          padding-top: 10px;
+        }
+
+        @media (max-width: 1024px) {
+          .hero-container {
+            grid-template-columns: 1fr;
+            text-align: center;
+            padding-top: 100px;
+          }
+          .hero-overlay {
+            background: rgba(2, 6, 23, 0.85);
+          }
+        }
+
+        .hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 255, 255, 0.05);
+          padding: 8px 16px;
+          border-radius: 99px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #567eb6;
+          font-weight: 700;
+          font-size: 0.85rem;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          margin-bottom: 2rem;
+        }
+
+        .dot {
+          width: 8px;
+          height: 8px;
+          background: #22c55e;
+          border-radius: 50%;
+          box-shadow: 0 0 10px #22c55e;
+        }
+
+        .hero-title {
+          font-size: 4.5rem;
+          font-weight: 900;
+          line-height: 1.1;
+          color: white;
+          margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+          .hero-title { font-size: 2.5rem; }
+        }
+
+        .highlight {
+          color: #567eb6;
+          position: relative;
+        }
+
+        .hero-description {
+          font-size: 1.25rem;
+          color: rgba(255, 255, 255, 0.6);
+          margin-bottom: 3rem;
+          max-width: 600px;
+        }
+
+        @media (max-width: 1024px) {
+          .hero-description { margin-inline: auto; font-size: 1.1rem; }
+        }
+
+        .hero-actions {
+          display: flex;
+          gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+          .hero-actions { justify-content: center; }
+        }
+
+        .btn-primary {
+          background: #567eb6;
+          color: white;
+          padding: 18px 36px;
+          border-radius: 16px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 1.1rem;
+          transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+          background: #45689a;
+          transform: translateY(-4px);
+          box-shadow: 0 12px 24px rgba(86, 126, 182, 0.3);
+        }
+
+        .btn-secondary {
+          background: rgba(255, 255, 255, 0.05);
+          color: white;
+          padding: 18px 36px;
+          border-radius: 16px;
+          font-weight: 700;
+          font-size: 1.1rem;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
+    </section>
+  );
+};
+
+export default Hero;

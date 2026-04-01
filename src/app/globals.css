@@ -1,0 +1,117 @@
+:root {
+  /* Default Theme (Light) */
+  --background: rgba(248, 250, 252, 0.85); /* Much more solid */
+  --foreground: #0f172a; /* Darker text */
+  
+  --primary: #567eb6; /* Club Blue */
+  --primary-hover: #45689a;
+  --secondary: #1e293b; 
+  --accent: #c00000; /* Club Red */
+  
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-border: rgba(0, 0, 0, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-blur: blur(25px);
+  
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --max-width: 1200px;
+  
+  --nav-height: 80px;
+  --bottom-nav-height: 70px;
+}
+
+[data-theme='dark'] {
+  --background: rgba(10, 12, 16, 0.3); /* Very Transparent dark */
+  --foreground: #f8fafc;
+  
+  --card-bg: rgba(15, 23, 42, 0.4);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(10, 12, 16, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
+  font-family: var(--font-sans);
+  background: #0a0c10;
+  color: var(--foreground);
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* Glassmorphism Utility */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--card-border);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1rem; /* Reduced from 1.5rem for better mobile fit */
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* Utility for Mobile */
+@media (max-width: 768px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+  body { padding-bottom: calc(var(--bottom-nav-height) + 1rem); }
+  .container { padding: 0 0.75rem; }
+}
+
+@media (min-width: 769px) {
+  .mobile-only { display: none !important; }
+}
+
+/* Common utilities for non-Tailwind environment */
+.relative { position: relative; }
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+.z-30 { z-index: 30; }
+
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--primary); opacity: 0.8; }
+.text-accent { color: var(--accent); }
+.text-muted { color: var(--foreground); opacity: 0.5; }
+
+section {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}

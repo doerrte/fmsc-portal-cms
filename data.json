@@ -1,0 +1,153 @@
+{
+  "settings": {
+    "homepageHeroTitle": "Willkommen beim FMSC Königshoven",
+    "homepageHeroSubtitle": "Erleben Sie die Faszination des Modellflugs im Herzen des Rheinlands",
+    "homepageTeaserTitle": "Aktuelles vom Platz",
+    "homepageTeaserSubtitle": "Was im Verein gerade passiert.",
+    "homepageHeroImage": "/uploads/1775056540097_hero-plane.png",
+    "homepageTeaserImage": "/uploads/1775056540099_hero_modelflying_jet_cinematic_1774782875980.png"
+  },
+  "about": {
+    "historyText1": "Der Flugsportclub Königshoven 1975 e.V. ist einer der traditionsreichsten Modellflugvereine im Rhein-Erft-Kreis. Gegründet von einer Handvoll begeisterter Modellflieger, hat sich der Verein über die Jahrzehnte zu einer Gemeinschaft von über 65 Mitgliedern entwickelt.",
+    "historyText2": "Unser Schwerpunkt liegt auf der Förderung des Modellflugsports in all seinen Facetten – vom klassischen Segelflug über Motorflug bis hin zu modernsten Elektro-Jets und Drohnen."
+  },
+  "news": [
+    {
+      "id": "1",
+      "title": "Frühjahrsputz & Saisoneröffnung 2026",
+      "date": "2026-04-12",
+      "tag": "Highlight",
+      "location": "Flugplatz Königshoven",
+      "content": "Am 12. April heißt es wieder: Gemeinsam anpacken! Wir bereiten unseren Flugplatz für die neue Flugsaison vor."
+    }
+  ],
+  "events": [
+    {
+      "id": "e1",
+      "title": "Frühjahrsputz & Platzpflege",
+      "date": "12. April 2026",
+      "time": "09:00 Uhr",
+      "location": "Flugplatz Königshovener Feld",
+      "category": "Arbeitsdienst",
+      "description": "Gemeinsames Vorbereiten der Startbahn und der Vereinshütte für die neue Saison."
+    },
+    {
+      "id": "e2",
+      "title": "Anfliegen 2026",
+      "date": "01. Mai 2026",
+      "time": "11:00 Uhr",
+      "location": "Flugplatz Königshovener Feld",
+      "category": "Flugtag",
+      "description": "Offizieller Start in die Flugsaison mit Grillen und Kaffeetrinken."
+    },
+    {
+      "id": "1775056755344",
+      "title": "Neuer Termin Titel",
+      "date": "01. April 2026",
+      "time": "9:00",
+      "location": "Bei mir vor dem PC",
+      "category": "Web-Bearbeitung implementiert",
+      "description": "Heute habe ich es so halb geschafft, eine online Bearbeitung der WBA zu erstellen. Ich denke mal, dass diese noch verbessert und ausgebaut wird. "
+    },
+    {
+      "id": "1775058574516",
+      "title": "Neuer Termin",
+      "date": "02.04.2026",
+      "time": "9:00",
+      "location": "Flugplatz Königshovener Feld",
+      "category": "Event",
+      "description": "Neu erstellter Termin"
+    }
+  ],
+  "vorstand": [
+    {
+      "id": "v1",
+      "name": "Armin Dörr",
+      "role": "Vorsitzender",
+      "desc": "Strategische Leitung und Repräsentation des Vereins.",
+      "type": "main"
+    },
+    {
+      "id": "v2",
+      "name": "Willi Moll",
+      "role": "Präsident",
+      "desc": "Ehrenamtliche Repräsentation und Traditionspflege.",
+      "type": "main"
+    },
+    {
+      "id": "v3",
+      "name": "Armin Nagel",
+      "role": "Schriftführer",
+      "desc": "Protokollführung, Korrespondenz und Verwaltung.",
+      "type": "main"
+    },
+    {
+      "id": "v4",
+      "name": "Axel Reitz",
+      "role": "Schatzmeister",
+      "desc": "Finanzplanung, Buchhaltung und Mitgliederverwaltung.",
+      "type": "main"
+    },
+    {
+      "id": "v5",
+      "name": "Hans-Peter Kraus",
+      "role": "Technikwart",
+      "desc": "",
+      "type": "extended"
+    },
+    {
+      "id": "v6",
+      "name": "Philipp Kraus",
+      "role": "Webmaster",
+      "desc": "",
+      "type": "extended"
+    }
+  ],
+  "gallery": [
+    {
+      "id": "1775057637286",
+      "type": "image",
+      "category": "Technik",
+      "title": "zweiter Test",
+      "url": "/uploads/1775057637286_bauberichte_modelflying_engineering_1774785384794.png",
+      "date": "Mai 2026",
+      "videoUrl": ""
+    },
+    {
+      "id": "1775057584192",
+      "type": "image",
+      "category": "Neue Kategorie",
+      "title": "Test",
+      "url": "/uploads/1775057584191_news_article_pilot_model_1774782897920.png",
+      "date": "April 2026",
+      "videoUrl": ""
+    }
+  ],
+  "bauberichte": [],
+  "archiv_docs": [
+    {
+      "id": "1775058127451",
+      "title": "Test-Bild",
+      "date": "April 2026",
+      "type": "Bild",
+      "url": "/uploads/1775058127451_hero-plane.png"
+    }
+  ],
+  "archiv_milestones": [
+    {
+      "id": "1775058499502",
+      "year": "2026",
+      "text": "Test.1\r\nTest.2"
+    },
+    {
+      "id": "1775058152623",
+      "year": "2025",
+      "text": "Beispieltext"
+    },
+    {
+      "id": "1775058222333",
+      "year": "1995",
+      "text": "Da wurde ich geboren"
+    }
+  ]
+}
