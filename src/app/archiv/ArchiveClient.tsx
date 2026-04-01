@@ -154,7 +154,7 @@ const ArchiveClient = ({ docs, milestones }: { docs: ArchiveDoc[], milestones: A
           .hero-title { font-size: 2.5rem !important; }
         }
 
-        .hero-image-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10, 12, 16, 0.4) 0%, rgba(10, 12, 16, 0.9) 100%); }
+        .hero-image-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, var(--hero-gradient-mid) 0%, var(--hero-gradient-start) 100%); }
 
         .tech-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(86, 126, 182, 0.1); color: #567eb6; padding: 8px 16px; border-radius: 99px; border: 1px solid rgba(86, 126, 182, 0.2); font-weight: 800; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 2rem; }
         .hero-title { font-size: 4rem; font-weight: 900; margin-bottom: 1rem; line-height: 1; }
@@ -191,7 +191,7 @@ const ArchiveClient = ({ docs, milestones }: { docs: ArchiveDoc[], milestones: A
         .section-header { display: flex; align-items: center; gap: 15px; margin-bottom: 2rem; }
         .title-gradient { 
           font-size: 1.8rem; font-weight: 800; 
-          background: linear-gradient(135deg, white 0%, rgba(255,255,255,0.4) 100%);
+          background: linear-gradient(135deg, var(--foreground) 0%, var(--text-tertiary) 100%);
           -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 

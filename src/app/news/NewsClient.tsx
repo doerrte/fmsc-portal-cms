@@ -121,11 +121,7 @@ const NewsClient = ({ news }: { news: any[] }) => {
         .hero-image-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(
-            to bottom,
-            rgba(10, 12, 16, 0.4) 0%,
-            rgba(10, 12, 16, 0.9) 100%
-          );
+          background: linear-gradient(to bottom, var(--hero-gradient-mid) 0%, var(--hero-gradient-start) 100%);
         }
 
         .tech-scan-lines {
@@ -199,7 +195,7 @@ const NewsClient = ({ news }: { news: any[] }) => {
         .title-gradient {
           font-size: 2rem;
           font-weight: 800;
-          background: linear-gradient(135deg, white 0%, rgba(255,255,255,0.4) 100%);
+          background: linear-gradient(135deg, var(--foreground) 0%, var(--text-tertiary) 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }

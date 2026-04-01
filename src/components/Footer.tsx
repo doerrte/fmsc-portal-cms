@@ -61,7 +61,7 @@ const Footer = () => {
 
       <style jsx>{`
         .footer {
-          background: #0f172a;
+          background: var(--card-bg);
           padding: 5rem 0 2rem;
           border-top: 1px solid var(--card-border);
           color: var(--text-secondary);
@@ -109,7 +109,7 @@ const Footer = () => {
         }
 
         .social-icon {
-          background: rgba(255,255,255,0.05);
+          background: var(--card-border);
           width: 40px;
           height: 40px;
           display: flex;
