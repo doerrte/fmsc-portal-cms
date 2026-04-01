@@ -34,14 +34,11 @@ export default function AdminDashboard() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Load from local storage on mount
     const savedOrderStr = localStorage.getItem('fmscAdminTilesOrder');
     if (savedOrderStr) {
       try {
         const savedIds: string[] = JSON.parse(savedOrderStr);
-        // Create full arrays mapped to saved Ids, keeping newly added tiles at the end
         const ordered = savedIds.map(id => DEFAULT_TILES.find(t => t.id === id)).filter(Boolean) as typeof DEFAULT_TILES;
-        // Append missing ones (if we add new features later)
         DEFAULT_TILES.forEach(dT => {
           if (!ordered.find(o => o.id === dT.id)) ordered.push(dT);
         });
@@ -59,7 +56,7 @@ export default function AdminDashboard() {
     localStorage.setItem('fmscAdminTilesOrder', JSON.stringify(orderIds));
   };
 
-  if (!isLoaded) return null; // Avoid hydration mismatch
+  if (!isLoaded) return null;
 
   return (
     <div>
@@ -67,7 +64,7 @@ export default function AdminDashboard() {
       <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.2rem' }}>
         Hier kannst du die Inhalte der Webseite ganz einfach ohne Code-Kenntnisse verwalten.
       </p>
-      <p style={{ color: '#f97316', marginBottom: '3rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Tipp: Kacheln können per Klick & Touch verschoben und sortiert werden.</p>
+      <p style={{ color: '#f97316', marginBottom: '3rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Tipp: Kacheln können per Klick geöffnet oder per langem Touch (2s gedrückt halten) am Handy verschoben werden.</p>
 
       <Reorder.Group 
         axis="y" 
@@ -77,41 +74,95 @@ export default function AdminDashboard() {
         as="ul"
       >
         {tiles.map((tile) => (
-          <Reorder.Item 
-            key={tile.id} 
-            value={tile}
-            whileDrag={{ scale: 1.05, zIndex: 10, cursor: 'grabbing', boxShadow: '0 25px 30px -5px rgba(0, 0, 0, 0.7)' }}
-            style={{ 
-              flex: '1 1 300px', 
-              background: 'rgba(255,255,255,0.05)', 
-              padding: '2rem', 
-              borderRadius: '16px', 
-              border: '1px solid rgba(255,255,255,0.1)',
-              cursor: 'grab',
-              display: 'flex',
-              flexDirection: 'column',
-              userSelect: 'none',
-              touchAction: 'none' // Important for mobile pointer dragging
-            }}
-          >
-            <div>
-              {tileIcons[tile.id]}
-              <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'white' }}>{tile.title}</h2>
-              <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem', minHeight: '48px' }}>{tile.desc}</p>
-            </div>
-            <div style={{ marginTop: 'auto' }}>
-              <Link 
-                href={tile.href} 
-                className="admin-tile-btn"
-                style={{ display: 'inline-block', background: '#f97316', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', cursor: 'pointer' }}
-                onPointerDown={(e) => e.stopPropagation()} // Stop drag when pressing button directly
-              >
-                {tile.btn}
-              </Link>
-            </div>
-          </Reorder.Item>
+          <TileItem key={tile.id} tile={tile} />
         ))}
       </Reorder.Group>
     </div>
+  );
+}
+
+import { useRouter } from 'next/navigation';
+import { useDragControls } from 'framer-motion';
+import { useRef } from 'react';
+
+function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
+  const router = useRouter();
+  const controls = useDragControls();
+  const [isMobile, setIsMobile] = useState(false);
+  const [isHolding, setIsHolding] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    const handleResize = () => setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (isMobile) {
+      setIsHolding(true);
+      timerRef.current = setTimeout(() => {
+        setIsHolding(false);
+        controls.start(e); // Trigger Framer Motion Drag!
+      }, 2000);
+    }
+  };
+
+  const handlePointerUp = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (isHolding) {
+      setIsHolding(false);
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Falls man nach Drag and Drop loslässt, verhindert FramerMotion meist Klicks nativ.
+    // Falls aber nur geklickt wurde, routen wir zur Seite.
+    router.push(tile.href);
+  };
+
+  return (
+    <Reorder.Item 
+      value={tile}
+      dragListener={!isMobile} // Disable auto-drag on mobile
+      dragControls={controls}
+      whileDrag={{ scale: 1.05, zIndex: 10, cursor: 'grabbing', boxShadow: '0 25px 30px -5px rgba(0, 0, 0, 0.7)' }}
+      animate={isHolding ? { scale: 0.96, opacity: 0.8 } : { scale: 1, opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      onClick={handleClick}
+      style={{ 
+        flex: '1 1 300px', 
+        background: 'rgba(255,255,255,0.05)', 
+        padding: '2rem', 
+        borderRadius: '16px', 
+        border: '1px solid rgba(255,255,255,0.1)',
+        cursor: 'pointer',
+        display: 'flex',
+        flexDirection: 'column',
+        userSelect: 'none',
+        touchAction: 'none' // Strict touch behavior needed for pointer events
+      }}
+    >
+      <div>
+        {tileIcons[tile.id]}
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'white' }}>{tile.title}</h2>
+        <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem', minHeight: '48px' }}>{tile.desc}</p>
+      </div>
+      <div style={{ marginTop: 'auto' }}>
+        <span 
+          className="admin-tile-btn"
+          style={{ display: 'inline-block', background: '#f97316', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
+        >
+          {tile.btn}
+        </span>
+      </div>
+    </Reorder.Item>
   );
 }
