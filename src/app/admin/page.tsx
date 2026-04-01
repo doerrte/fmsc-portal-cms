@@ -90,6 +90,7 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
   const controls = useDragControls();
   const [isMobile, setIsMobile] = useState(false);
   const [isHolding, setIsHolding] = useState(false);
+  const [wasLongPressed, setWasLongPressed] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -101,9 +102,11 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (isMobile) {
+      setWasLongPressed(false);
       setIsHolding(true);
       timerRef.current = setTimeout(() => {
         setIsHolding(false);
+        setWasLongPressed(true); // Verhindert den späteren Klick
         controls.start(e); // Trigger Framer Motion Drag!
       }, 2000);
     }
@@ -120,15 +123,18 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    // Falls man nach Drag and Drop loslässt, verhindert FramerMotion meist Klicks nativ.
-    // Falls aber nur geklickt wurde, routen wir zur Seite.
+    if (isMobile && wasLongPressed) {
+      // Verhindere Klick, wenn die Kachel zuvor verschoben wurde
+      e.preventDefault();
+      return;
+    }
     router.push(tile.href);
   };
 
   return (
     <Reorder.Item 
       value={tile}
-      dragListener={!isMobile} // Disable auto-drag on mobile
+      dragListener={false} // NIEMALS automatisch draggable (weder Desktop noch Mobile)
       dragControls={controls}
       whileDrag={{ scale: 1.05, zIndex: 10, cursor: 'grabbing', boxShadow: '0 25px 30px -5px rgba(0, 0, 0, 0.7)' }}
       animate={isHolding ? { scale: 0.96, opacity: 0.8 } : { scale: 1, opacity: 1 }}
