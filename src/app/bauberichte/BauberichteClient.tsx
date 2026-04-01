@@ -138,7 +138,7 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
 
       <Footer />
 
-      <style jsx>{`
+      <style jsx global>{`
         .reports-page { background: var(--background); color: var(--foreground); min-height: 100vh; }
 
         .reports-hero {
@@ -163,7 +163,7 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
 
         .reports-grid { display: flex; flex-direction: column; gap: 2rem; margin-bottom: 4rem; }
 
-        .report-card { border-radius: 32px; padding: 2.5rem; transition: transform 0.3s; }
+        .report-card { border-radius: 40px !important; padding: 2.5rem; transition: transform 0.3s; }
         .report-card:hover { transform: scale(1.01); border-color: #567eb6; }
 
         .report-header { display: flex; align-items: center; gap: 20px; margin-bottom: 2rem; position: relative; }

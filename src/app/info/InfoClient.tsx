@@ -124,7 +124,7 @@ export default function InfoClient({ info }: { info: InfoSettings }) {
 
       <Footer />
 
-      <style jsx>{`
+      <style jsx global>{`
         .info-page {
           background: var(--background);
           color: var(--foreground);
@@ -215,7 +215,7 @@ export default function InfoClient({ info }: { info: InfoSettings }) {
         }
 
         @media (max-width: 768px) {
-          .safety-card, .guest-card { padding: 1.5rem; border-radius: 24px; }
+          .safety-card, .guest-card { padding: 1.5rem; border-radius: 40px !important; }
         }
 
         .card-header {
@@ -244,7 +244,7 @@ export default function InfoClient({ info }: { info: InfoSettings }) {
           align-items: flex-start;
           padding: 1.2rem;
           background: rgba(255, 255, 255, 0.02);
-          border-radius: 20px;
+          border-radius: 40px !important;
           border: 1px solid var(--card-border);
         }
 

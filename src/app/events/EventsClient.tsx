@@ -106,7 +106,7 @@ const EventsClient = ({ events }: { events: any[] }) => {
 
       <Footer />
 
-      <style jsx>{`
+      <style jsx global>{`
         .events-page {
           background: var(--background);
           color: var(--foreground);
@@ -219,7 +219,7 @@ const EventsClient = ({ events }: { events: any[] }) => {
         }
 
         .event-card {
-          border-radius: 20px;
+          border-radius: 40px !important;
           display: grid;
           grid-template-columns: 8px 1fr auto;
           overflow: hidden;
@@ -322,7 +322,7 @@ const EventsClient = ({ events }: { events: any[] }) => {
         .info-notice {
           margin-top: 4rem;
           padding: 2rem;
-          border-radius: 24px;
+          border-radius: 40px !important;
           border-color: rgba(245, 158, 11, 0.2);
           display: flex;
           gap: 1.5rem;

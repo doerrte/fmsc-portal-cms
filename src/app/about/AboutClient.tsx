@@ -126,7 +126,7 @@ const AboutClient = ({ about }: { about: any }) => {
 
       <Footer />
 
-      <style jsx>{`
+      <style jsx global>{`
         .about-page {
           background: var(--background);
           color: var(--foreground);
@@ -215,7 +215,7 @@ const AboutClient = ({ about }: { about: any }) => {
         }
 
         @media (max-width: 768px) {
-          .history-text { padding: 1.5rem; border-radius: 24px; }
+          .history-text { padding: 1.5rem; border-radius: 40px !important; }
         }
 
         .card-header {
@@ -267,7 +267,7 @@ const AboutClient = ({ about }: { about: any }) => {
         }
 
         @media (max-width: 768px) {
-          .timeline-container { padding: 1.5rem; border-radius: 24px; }
+          .timeline-container { padding: 1.5rem; border-radius: 40px !important; }
         }
 
         .timeline-title {
@@ -336,7 +336,7 @@ const AboutClient = ({ about }: { about: any }) => {
 
         .value-card {
           padding: 2.5rem;
-          border-radius: 32px;
+          border-radius: 40px !important;
           text-align: center;
           display: flex;
           flex-direction: column;

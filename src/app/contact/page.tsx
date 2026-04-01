@@ -139,7 +139,7 @@ const ContactPage = () => {
 
       <Footer />
 
-      <style jsx>{`
+      <style jsx global>{`
         .contact-page {
           background: var(--background);
           color: var(--foreground);
@@ -227,7 +227,7 @@ const ContactPage = () => {
         }
 
         @media (max-width: 768px) {
-          .contact-form-container { padding: 1.5rem; border-radius: 24px; }
+          .contact-form-container { padding: 1.5rem; border-radius: 40px !important; }
         }
 
         .card-header {
@@ -353,7 +353,7 @@ const ContactPage = () => {
 
         .map-preview {
           position: relative;
-          border-radius: 20px;
+          border-radius: 40px !important;
           overflow: hidden;
           margin-top: 1rem;
           border: 1px solid var(--card-border);
@@ -375,7 +375,7 @@ const ContactPage = () => {
 
         .guest-flyer-cta {
           padding: 2rem;
-          border-radius: 24px;
+          border-radius: 40px !important;
           border-color: rgba(34, 197, 94, 0.2);
           display: flex;
           align-items: center;

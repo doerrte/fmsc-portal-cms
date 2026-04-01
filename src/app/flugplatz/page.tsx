@@ -125,7 +125,7 @@ const FlugplatzPage = () => {
 
       <Footer />
 
-      <style jsx>{`
+      <style jsx global>{`
         .flugplatz-page {
           background: var(--background);
           color: var(--foreground);
@@ -205,7 +205,7 @@ const FlugplatzPage = () => {
 
         .stat-card {
           padding: 2rem;
-          border-radius: 24px;
+          border-radius: 40px !important;
           display: flex;
           align-items: flex-start;
           gap: 20px;
@@ -262,7 +262,7 @@ const FlugplatzPage = () => {
         }
 
         @media (max-width: 768px) {
-          .visual-card { padding: 1.5rem; border-radius: 24px; }
+          .visual-card { padding: 1.5rem; border-radius: 40px !important; }
         }
 
         .card-header {
@@ -281,7 +281,7 @@ const FlugplatzPage = () => {
 
         .visual-media {
           position: relative;
-          border-radius: 20px;
+          border-radius: 40px !important;
           overflow: hidden;
           border: 1px solid var(--card-border);
           height: 350px;
@@ -316,7 +316,7 @@ const FlugplatzPage = () => {
 
         .feature-item {
           padding: 1.5rem;
-          border-radius: 24px;
+          border-radius: 40px !important;
           display: flex;
           gap: 20px;
           align-items: center;
@@ -340,7 +340,7 @@ const FlugplatzPage = () => {
 
         .drone-ready-badge {
           padding: 1.5rem;
-          border-radius: 24px;
+          border-radius: 40px !important;
           display: flex;
           align-items: center;
           gap: 20px;
