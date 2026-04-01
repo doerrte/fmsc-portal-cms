@@ -4,7 +4,8 @@ import { logoutAction } from '@/app/login/actions';
 
 export default async function AdminBar() {
   const cookieStore = await cookies();
-  const isAdmin = cookieStore.get('auth')?.value === 'admin';
+  const authCookie = cookieStore.get('auth')?.value;
+  const isAdmin = authCookie ? authCookie.split('|')[1] === 'admin' : false;
 
   if (!isAdmin) return null;
 
