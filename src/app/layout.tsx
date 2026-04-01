@@ -44,7 +44,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const isAdmin = cookieStore.get("auth")?.value === "admin";
+  const authCookie = cookieStore.get("auth")?.value;
+  const isAdmin = authCookie ? authCookie.split('|')[1] === 'admin' : false;
   return (
     <html lang="de" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>

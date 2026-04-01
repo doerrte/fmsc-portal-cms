@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Reorder } from 'framer-motion';
 import { Settings, Newspaper, Calendar, Users, Info, Image as ImageIcon, FileText, Archive, Home } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const tileIcons: Record<string, React.ReactNode> = {
   website: <Home size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
@@ -64,7 +65,10 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Willkommen im Admin-Bereich</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: 0 }}>Willkommen im Admin-Bereich</h1>
+        <ThemeToggle />
+      </div>
       <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>
         Hier kannst du die Inhalte der Webseite ganz einfach ohne Code-Kenntnisse verwalten.
       </p>
@@ -131,10 +135,10 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
       onClick={handleClick}
       style={{ 
         flex: '1 1 300px', 
-        background: 'rgba(255,255,255,0.05)', 
+        background: 'var(--card-bg)', 
         padding: '2rem', 
         borderRadius: '16px', 
-        border: '1px solid rgba(255,255,255,0.1)',
+        border: '1px solid var(--card-border)',
         cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column',
