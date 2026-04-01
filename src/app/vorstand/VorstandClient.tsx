@@ -27,7 +27,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
         <div className="hero-image-overlay" />
         <div className="tech-scan-lines" />
         <div className="container relative z-10">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -54,7 +54,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
           {president && (
             <div className="president-wrapper" style={{ display: 'flex', justifyContent: 'center', marginBottom: '5rem' }}>
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true }}
@@ -77,7 +77,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
           <div className="main-team-grid">
             {mainVorstand.map((member, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -105,7 +105,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
           <div className="extended-team-grid">
             {extendedVorstand.map((member, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -130,7 +130,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
       <Footer />
 
-      <style jsx>{`
+      <style jsx global>{`
         .vorstand-page {
           background: var(--background);
           color: var(--foreground);
