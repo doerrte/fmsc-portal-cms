@@ -134,7 +134,10 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
         cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative' // Für den Drag-Grip
+        position: 'relative', // Für den Drag-Grip
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTouchCallout: 'none'
       }}
     >
       {/* Drag Handle - Nur auf Mobile sichtbar */}
@@ -154,7 +157,10 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
             alignItems: 'center',
             justifyContent: 'center',
             background: 'transparent',
-            zIndex: 20
+            zIndex: 20,
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            WebkitTouchCallout: 'none'
           }}
         >
           <GripHorizontal size={28} />
