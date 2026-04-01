@@ -29,7 +29,7 @@ const LoginPage = () => {
   return (
     <main className="login-page">
       <Navbar />
-      
+
       <div className="login-container">
         <div className="login-card glass animate-fade-in">
           <div className="login-header">
@@ -41,8 +41,8 @@ const LoginPage = () => {
           <form onSubmit={handleLogin} className="login-form">
             <div className="input-group">
               <label><Mail size={16} /> Email</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 placeholder="pilot@fmsc.de"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -52,8 +52,8 @@ const LoginPage = () => {
 
             <div className="input-group">
               <label><Lock size={16} /> Passwort</label>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -67,10 +67,6 @@ const LoginPage = () => {
             </button>
             {error && <p style={{ color: '#ef4444', fontSize: '0.9rem', marginTop: '1rem', fontWeight: 'bold' }}>{error}</p>}
           </form>
-
-          <p className="login-footer">
-            Tipp: Das Passwort lautet <strong>opa</strong>
-          </p>
         </div>
       </div>
 
@@ -182,12 +178,6 @@ const LoginPage = () => {
           background: var(--primary-hover);
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(251, 146, 60, 0.3);
-        }
-
-        .login-footer {
-          margin-top: 2rem;
-          font-size: 0.85rem;
-          color: rgba(255, 255, 255, 0.4);
         }
       `}</style>
     </main>
