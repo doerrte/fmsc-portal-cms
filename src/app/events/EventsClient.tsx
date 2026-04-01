@@ -109,7 +109,7 @@ const EventsClient = ({ events }: { events: any[] }) => {
       <style jsx>{`
         .events-page {
           background: var(--background);
-          color: white;
+          color: var(--foreground);
           min-height: 100vh;
         }
 
@@ -167,7 +167,7 @@ const EventsClient = ({ events }: { events: any[] }) => {
 
         .hero-subtitle {
           font-size: 1.25rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           max-width: 600px;
         }
 
@@ -275,7 +275,7 @@ const EventsClient = ({ events }: { events: any[] }) => {
         }
 
         .event-desc {
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           line-height: 1.5;
           margin-bottom: 1.5rem;
           max-width: 800px;
@@ -293,18 +293,18 @@ const EventsClient = ({ events }: { events: any[] }) => {
           gap: 10px;
           font-size: 0.85rem;
           font-weight: 600;
-          color: rgba(255, 255, 255, 0.5);
+          color: var(--text-secondary);
         }
 
         .card-action {
           padding: 2rem;
           display: flex;
           align-items: center;
-          border-left: 1px solid rgba(255, 255, 255, 0.05);
+          border-left: 1px solid var(--card-border);
         }
 
         @media (max-width: 768px) {
-          .card-action { border-left: none; border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 1rem 2rem; }
+          .card-action { border-left: none; border-top: 1px solid var(--card-border); padding: 1rem 2rem; }
         }
 
         .btn-details {
@@ -333,7 +333,7 @@ const EventsClient = ({ events }: { events: any[] }) => {
         @media (max-width: 768px) { .info-notice { flex-direction: column; text-align: center; } }
 
         .notice-content h4 { font-weight: 800; margin-bottom: 0.5rem; color: #f59e0b; }
-        .notice-content p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); line-height: 1.6; }
+        .notice-content p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
       `}</style>
     </main>
   );

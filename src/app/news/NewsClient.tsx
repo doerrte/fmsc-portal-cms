@@ -163,7 +163,7 @@ const NewsClient = ({ news }: { news: any[] }) => {
         .hero-title {
           font-size: 4rem;
           font-weight: 900;
-          color: white;
+          color: var(--foreground);
           margin-bottom: 1.5rem;
           line-height: 1;
         }
@@ -176,7 +176,7 @@ const NewsClient = ({ news }: { news: any[] }) => {
 
         .hero-subtitle {
           font-size: 1.25rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           line-height: 1.6;
         }
 
@@ -213,17 +213,17 @@ const NewsClient = ({ news }: { news: any[] }) => {
           padding: 8px 20px;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 99px;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           font-weight: 600;
           font-size: 0.85rem;
           cursor: pointer;
           transition: all 0.2s;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
         }
 
         .chip.active {
           background: #567eb6;
-          color: white;
+          color: var(--foreground);
           border-color: #567eb6;
         }
 
@@ -274,7 +274,7 @@ const NewsClient = ({ news }: { news: any[] }) => {
           left: 20px;
           background: rgba(86, 126, 182, 0.9);
           backdrop-filter: blur(10px);
-          color: white;
+          color: var(--foreground);
           padding: 6px 14px;
           border-radius: 99px;
           font-weight: 800;
@@ -304,14 +304,14 @@ const NewsClient = ({ news }: { news: any[] }) => {
         .card-title {
           font-size: 1.5rem;
           font-weight: 800;
-          color: white;
+          color: var(--foreground);
           margin-bottom: 1rem;
           line-height: 1.3;
         }
 
         .card-text {
           font-size: 0.95rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           line-height: 1.6;
           margin-bottom: 2rem;
         }
@@ -322,7 +322,7 @@ const NewsClient = ({ news }: { news: any[] }) => {
           justify-content: space-between;
           align-items: center;
           padding-top: 1.5rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          border-top: 1px solid var(--card-border);
         }
 
         .read-more {
@@ -352,8 +352,8 @@ const NewsClient = ({ news }: { news: any[] }) => {
         .btn-archive {
           padding: 16px 40px;
           background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: white;
+          border: 1px solid var(--card-border);
+          color: var(--foreground);
           border-radius: 16px;
           font-weight: 700;
           transition: all 0.2s;

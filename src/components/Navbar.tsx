@@ -192,7 +192,7 @@ const Navbar = () => {
           flex-direction: row !important;
           align-items: center !important;
           gap: 10px;
-          color: white;
+          color: var(--foreground);
           text-decoration: none;
           white-space: nowrap;
         }
@@ -213,8 +213,7 @@ const Navbar = () => {
         }
         .logo-subtitle { 
           font-size: 1rem; 
-          color: white;
-          opacity: 0.7;
+          color: var(--text-secondary);
           font-weight: 500; 
           letter-spacing: 1.5px; 
         }
@@ -243,8 +242,7 @@ const Navbar = () => {
         }
 
         .nav-link {
-          color: white;
-          opacity: 0.7;
+          color: var(--text-secondary);
           font-size: 0.85rem;
           font-weight: 800;
           text-transform: uppercase;
@@ -373,7 +371,7 @@ const Navbar = () => {
           background: rgba(20, 25, 35, 0.9);
           backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.15);
-          color: white;
+          color: var(--foreground);
           padding: 14px 20px;
           border-radius: 16px;
           font-size: 1rem;

@@ -72,7 +72,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
   return (
     <div>
       <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Mitglieder Verwaltung</h1>
-      <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '2rem' }}>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
         Lege neue Accounts an, damit Mitglieder Zugriff auf das Flugbuch erhalten. 
         Admins können zusätzlich dieses Panel betreten.
       </p>
@@ -87,7 +87,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
       {!isAdding ? (
         <button 
           onClick={() => setIsAdding(true)}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--primary)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', border: 'none', marginBottom: '3rem' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--primary)', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', border: 'none', marginBottom: '3rem' }}
         >
           <UserPlus size={20} /> Neues Mitglied anlegen
         </button>
@@ -99,34 +99,34 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
           <form onSubmit={handleAddSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>Vor- und Nachname</label>
+                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Vor- und Nachname</label>
                 <input 
                   required type="text" placeholder="Max Mustermann"
                   value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                  style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'var(--foreground)' }}
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>E-Mail Adresse (Benutzername)</label>
+                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>E-Mail Adresse (Benutzername)</label>
                 <input 
                   required type="email" placeholder="max@beispiel.de"
                   value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                  style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'var(--foreground)' }}
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>Initiales Passwort</label>
+                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Initiales Passwort</label>
                 <input 
                   required type="text" placeholder="SicheresPasswort123"
                   value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                  style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'var(--foreground)' }}
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>Rolle</label>
+                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Rolle</label>
                 <select 
                   value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value as 'admin'|'member'})}
-                  style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                  style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'var(--foreground)' }}
                 >
                   <option value="member" style={{ color: 'black' }}>Standard-Mitglied (Nur Dashboard)</option>
                   <option value="admin" style={{ color: 'black' }}>Administrator (Voller Zugriff)</option>
@@ -135,10 +135,10 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
             </div>
             
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <button type="submit" style={{ background: 'var(--primary)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
+              <button type="submit" style={{ background: 'var(--primary)', color: 'var(--foreground)', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
                 Speichern
               </button>
-              <button type="button" onClick={() => setIsAdding(false)} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setIsAdding(false)} style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--foreground)', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer' }}>
                 Abbrechen
               </button>
             </div>
@@ -155,24 +155,24 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
               // Edit Mode
               <div style={{ display: 'flex', gap: '1.5rem', width: '100%', alignItems: 'flex-end' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                  <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Account von</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Account von</span>
                   <strong>{m.name} ({m.email})</strong>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                  <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Neues Passwort (leer lassen zum Behalten)</label>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Neues Passwort (leer lassen zum Behalten)</label>
                   <input 
                     type="text" placeholder="Passwort ändern"
                     value={editData.password} onChange={(e) => setEditData({...editData, password: e.target.value})}
-                    style={{ padding: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'white', width: '100%' }}
+                    style={{ padding: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'var(--foreground)', width: '100%' }}
                   />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                  <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Rolle</label>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Rolle</label>
                   <select 
                     value={editData.role} onChange={(e) => setEditData({...editData, role: e.target.value as 'admin'|'member'})}
-                    style={{ padding: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'white', width: '100%' }}
+                    style={{ padding: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'var(--foreground)', width: '100%' }}
                   >
                     <option value="member" style={{ color: 'black' }}>Mitglied</option>
                     <option value="admin" style={{ color: 'black' }}>Admin</option>
@@ -180,10 +180,10 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button onClick={() => handleEditSubmit(m)} style={{ padding: '8px 12px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <button onClick={() => handleEditSubmit(m)} style={{ padding: '8px 12px', background: '#22c55e', color: 'var(--foreground)', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Check size={16} /> Speichern
                   </button>
-                  <button onClick={() => setEditingId(null)} style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <button onClick={() => setEditingId(null)} style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.1)', color: 'var(--foreground)', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <X size={16} />
                   </button>
                 </div>
@@ -197,7 +197,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                   </div>
                   <div>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{m.name}</h3>
-                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>{m.email}</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{m.email}</p>
                   </div>
                 </div>
 
@@ -208,7 +208,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                     </span>
                   </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => handleEditInit(m)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', padding: '8px', color: 'white', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Bearbeiten">
+                    <button onClick={() => handleEditInit(m)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', padding: '8px', color: 'var(--foreground)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Bearbeiten">
                       <Edit2 size={16} />
                     </button>
                     <button onClick={() => handleDelete(m.id, m.name)} style={{ background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.5)', padding: '8px', color: '#ef4444', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Löschen">
@@ -221,7 +221,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
           </div>
         ))}
         {members.length === 0 && (
-          <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '2rem' }}>Noch keine Mitglieder angelegt.</p>
+          <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>Noch keine Mitglieder angelegt.</p>
         )}
       </div>
     </div>

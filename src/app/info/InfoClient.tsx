@@ -108,7 +108,7 @@ export default function InfoClient({ info }: { info: InfoSettings }) {
             {info.docs.length === 0 && <p style={{ textAlign: 'center', opacity: 0.5 }}>Keine Dokumente verfügbar.</p>}
             <div className="docs-grid">
               {info.docs.map(doc => (
-                <a key={doc.id} href={doc.url} download target="_blank" rel="noopener noreferrer" className="doc-item glass" style={{ textDecoration: 'none', color: 'white' }}>
+                <a key={doc.id} href={doc.url} download target="_blank" rel="noopener noreferrer" className="doc-item glass" style={{ textDecoration: 'none', color: 'var(--foreground)' }}>
                   <FileText className="text-secondary" size={24} />
                   <div className="doc-info" style={{ flexGrow: 1 }}>
                     <p>{doc.title}</p>
@@ -127,7 +127,7 @@ export default function InfoClient({ info }: { info: InfoSettings }) {
       <style jsx>{`
         .info-page {
           background: var(--background);
-          color: white;
+          color: var(--foreground);
           min-height: 100vh;
         }
 
@@ -188,7 +188,7 @@ export default function InfoClient({ info }: { info: InfoSettings }) {
 
         .hero-subtitle {
           font-size: 1.25rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           max-width: 600px;
         }
 
@@ -245,14 +245,14 @@ export default function InfoClient({ info }: { info: InfoSettings }) {
           padding: 1.2rem;
           background: rgba(255, 255, 255, 0.02);
           border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--card-border);
         }
 
         .rule-icon { color: #567eb6; margin-top: 4px; }
         .rule-content h4 { font-weight: 800; margin-bottom: 4px; font-size: 1.1rem; }
-        .rule-content p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); line-height: 1.5; margin: 0; }
+        .rule-content p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
 
-        .guest-intro { color: rgba(255, 255, 255, 0.7); line-height: 1.6; margin: 0; }
+        .guest-intro { color: var(--text-secondary); line-height: 1.6; margin: 0; }
 
         .auth-list {
           list-style: none;
@@ -268,7 +268,7 @@ export default function InfoClient({ info }: { info: InfoSettings }) {
           gap: 15px;
           align-items: center;
           font-weight: 600;
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--text-secondary);
         }
 
         .li-dot {

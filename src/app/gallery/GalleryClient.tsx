@@ -146,7 +146,7 @@ const GalleryClient = ({ items }: { items: any[] }) => {
       <Footer />
 
       <style jsx>{`
-        .gallery-page { background: var(--background); color: white; min-height: 100vh; }
+        .gallery-page { background: var(--background); color: var(--foreground); min-height: 100vh; }
 
         .gallery-hero {
           position: relative; height: 50vh; min-height: 400px; display: flex; align-items: center;
@@ -164,7 +164,7 @@ const GalleryClient = ({ items }: { items: any[] }) => {
         .tech-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(86, 126, 182, 0.1); color: #567eb6; padding: 8px 16px; border-radius: 99px; border: 1px solid rgba(86, 126, 182, 0.2); font-weight: 800; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 2rem; }
         .hero-title { font-size: 4rem; font-weight: 900; margin-bottom: 1rem; line-height: 1; }
         .highlight { color: #567eb6; }
-        .hero-subtitle { font-size: 1.25rem; color: rgba(255, 255, 255, 0.6); max-width: 600px; }
+        .hero-subtitle { font-size: 1.25rem; color: var(--text-secondary); max-width: 600px; }
 
         .gallery-section { padding: 4rem 0 8rem; }
 
@@ -175,11 +175,11 @@ const GalleryClient = ({ items }: { items: any[] }) => {
 
         .filter-btn { 
           padding: 8px 20px; border-radius: 99px; font-size: 0.8rem; font-weight: 800; 
-          color: rgba(255, 255, 255, 0.6); transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+          color: var(--text-secondary); transition: all 0.2s; display: flex; align-items: center; gap: 8px;
         }
 
-        .filter-btn.active { background: #567eb6; color: white; }
-        .filter-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.05); color: white; }
+        .filter-btn.active { background: #567eb6; color: var(--foreground); }
+        .filter-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.05); color: var(--foreground); }
 
         .gallery-grid {
           display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;
@@ -189,7 +189,7 @@ const GalleryClient = ({ items }: { items: any[] }) => {
 
         .gallery-item {
           position: relative; border-radius: 24px; overflow: hidden; height: 250px;
-          transition: transform 0.4s ease; border: 1px solid rgba(255, 255, 255, 0.05);
+          transition: transform 0.4s ease; border: 1px solid var(--card-border);
         }
 
         .item-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
@@ -205,7 +205,7 @@ const GalleryClient = ({ items }: { items: any[] }) => {
 
         .play-icon { 
           position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-          color: white; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+          color: var(--foreground); filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
           opacity: 0.8; transition: transform 0.2s, opacity 0.2s;
         }
 
@@ -220,7 +220,7 @@ const GalleryClient = ({ items }: { items: any[] }) => {
           backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 2rem;
         }
 
-        .close-btn { position: absolute; top: 2rem; right: 2rem; color: white; opacity: 0.5; transition: opacity 0.2s; }
+        .close-btn { position: absolute; top: 2rem; right: 2rem; color: var(--foreground); opacity: 0.5; transition: opacity 0.2s; }
         .close-btn:hover { opacity: 1; }
 
         .lightbox-content {
@@ -234,7 +234,7 @@ const GalleryClient = ({ items }: { items: any[] }) => {
         .l-text h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
         .l-text p { color: #567eb6; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; }
 
-        .l-btn { padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .l-btn { padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); color: var(--foreground); border: 1px solid var(--card-border); }
       `}</style>
     </main>
   );

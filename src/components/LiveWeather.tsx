@@ -229,7 +229,7 @@ const LiveWeather = () => {
           padding: 4rem;
           overflow: hidden;
           background: rgba(10, 15, 25, 0.4);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid var(--card-border);
           box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
         }
 
@@ -324,7 +324,7 @@ const LiveWeather = () => {
         .instrument-title {
           font-size: 2.2rem;
           font-weight: 900;
-          color: white;
+          color: var(--foreground);
           letter-spacing: -1px;
         }
 
@@ -379,7 +379,7 @@ const LiveWeather = () => {
           position: absolute;
           font-weight: 900;
           font-size: 1.1rem;
-          color: white;
+          color: var(--foreground);
           opacity: 0.6;
         }
 
@@ -468,7 +468,7 @@ const LiveWeather = () => {
 
         .metric-glass {
           background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--card-border);
           padding: 1.2rem;
           border-radius: 20px;
           display: flex;
@@ -491,7 +491,7 @@ const LiveWeather = () => {
           font-size: 2rem;
           font-weight: 900;
           line-height: 1;
-          color: white;
+          color: var(--foreground);
         }
 
         .digital-unit {
@@ -499,7 +499,7 @@ const LiveWeather = () => {
           font-weight: 700;
           opacity: 0.5;
           margin-left: 5px;
-          color: white;
+          color: var(--foreground);
         }
 
         .status-module {

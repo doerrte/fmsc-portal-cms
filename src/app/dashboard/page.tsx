@@ -201,7 +201,7 @@ const DashboardPage = () => {
           align-items: center;
           gap: 12px;
           font-weight: 700;
-          color: white;
+          color: var(--foreground);
           margin-bottom: 2rem;
           padding: 0 10px;
         }
@@ -218,7 +218,7 @@ const DashboardPage = () => {
           gap: 12px;
           padding: 12px;
           border-radius: 12px;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           font-weight: 500;
           transition: all 0.2s;
         }
@@ -243,17 +243,17 @@ const DashboardPage = () => {
         h1 {
           font-size: 2.25rem;
           font-weight: 800;
-          color: white;
+          color: var(--foreground);
           margin-bottom: 0.5rem;
         }
 
         .content-header p {
-          color: rgba(255, 255, 255, 0.5);
+          color: var(--text-secondary);
         }
 
         .add-btn {
           background: var(--primary);
-          color: white;
+          color: var(--foreground);
           padding: 12px 24px;
           border-radius: 12px;
           font-weight: 700;
@@ -295,12 +295,12 @@ const DashboardPage = () => {
         }
 
         .modal-header h2 {
-          color: white;
+          color: var(--foreground);
           font-size: 1.5rem;
         }
 
         .modal-header button {
-          color: rgba(255, 255, 255, 0.5);
+          color: var(--text-secondary);
           font-size: 1.5rem;
         }
 
@@ -325,15 +325,15 @@ const DashboardPage = () => {
         .input-group label {
           font-size: 0.85rem;
           font-weight: 600;
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--text-secondary);
         }
 
         input, textarea {
           background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
           padding: 12px 16px;
           border-radius: 12px;
-          color: white;
+          color: var(--foreground);
           font-family: inherit;
         }
 
@@ -341,7 +341,7 @@ const DashboardPage = () => {
 
         .submit-btn {
           background: var(--primary);
-          color: white;
+          color: var(--foreground);
           padding: 14px;
           border-radius: 12px;
           font-weight: 700;
@@ -394,7 +394,7 @@ const DashboardPage = () => {
         .model-name {
           display: block;
           font-weight: 700;
-          color: white;
+          color: var(--foreground);
           font-size: 1.1rem;
         }
 
@@ -415,7 +415,7 @@ const DashboardPage = () => {
 
         .pilot-name, .date {
           font-weight: 500;
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--text-secondary);
         }
       `}</style>
     </main>

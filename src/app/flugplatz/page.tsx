@@ -128,7 +128,7 @@ const FlugplatzPage = () => {
       <style jsx>{`
         .flugplatz-page {
           background: var(--background);
-          color: white;
+          color: var(--foreground);
           min-height: 100vh;
         }
 
@@ -186,7 +186,7 @@ const FlugplatzPage = () => {
 
         .hero-subtitle {
           font-size: 1.25rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           max-width: 600px;
         }
 
@@ -236,7 +236,7 @@ const FlugplatzPage = () => {
           text-transform: uppercase;
         }
 
-        .stat-value { font-size: 1.1rem; font-weight: 900; color: white; margin-bottom: 2px; }
+        .stat-value { font-size: 1.1rem; font-weight: 900; color: var(--foreground); margin-bottom: 2px; }
         .stat-detail { font-size: 0.75rem; color: #567eb6; font-weight: 700; opacity: 0.8; }
 
         .ground-infra-section {
@@ -283,7 +283,7 @@ const FlugplatzPage = () => {
           position: relative;
           border-radius: 20px;
           overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
           height: 350px;
         }
 
@@ -305,7 +305,7 @@ const FlugplatzPage = () => {
 
         .infra-text {
           line-height: 1.8;
-          color: rgba(255, 255, 255, 0.7);
+          color: var(--text-secondary);
         }
 
         .features-list {
@@ -331,12 +331,12 @@ const FlugplatzPage = () => {
           align-items: center;
           justify-content: center;
           color: #567eb6;
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--card-border);
           flex-shrink: 0;
         }
 
         .feature-text h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
-        .feature-text p { font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); line-height: 1.5; }
+        .feature-text p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
 
         .drone-ready-badge {
           padding: 1.5rem;

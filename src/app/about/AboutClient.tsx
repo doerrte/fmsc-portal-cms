@@ -129,7 +129,7 @@ const AboutClient = ({ about }: { about: any }) => {
       <style jsx>{`
         .about-page {
           background: var(--background);
-          color: white;
+          color: var(--foreground);
           min-height: 100vh;
           overflow-x: hidden;
         }
@@ -188,7 +188,7 @@ const AboutClient = ({ about }: { about: any }) => {
 
         .hero-subtitle {
           font-size: 1.25rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           max-width: 600px;
         }
 
@@ -235,7 +235,7 @@ const AboutClient = ({ about }: { about: any }) => {
 
         .history-text p {
           line-height: 1.8;
-          color: rgba(255, 255, 255, 0.7);
+          color: var(--text-secondary);
         }
 
         .stats-row {
@@ -273,7 +273,7 @@ const AboutClient = ({ about }: { about: any }) => {
         .timeline-title {
           font-size: 1.5rem;
           font-weight: 800;
-          color: white;
+          color: var(--foreground);
           text-align: center;
         }
 
@@ -320,7 +320,7 @@ const AboutClient = ({ about }: { about: any }) => {
 
         .timeline-content p {
           font-size: 0.95rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           line-height: 1.5;
         }
 
@@ -347,7 +347,7 @@ const AboutClient = ({ about }: { about: any }) => {
         .value-icon { color: #567eb6; }
 
         .value-card h3 { font-size: 1.5rem; font-weight: 800; }
-        .value-card p { color: rgba(255, 255, 255, 0.6); line-height: 1.6; }
+        .value-card p { color: var(--text-secondary); line-height: 1.6; }
       `}</style>
     </main>
   );

@@ -65,7 +65,7 @@ export default function AdminDashboard() {
   return (
     <div>
       <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Willkommen im Admin-Bereich</h1>
-      <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.2rem' }}>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>
         Hier kannst du die Inhalte der Webseite ganz einfach ohne Code-Kenntnisse verwalten.
       </p>
       <p style={{ color: '#f97316', marginBottom: '3rem', fontSize: '0.9rem', fontWeight: 'bold' }}>Tipp: Kacheln können per Klick geöffnet oder per langem Touch (2s gedrückt halten) am Handy verschoben werden.</p>
@@ -173,13 +173,13 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
 
       <div>
         {tileIcons[tile.id]}
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'white', paddingRight: isMobile ? '2rem' : '0' }}>{tile.title}</h2>
-        <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem', minHeight: '48px' }}>{tile.desc}</p>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--foreground)', paddingRight: isMobile ? '2rem' : '0' }}>{tile.title}</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', minHeight: '48px' }}>{tile.desc}</p>
       </div>
       <div style={{ marginTop: 'auto' }}>
         <span 
           className="admin-tile-btn"
-          style={{ display: 'inline-block', background: '#f97316', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
+          style={{ display: 'inline-block', background: '#f97316', color: 'var(--foreground)', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
         >
           {tile.btn}
         </span>

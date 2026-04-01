@@ -93,12 +93,13 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
         .official-logo {
           transition: all 0.3s ease;
           opacity: 0.95;
+          filter: var(--logo-filter);
         }
 
         .official-logo:hover {
           opacity: 1;
           transform: translateY(-2px) scale(1.05);
-          filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+          filter: var(--logo-filter) drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
         }
 
         @media (max-width: 1024px) {
@@ -114,9 +115,9 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           inset: 0;
           background: linear-gradient(
             to right,
-            rgba(2, 6, 23, 0.9) 0%,
-            rgba(2, 6, 23, 0.6) 40%,
-            transparent 100%
+            var(--hero-gradient-start) 0%,
+            var(--hero-gradient-mid) 40%,
+            var(--hero-gradient-end) 100%
           );
         }
 
@@ -144,7 +145,7 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
             padding-top: 100px;
           }
           .hero-overlay {
-            background: rgba(2, 6, 23, 0.85);
+            background: var(--hero-gradient-start);
           }
         }
 
@@ -155,7 +156,7 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           background: rgba(255, 255, 255, 0.05);
           padding: 8px 16px;
           border-radius: 99px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
           color: #567eb6;
           font-weight: 700;
           font-size: 0.85rem;
@@ -176,7 +177,7 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           font-size: 4.5rem;
           font-weight: 900;
           line-height: 1.1;
-          color: white;
+          color: var(--foreground);
           margin-bottom: 2rem;
         }
 
@@ -191,7 +192,7 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
 
         .hero-description {
           font-size: 1.25rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           margin-bottom: 3rem;
           max-width: 600px;
         }
@@ -211,7 +212,7 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
 
         .btn-primary {
           background: #567eb6;
-          color: white;
+          color: var(--foreground);
           padding: 18px 36px;
           border-radius: 16px;
           font-weight: 700;
@@ -230,7 +231,7 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
 
         .btn-secondary {
           background: rgba(255, 255, 255, 0.05);
-          color: white;
+          color: var(--foreground);
           padding: 18px 36px;
           border-radius: 16px;
           font-weight: 700;
@@ -238,7 +239,7 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           display: flex;
           align-items: center;
           gap: 10px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
           transition: all 0.3s;
         }
 

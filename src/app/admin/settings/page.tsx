@@ -11,7 +11,7 @@ export default async function SettingsPage() {
   return (
     <div>
       <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Texte anpassen</h1>
-      <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '3rem', fontSize: '1.2rem' }}>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '3rem', fontSize: '1.2rem' }}>
         Passe die Haupttexte auf der Startseite an. Änderungen sind sofort nach dem Speichern sichtbar.
       </p>
 
@@ -24,7 +24,7 @@ export default async function SettingsPage() {
             <input 
               name="homepageHeroTitle" 
               defaultValue={settings.homepageHeroTitle} 
-              style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', fontSize: '1rem' }} 
+              style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)', fontSize: '1rem' }} 
               required
             />
             
@@ -32,7 +32,7 @@ export default async function SettingsPage() {
             <textarea 
               name="homepageHeroSubtitle" 
               defaultValue={settings.homepageHeroSubtitle} 
-              style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', fontSize: '1rem', minHeight: '100px', resize: 'vertical' }} 
+              style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)', fontSize: '1rem', minHeight: '100px', resize: 'vertical' }} 
               required
             />
 
@@ -41,9 +41,9 @@ export default async function SettingsPage() {
               type="file"
               name="homepageHeroImage" 
               accept="image/*"
-              style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} 
+              style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'var(--foreground)' }} 
             />
-            {settings.homepageHeroImage && <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Aktuelles Bild: {settings.homepageHeroImage}</p>}
+            {settings.homepageHeroImage && <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Aktuelles Bild: {settings.homepageHeroImage}</p>}
           </div>
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
@@ -52,7 +52,7 @@ export default async function SettingsPage() {
             <input 
               name="homepageTeaserTitle" 
               defaultValue={settings.homepageTeaserTitle} 
-              style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', fontSize: '1rem' }} 
+              style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)', fontSize: '1rem' }} 
               required
             />
             
@@ -60,7 +60,7 @@ export default async function SettingsPage() {
             <input 
               name="homepageTeaserSubtitle" 
               defaultValue={settings.homepageTeaserSubtitle} 
-              style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', fontSize: '1rem' }} 
+              style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)', fontSize: '1rem' }} 
               required
             />
 
@@ -69,12 +69,12 @@ export default async function SettingsPage() {
               type="file"
               name="homepageTeaserImage" 
               accept="image/*"
-              style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} 
+              style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'var(--foreground)' }} 
             />
-            {settings.homepageTeaserImage && <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Aktuelles Bild: {settings.homepageTeaserImage}</p>}
+            {settings.homepageTeaserImage && <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Aktuelles Bild: {settings.homepageTeaserImage}</p>}
           </div>
 
-          <button type="submit" style={{ background: '#f97316', color: 'white', padding: '14px 24px', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', border: 'none', transition: 'all 0.2s', marginTop: '1rem' }}>
+          <button type="submit" style={{ background: '#f97316', color: 'var(--foreground)', padding: '14px 24px', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', border: 'none', transition: 'all 0.2s', marginTop: '1rem' }}>
             Änderungen Speichern
           </button>
         </form>

@@ -35,10 +35,10 @@ export default function BauberichteAdminPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Bauberichte verwalten</h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.2rem' }}>Passe Fortschritte an und füge Ingenieurs-Logbücher hinzu.</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Passe Fortschritte an und füge Ingenieurs-Logbücher hinzu.</p>
         </div>
         {!editingItem && (
-          <button onClick={handleCreate} style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+          <button onClick={handleCreate} style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
             + Neues Projekt melden
           </button>
         )}
@@ -56,29 +56,29 @@ export default function BauberichteAdminPage() {
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Projekt Name</label>
-                <input name="title" defaultValue={editingItem.title} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                <input name="title" defaultValue={editingItem.title} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Datum (Text, z.B. Juli 2025)</label>
-                <input name="date" defaultValue={editingItem.date} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                <input name="date" defaultValue={editingItem.date} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Pilot / Erbauer</label>
-                <input name="pilot" defaultValue={editingItem.pilot} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                <input name="pilot" defaultValue={editingItem.pilot} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Technologie (z.B. Holz, Carbon, 3D Druck)</label>
-                <input name="tech" defaultValue={editingItem.tech} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                <input name="tech" defaultValue={editingItem.tech} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Status</label>
-                <select name="status" defaultValue={editingItem.status} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: '#0a0c10', color: 'white' }}>
+                <select name="status" defaultValue={editingItem.status} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: '#0a0c10', color: 'var(--foreground)' }}>
                   <option value="In Progress">In Progress</option>
                   <option value="Maiden Flight Done">Maiden Flight Done</option>
                   <option value="Completed">Completed</option>
@@ -87,7 +87,7 @@ export default function BauberichteAdminPage() {
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Baufortschritt (in %)</label>
-                <input type="number" name="progress" min="0" max="100" defaultValue={editingItem.progress} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                <input type="number" name="progress" min="0" max="100" defaultValue={editingItem.progress} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
             </div>
 
@@ -98,7 +98,7 @@ export default function BauberichteAdminPage() {
                   type="file"
                   name="pdfFile" 
                   accept=".pdf"
-                  style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} 
+                  style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'var(--foreground)' }} 
                 />
                 {editingItem.pdfUrl && <p style={{ fontSize: '0.8rem', color: '#4ade80' }}>✓ PDF vorhanden</p>}
               </div>
@@ -106,11 +106,11 @@ export default function BauberichteAdminPage() {
 
             <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem', color: '#f97316' }}>Neuen Logbuch-Eintrag hinzufügen</h3>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Erzähle von den neuesten Baufortschritten und lade direkt passende Bilder dazu hoch.</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Erzähle von den neuesten Baufortschritten und lade direkt passende Bilder dazu hoch.</p>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Text für das Update</label>
-                <textarea name="newUpdateText" placeholder="Was gibt es Neues?..." style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white', minHeight: '120px' }} />
+                <textarea name="newUpdateText" placeholder="Was gibt es Neues?..." style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'var(--foreground)', minHeight: '120px' }} />
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -120,16 +120,16 @@ export default function BauberichteAdminPage() {
                   name="imageFiles" 
                   accept="image/*"
                   multiple
-                  style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} 
+                  style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'var(--foreground)' }} 
                 />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <button type="submit" style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button type="submit" style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
                 Speichern
               </button>
-              <button type="button" onClick={() => setEditingItem(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setEditingItem(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                 Abbrechen
               </button>
             </div>
@@ -142,7 +142,7 @@ export default function BauberichteAdminPage() {
                 {editingItem.updates.map(update => (
                   <div key={update.id} style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', fontWeight: 'bold' }}>Eintrag vom {update.date}</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 'bold' }}>Eintrag vom {update.date}</p>
                       
                       <form action={async (fd) => { await saveBaubericht(fd); window.location.reload(); }}>
                         <input type="hidden" name="id" value={editingItem.id} />
@@ -159,7 +159,7 @@ export default function BauberichteAdminPage() {
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#567eb6' }}>Text bearbeiten</label>
-                        <textarea name="updateText" defaultValue={update.text} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'white', minHeight: '100px' }} required />
+                        <textarea name="updateText" defaultValue={update.text} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--foreground)', minHeight: '100px' }} required />
                       </div>
 
                       {update.images && update.images.length > 0 && (
@@ -171,7 +171,7 @@ export default function BauberichteAdminPage() {
                                 <img src={imgUrl} alt="Update" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 <button 
                                   formAction={async (fd) => { fd.set('imageUrl', imgUrl); fd.set('action', 'deleteUpdateImage'); await saveBaubericht(fd); window.location.reload(); }}
-                                  style={{ position: 'absolute', top: '4px', right: '4px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
+                                  style={{ position: 'absolute', top: '4px', right: '4px', background: '#ef4444', color: 'var(--foreground)', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
                                 >
                                   X
                                 </button>
@@ -183,11 +183,11 @@ export default function BauberichteAdminPage() {
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px' }}>
                         <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Zusätzliche Bilder zu diesem Eintrag hochladen</label>
-                        <input type="file" name="imageFiles" accept="image/*" multiple style={{ padding: '8px', borderRadius: '6px', border: '1px dashed rgba(255,255,255,0.2)', color: 'white', fontSize: '0.8rem' }} />
+                        <input type="file" name="imageFiles" accept="image/*" multiple style={{ padding: '8px', borderRadius: '6px', border: '1px dashed rgba(255,255,255,0.2)', color: 'var(--foreground)', fontSize: '0.8rem' }} />
                       </div>
 
                       <div style={{ alignSelf: 'flex-start' }}>
-                        <button type="submit" style={{ background: '#567eb6', color: 'white', padding: '8px 16px', borderRadius: '6px', border: 'none', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer' }}>Text & neue Bilder speichern</button>
+                        <button type="submit" style={{ background: '#567eb6', color: 'var(--foreground)', padding: '8px 16px', borderRadius: '6px', border: 'none', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer' }}>Text & neue Bilder speichern</button>
                       </div>
                     </form>
                   </div>
@@ -204,7 +204,7 @@ export default function BauberichteAdminPage() {
             <div key={item.id} style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{item.title}</h3>
-                <div style={{ display: 'flex', gap: '1rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                   <span>{item.pilot}</span><span>•</span><span>{item.status} ({item.progress}%)</span>
                 </div>
               </div>

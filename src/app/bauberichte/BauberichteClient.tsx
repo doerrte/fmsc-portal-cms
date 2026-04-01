@@ -139,7 +139,7 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
       <Footer />
 
       <style jsx>{`
-        .reports-page { background: var(--background); color: white; min-height: 100vh; }
+        .reports-page { background: var(--background); color: var(--foreground); min-height: 100vh; }
 
         .reports-hero {
           position: relative; height: 50vh; min-height: 400px; display: flex; align-items: center;
@@ -157,7 +157,7 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
         .tech-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(86, 126, 182, 0.1); color: #567eb6; padding: 8px 16px; border-radius: 99px; border: 1px solid rgba(86, 126, 182, 0.2); font-weight: 800; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 2rem; }
         .hero-title { font-size: 4rem; font-weight: 900; margin-bottom: 1rem; line-height: 1; }
         .highlight { color: #567eb6; }
-        .hero-subtitle { font-size: 1.25rem; color: rgba(255, 255, 255, 0.6); max-width: 600px; }
+        .hero-subtitle { font-size: 1.25rem; color: var(--text-secondary); max-width: 600px; }
 
         .reports-section { padding: 6rem 0; }
 
@@ -182,18 +182,18 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
         .report-body { display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem; margin-bottom: 2rem; }
         @media (max-width: 768px) { .report-body { grid-template-columns: 1fr; gap: 1.5rem; } }
 
-        .report-desc { color: rgba(255, 255, 255, 0.7); line-height: 1.7; font-size: 1.05rem; }
+        .report-desc { color: var(--text-secondary); line-height: 1.7; font-size: 1.05rem; }
 
         .tech-specs { display: flex; flex-direction: column; gap: 15px; }
         .spec label { display: block; font-size: 0.65rem; font-weight: 800; color: #567eb6; letter-spacing: 1px; margin-bottom: 4px; }
-        .spec span { font-weight: 700; color: rgba(255, 255, 255, 0.9); }
+        .spec span { font-weight: 700; color: var(--text-secondary); }
 
         .progress-container { margin-top: 2rem; }
         .progress-info { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 800; color: #567eb6; margin-bottom: 8px; }
         .progress-bar { height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(to right, #567eb6, #4ade80); border-radius: 4px; }
 
-        .report-footer { padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+        .report-footer { padding-top: 1.5rem; border-top: 1px solid var(--card-border); }
         .btn-read-more { color: #567eb6; font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; transition: gap 0.2s; }
         .btn-read-more:hover { gap: 15px; }
 
@@ -206,7 +206,7 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
         .btn-pdf-download:hover { background: rgba(34, 197, 94, 0.2); transform: translateY(-2px); }
 
         .images-grid { display: flex; flex-direction: column; gap: 1.5rem; }
-        .report-grid-img { width: 100%; height: auto; max-height: 600px; object-fit: contain; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
+        .report-grid-img { width: 100%; height: auto; max-height: 600px; object-fit: contain; border-radius: 12px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.2); }
 
 
         .submit-cta { 
@@ -216,7 +216,7 @@ const BauberichteClient = ({ items }: { items: any[] }) => {
         @media (max-width: 768px) { .submit-cta { flex-direction: column; text-align: center; padding: 2rem; } }
         .cta-content { flex-grow: 1; }
         .cta-content h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
-        .cta-content p { color: rgba(255, 255, 255, 0.6); }
+        .cta-content p { color: var(--text-secondary); }
         .btn-submit { 
           padding: 14px 28px; background: white; color: black; border-radius: 12px; font-weight: 800; 
           transition: all 0.2s; 

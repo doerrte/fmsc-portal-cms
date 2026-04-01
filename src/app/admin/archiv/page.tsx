@@ -34,10 +34,10 @@ export default function ArchivAdminPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
           <div>
             <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Dokumenten-Archiv</h1>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.2rem' }}>Lade Kassenberichte, Protokolle oder PDFs hoch.</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Lade Kassenberichte, Protokolle oder PDFs hoch.</p>
           </div>
           {!editingDoc && (
-            <button onClick={handleCreateDoc} style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button onClick={handleCreateDoc} style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
               + Neues Dokument hochladen
             </button>
           )}
@@ -54,28 +54,28 @@ export default function ArchivAdminPage() {
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <label style={{ fontWeight: 'bold' }}>Titel des Dokuments</label>
-                  <input name="title" defaultValue={editingDoc.title} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                  <input name="title" defaultValue={editingDoc.title} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <label style={{ fontWeight: 'bold' }}>Datum (Text)</label>
-                  <input name="date" defaultValue={editingDoc.date} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                  <input name="date" defaultValue={editingDoc.date} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <label style={{ fontWeight: 'bold' }}>Typ</label>
-                  <input name="type" defaultValue={editingDoc.type} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                  <input name="type" defaultValue={editingDoc.type} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
                 <label style={{ fontWeight: 'bold', color: '#f97316' }}>PDF Datei hochladen</label>
-                <input type="file" name="fileFile" accept="application/pdf" style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-                {editingDoc.url && <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Aktuelle Datei: {editingDoc.url}</p>}
+                <input type="file" name="fileFile" accept="application/pdf" style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'var(--foreground)' }} />
+                {editingDoc.url && <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Aktuelle Datei: {editingDoc.url}</p>}
                 <input type="hidden" name="url" value={editingDoc.url} />
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <button type="submit" style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Speichern</button>
-                <button type="button" onClick={() => setEditingDoc(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Abbrechen</button>
+                <button type="submit" style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Speichern</button>
+                <button type="button" onClick={() => setEditingDoc(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Abbrechen</button>
               </div>
             </form>
           </div>
@@ -85,7 +85,7 @@ export default function ArchivAdminPage() {
               <div key={doc.id} style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{doc.title}</h3>
-                  <div style={{ display: 'flex', gap: '1rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
+                  <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                     <span>{doc.date}</span><span>•</span><span>{doc.type}</span>
                   </div>
                 </div>
@@ -109,10 +109,10 @@ export default function ArchivAdminPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
           <div>
             <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Vereins-Zeitstrahl (Historie)</h2>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.2rem' }}>Meilensteine hinzufügen. Diese werden automatisch nach Jahren sortiert.</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Meilensteine hinzufügen. Diese werden automatisch nach Jahren sortiert.</p>
           </div>
           {!editingMilestone && (
-            <button onClick={handleCreateMilestone} style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button onClick={handleCreateMilestone} style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
               + Meilenstein eintragen
             </button>
           )}
@@ -129,17 +129,17 @@ export default function ArchivAdminPage() {
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <label style={{ fontWeight: 'bold' }}>Jahr (Zahl, z.B. 2025)</label>
-                  <input type="number" name="year" defaultValue={editingMilestone.year} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                  <input type="number" name="year" defaultValue={editingMilestone.year} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
                 </div>
                 <div style={{ flex: 3, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <label style={{ fontWeight: 'bold' }}>Text des Meilensteins (Mehrere Meilensteine zeilenweise!)</label>
-                  <textarea name="text" defaultValue={editingMilestone.text} placeholder="z.B. 50-jähriges Vereinsjubiläum&#10;Einweihung des Platzes..." style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', minHeight: '100px' }} required />
+                  <textarea name="text" defaultValue={editingMilestone.text} placeholder="z.B. 50-jähriges Vereinsjubiläum&#10;Einweihung des Platzes..." style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)', minHeight: '100px' }} required />
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <button type="submit" style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Speichern</button>
-                <button type="button" onClick={() => setEditingMilestone(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Abbrechen</button>
+                <button type="submit" style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Speichern</button>
+                <button type="button" onClick={() => setEditingMilestone(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Abbrechen</button>
               </div>
             </form>
           </div>

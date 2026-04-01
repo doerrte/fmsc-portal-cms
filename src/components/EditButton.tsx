@@ -14,7 +14,7 @@ export default function EditButton({ href, label = 'Bearbeiten' }: { href: strin
         alignItems: 'center', 
         gap: '6px', 
         background: '#f97316', 
-        color: '#fff', 
+        color: 'var(--foreground)', 
         padding: '6px 16px', 
         borderRadius: '99px', 
         fontSize: '0.85rem', 

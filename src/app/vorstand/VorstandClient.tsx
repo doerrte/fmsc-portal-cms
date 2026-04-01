@@ -101,7 +101,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
       <style jsx>{`
         .vorstand-page {
           background: var(--background);
-          color: white;
+          color: var(--foreground);
           min-height: 100vh;
         }
 
@@ -159,7 +159,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
         .hero-subtitle {
           font-size: 1.25rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           max-width: 600px;
         }
 
@@ -234,7 +234,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
         .member-desc {
           font-size: 0.9rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           line-height: 1.6;
         }
 
@@ -246,7 +246,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
 
         .contact-small {
           background: rgba(255, 255, 255, 0.05);
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--text-secondary);
           padding: 8px 16px;
           border-radius: 99px;
           font-size: 0.8rem;
@@ -254,7 +254,7 @@ const VorstandClient = ({ vorstand }: { vorstand: any[] }) => {
           display: flex;
           align-items: center;
           gap: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
           transition: all 0.2s;
         }
 

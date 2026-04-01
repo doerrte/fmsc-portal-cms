@@ -26,10 +26,10 @@ export default function VorstandAdminPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Vorstand verwalten</h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.2rem' }}>Bearbeite die Liste der Vorstandsmitglieder.</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Bearbeite die Liste der Vorstandsmitglieder.</p>
         </div>
         {!editingItem && (
-          <button onClick={handleCreate} style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+          <button onClick={handleCreate} style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
             + Mitglied hinzufügen
           </button>
         )}
@@ -47,17 +47,17 @@ export default function VorstandAdminPage() {
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Name</label>
-                <input name="name" defaultValue={editingItem.name} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                <input name="name" defaultValue={editingItem.name} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Rolle (z.B. Vorsitzender)</label>
-                <input name="role" defaultValue={editingItem.role} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                <input name="role" defaultValue={editingItem.role} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <label style={{ fontWeight: 'bold' }}>Zugehörigkeit</label>
-              <select name="type" defaultValue={editingItem.type} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: '#1e293b', color: 'white', opacity: 0.9 }}>
+              <select name="type" defaultValue={editingItem.type} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: '#1e293b', color: 'var(--foreground)', opacity: 0.9 }}>
                 <option value="main">Geschäftsführender Vorstand (Große Karte)</option>
                 <option value="extended">Erweiterter Vorstand (Kleine Karte)</option>
               </select>
@@ -65,14 +65,14 @@ export default function VorstandAdminPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <label style={{ fontWeight: 'bold' }}>Kurzbeschreibung (Optional - Nur für erweiterten Vorstand)</label>
-              <textarea name="desc" defaultValue={editingItem.desc} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white', minHeight: '80px' }} />
+              <textarea name="desc" defaultValue={editingItem.desc} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)', minHeight: '80px' }} />
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <button type="submit" style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button type="submit" style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
                 Speichern
               </button>
-              <button type="button" onClick={() => setEditingItem(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setEditingItem(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                 Abbrechen
               </button>
             </div>
@@ -86,7 +86,7 @@ export default function VorstandAdminPage() {
             <div key={item.id} style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{item.name}</h3>
-                <div style={{ display: 'flex', gap: '1rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                   <span>{item.role}</span>
                   <span>•</span>
                   <span>Typ: {item.type === 'main' ? 'Geschäftsführend' : 'Erweitert'}</span>

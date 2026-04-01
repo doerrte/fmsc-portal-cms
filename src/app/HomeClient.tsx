@@ -123,11 +123,11 @@ export default function HomeClient({ data }: { data: any }) {
         h3 {
           font-size: 1.5rem;
           font-weight: 700;
-          color: white;
+          color: var(--foreground);
         }
 
         .card p {
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           font-size: 0.95rem;
           line-height: 1.5;
         }
@@ -168,7 +168,7 @@ export default function HomeClient({ data }: { data: any }) {
 
         .teaser-tag {
           background: var(--primary);
-          color: white;
+          color: var(--foreground);
           padding: 4px 12px;
           border-radius: 99px;
           font-size: 0.75rem;
@@ -186,7 +186,7 @@ export default function HomeClient({ data }: { data: any }) {
 
         .news-teaser p {
           font-size: 1.125rem;
-          color: rgba(255, 255, 255, 0.7);
+          color: var(--text-secondary);
           margin-bottom: 2rem;
           max-width: 800px;
         }

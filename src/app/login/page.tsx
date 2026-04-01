@@ -115,11 +115,11 @@ const LoginPage = () => {
           font-size: 2rem;
           font-weight: 800;
           margin-bottom: 0.75rem;
-          color: white;
+          color: var(--foreground);
         }
 
         .login-header p {
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           font-size: 0.95rem;
           line-height: 1.5;
         }
@@ -140,7 +140,7 @@ const LoginPage = () => {
         .input-group label {
           font-size: 0.85rem;
           font-weight: 600;
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--text-secondary);
           display: flex;
           align-items: center;
           gap: 8px;
@@ -148,10 +148,10 @@ const LoginPage = () => {
 
         input {
           background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
           padding: 12px 16px;
           border-radius: 12px;
-          color: white;
+          color: var(--foreground);
           font-family: inherit;
           font-size: 1rem;
           transition: all 0.2s;
@@ -166,7 +166,7 @@ const LoginPage = () => {
 
         .login-submit {
           background: var(--primary);
-          color: white;
+          color: var(--foreground);
           padding: 14px;
           border-radius: 12px;
           font-weight: 700;

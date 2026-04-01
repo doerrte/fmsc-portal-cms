@@ -16,7 +16,7 @@ export default async function AdminBar() {
       </div>
       <div>
         <form action={logoutAction}>
-          <button type="submit" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.3)', color: '#fff', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', transition: '0.2s' }}>
+          <button type="submit" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.3)', color: 'var(--foreground)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', transition: '0.2s' }}>
             Abmelden
           </button>
         </form>

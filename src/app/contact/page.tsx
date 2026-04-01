@@ -142,7 +142,7 @@ const ContactPage = () => {
       <style jsx>{`
         .contact-page {
           background: var(--background);
-          color: white;
+          color: var(--foreground);
           min-height: 100vh;
         }
 
@@ -200,7 +200,7 @@ const ContactPage = () => {
 
         .hero-subtitle {
           font-size: 1.25rem;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-secondary);
           max-width: 600px;
         }
 
@@ -273,10 +273,10 @@ const ContactPage = () => {
 
         .tech-input, .tech-select, .tech-textarea {
           background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
           padding: 12px 18px;
           border-radius: 12px;
-          color: white;
+          color: var(--foreground);
           font-family: inherit;
           transition: all 0.2s;
         }
@@ -290,7 +290,7 @@ const ContactPage = () => {
 
         .btn-send {
           background: #c00000;
-          color: white;
+          color: #ffffff;
           padding: 18px;
           border-radius: 16px;
           font-weight: 800;
@@ -337,7 +337,7 @@ const ContactPage = () => {
           align-items: center;
           justify-content: center;
           color: #567eb6;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
         }
 
         .info-text label {
@@ -356,7 +356,7 @@ const ContactPage = () => {
           border-radius: 20px;
           overflow: hidden;
           margin-top: 1rem;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
         }
 
         .coordinate-overlay {

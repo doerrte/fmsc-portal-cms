@@ -63,8 +63,8 @@ const Footer = () => {
         .footer {
           background: #0f172a;
           padding: 5rem 0 2rem;
-          border-top: 1px solid rgba(255,255,255,0.05);
-          color: rgba(255,255,255,0.7);
+          border-top: 1px solid var(--card-border);
+          color: var(--text-secondary);
         }
 
         .footer-content {
@@ -84,7 +84,7 @@ const Footer = () => {
           display: flex;
           align-items: center;
           gap: 12px;
-          color: white;
+          color: var(--foreground);
           margin-bottom: 1.5rem;
         }
 
@@ -116,7 +116,7 @@ const Footer = () => {
           align-items: center;
           justify-content: center;
           border-radius: 50%;
-          color: white;
+          color: var(--foreground);
           transition: all 0.2s;
         }
 
@@ -126,7 +126,7 @@ const Footer = () => {
         }
 
         h4 {
-          color: white;
+          color: var(--foreground);
           font-size: 1.1rem;
           font-weight: 700;
           margin-bottom: 1.5rem;
@@ -165,7 +165,7 @@ const Footer = () => {
         }
 
         .footer-bottom {
-          border-top: 1px solid rgba(255,255,255,0.05);
+          border-top: 1px solid var(--card-border);
           padding-top: 2rem;
           text-align: center;
           font-size: 0.85rem;

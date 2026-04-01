@@ -33,10 +33,10 @@ export default function GalleryAdminPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Galerie verwalten</h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.2rem' }}>Lade neue Bilder hoch oder fühl Videos hinzu.</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Lade neue Bilder hoch oder fühl Videos hinzu.</p>
         </div>
         {!editingItem && (
-          <button onClick={handleCreate} style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+          <button onClick={handleCreate} style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
             + Neues Medium hinzufügen
           </button>
         )}
@@ -54,25 +54,25 @@ export default function GalleryAdminPage() {
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Titel</label>
-                <input name="title" defaultValue={editingItem.title} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                <input name="title" defaultValue={editingItem.title} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Datum (Text, z.B. Juli 2025)</label>
-                <input name="date" defaultValue={editingItem.date} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} required />
+                <input name="date" defaultValue={editingItem.date} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Medien-Typ</label>
-                <select name="type" defaultValue={editingItem.type} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: '#0a0c10', color: 'white' }}>
+                <select name="type" defaultValue={editingItem.type} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: '#0a0c10', color: 'var(--foreground)' }}>
                   <option value="image">Bild (Foto)</option>
                   <option value="video">Video</option>
                 </select>
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Kategorie (Tag)</label>
-                <input list="category-list" name="category" defaultValue={editingItem.category} placeholder="Eigene Kategorie eintippen..." style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: '#0a0c10', color: 'white' }} required />
+                <input list="category-list" name="category" defaultValue={editingItem.category} placeholder="Eigene Kategorie eintippen..." style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: '#0a0c10', color: 'var(--foreground)' }} required />
                 <datalist id="category-list">
                   <option value="Event" />
                   <option value="Technik" />
@@ -83,8 +83,8 @@ export default function GalleryAdminPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
               <label style={{ fontWeight: 'bold', color: '#f97316' }}>Vorschaubild / Foto hochladen</label>
-              <input type="file" name="imageFile" accept="image/*" style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-              {editingItem.url && <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Aktuelles Bild: {editingItem.url}</p>}
+              <input type="file" name="imageFile" accept="image/*" style={{ padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.2)', color: 'var(--foreground)' }} />
+              {editingItem.url && <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Aktuelles Bild: {editingItem.url}</p>}
             </div>
 
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', margin: '1rem 0' }}></div>
@@ -94,21 +94,21 @@ export default function GalleryAdminPage() {
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Video-Datei hochladen (MP4)</label>
-                <input type="file" name="videoFile" accept="video/mp4,video/webm" style={{ padding: '12px', borderRadius: '8px', border: '1px dashed #f97316', background: 'rgba(249, 115, 22, 0.1)', color: 'white' }} />
+                <input type="file" name="videoFile" accept="video/mp4,video/webm" style={{ padding: '12px', borderRadius: '8px', border: '1px dashed #f97316', background: 'rgba(249, 115, 22, 0.1)', color: 'var(--foreground)' }} />
               </div>
 
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>ODER: YouTube Link</label>
-                <input name="videoUrl" defaultValue={editingItem.videoUrl} placeholder="https://www.youtube.com/watch?v=..." style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'white' }} />
+                <input name="videoUrl" defaultValue={editingItem.videoUrl} placeholder="https://www.youtube.com/watch?v=..." style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} />
               </div>
             </div>
-            {editingItem.videoUrl && <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Aktuelles Video: {editingItem.videoUrl}</p>}
+            {editingItem.videoUrl && <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Aktuelles Video: {editingItem.videoUrl}</p>}
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <button type="submit" style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button type="submit" style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
                 Speichern
               </button>
-              <button type="button" onClick={() => setEditingItem(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setEditingItem(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                 Abbrechen
               </button>
             </div>
@@ -124,7 +124,7 @@ export default function GalleryAdminPage() {
                 {item.url && <img src={item.url} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />}
                 <div>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{item.title}</h3>
-                  <div style={{ display: 'flex', gap: '1rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
+                  <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                     <span>{item.date}</span><span>•</span><span>{item.type}</span><span>•</span><span>{item.category}</span>
                   </div>
                 </div>

@@ -22,7 +22,7 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
   const updates = report.updates || [];
 
   return (
-    <main style={{ background: '#0a0c10', color: 'white', minHeight: '100vh' }}>
+    <main style={{ background: '#0a0c10', color: 'var(--foreground)', minHeight: '100vh' }}>
       <Navbar />
 
       <section style={{ paddingTop: '120px', paddingBottom: '40px' }}>
@@ -34,7 +34,7 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
           <div style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '3rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '2rem' }}>
               <div>
-                <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Logbuch • {report.pilot}</span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Logbuch • {report.pilot}</span>
                 <h1 style={{ fontSize: '3rem', fontWeight: '900', margin: '0.5rem 0' }}>{report.title} <EditButton href="/admin/bauberichte" label="Bearbeiten" /></h1>
                 <p style={{ color: '#567eb6', fontWeight: 'bold' }}>{report.tech}</p>
               </div>
@@ -44,7 +44,7 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
                   {report.status}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'rgba(255,255,255,0.5)' }}>FORTSCHRITT</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-secondary)' }}>FORTSCHRITT</span>
                   <div style={{ width: '150px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${report.progress}%`, background: 'linear-gradient(90deg, #567eb6, #4ade80)', borderRadius: '3px' }} />
                   </div>
@@ -67,7 +67,7 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
             <div style={{ position: 'absolute', left: '20px', top: '0', bottom: '0', width: '2px', background: 'rgba(255,255,255,0.1)' }} />
 
             {updates.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>Noch keine Logbucheinträge vorhanden.</p>
+              <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Noch keine Logbucheinträge vorhanden.</p>
             ) : updates.map((update, idx) => (
               <div key={update.id} style={{ position: 'relative', paddingLeft: '60px', marginBottom: '4rem' }}>
                 {/* Timeline dot */}
@@ -77,7 +77,7 @@ export default async function BauberichtDetailPage({ params }: { params: Promise
                   <Clock size={14} /> Update vom {update.date}
                 </span>
 
-                <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', lineHeight: '1.8', whiteSpace: 'pre-wrap', marginBottom: '2rem' }}>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.8', whiteSpace: 'pre-wrap', marginBottom: '2rem' }}>
                   {update.text}
                 </div>
 

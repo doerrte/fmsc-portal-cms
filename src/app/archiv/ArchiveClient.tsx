@@ -141,7 +141,7 @@ const ArchiveClient = ({ docs, milestones }: { docs: ArchiveDoc[], milestones: A
       <Footer />
 
       <style jsx>{`
-        .archive-page { background: var(--background); color: white; min-height: 100vh; }
+        .archive-page { background: var(--background); color: var(--foreground); min-height: 100vh; }
 
         .archive-hero {
           position: relative; height: 50vh; min-height: 400px; display: flex; align-items: center;
@@ -159,7 +159,7 @@ const ArchiveClient = ({ docs, milestones }: { docs: ArchiveDoc[], milestones: A
         .tech-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(86, 126, 182, 0.1); color: #567eb6; padding: 8px 16px; border-radius: 99px; border: 1px solid rgba(86, 126, 182, 0.2); font-weight: 800; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 2rem; }
         .hero-title { font-size: 4rem; font-weight: 900; margin-bottom: 1rem; line-height: 1; }
         .highlight { color: #567eb6; }
-        .hero-subtitle { font-size: 1.25rem; color: rgba(255, 255, 255, 0.6); max-width: 600px; }
+        .hero-subtitle { font-size: 1.25rem; color: var(--text-secondary); max-width: 600px; }
 
         .archive-section { padding: 6rem 0; }
 
@@ -170,15 +170,15 @@ const ArchiveClient = ({ docs, milestones }: { docs: ArchiveDoc[], milestones: A
         @media (max-width: 1024px) { .archive-sidebar { position: static; } }
 
         .search-box { padding: 1rem; border-radius: 16px; display: flex; gap: 12px; align-items: center; }
-        .search-box input { background: none; border: none; color: white; outline: none; flex-grow: 1; font-weight: 600; font-size: 0.9rem; }
+        .search-box input { background: none; border: none; color: var(--foreground); outline: none; flex-grow: 1; font-weight: 600; font-size: 0.9rem; }
 
         .year-selector { padding: 1.5rem; border-radius: 24px; display: flex; flex-direction: column; gap: 10px; }
         .year-selector h3 { font-size: 0.7rem; font-weight: 900; color: #567eb6; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; padding-left: 1rem; }
         
         .year-btn { 
           padding: 12px 18px; border-radius: 14px; display: flex; align-items: center; gap: 15px; 
-          background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
-          color: white; transition: all 0.2s; cursor: pointer;
+          background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border);
+          color: var(--foreground); transition: all 0.2s; cursor: pointer;
         }
         .year-btn:hover { background: rgba(86, 126, 182, 0.1); border-color: #567eb6; }
         .y-num { font-weight: 800; font-size: 1.1rem; flex-grow: 1; text-align: left; }
@@ -205,7 +205,7 @@ const ArchiveClient = ({ docs, milestones }: { docs: ArchiveDoc[], milestones: A
         }
 
         .m-highlights { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; }
-        .m-highlights li { display: flex; align-items: center; gap: 12px; color: rgba(255, 255, 255, 0.8); font-weight: 600; text-align: left; }
+        .m-highlights li { display: flex; align-items: center; gap: 12px; color: var(--text-secondary); font-weight: 600; text-align: left; }
         .m-highlights li::before { content: '•'; color: #567eb6; font-weight: 900; }
 
         .docs-list { display: flex; flex-direction: column; gap: 1rem; }
@@ -220,8 +220,8 @@ const ArchiveClient = ({ docs, milestones }: { docs: ArchiveDoc[], milestones: A
         .doc-main span { font-size: 0.75rem; color: rgba(255, 255, 255, 0.4); font-weight: 700; text-transform: uppercase; }
         
         .btn-download { 
-          width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); color: white;
-          border: 1px solid rgba(255, 255, 255, 0.1); text-decoration: none; transition: background 0.2s;
+          width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); color: var(--foreground);
+          border: 1px solid var(--card-border); text-decoration: none; transition: background 0.2s;
         }
         .btn-download:hover { background: rgba(86, 126, 182, 0.2); border-color: #567eb6; color: #567eb6; }
 
