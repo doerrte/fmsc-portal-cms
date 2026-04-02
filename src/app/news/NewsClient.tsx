@@ -1,13 +1,41 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Newspaper, Calendar, ArrowRight, Share2, MessageSquare, Radio, Shield } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar, ArrowRight, Share2, MessageSquare, Radio, Loader2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EditButton from '@/components/EditButton';
 
+const ITEMS_PER_PAGE = 6;
+
 const NewsClient = ({ news }: { news: any[] }) => {
+  const [activeFilter, setActiveFilter] = useState<string>('Alle');
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [loading, setLoading] = useState(false);
+
+  const filters = ['Alle', 'Events', 'Technik', 'Platz'];
+
+  const filteredNews = activeFilter === 'Alle'
+    ? news
+    : news.filter(item => item.tag?.toLowerCase() === activeFilter.toLowerCase());
+
+  const visibleNews = filteredNews.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredNews.length;
+
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
+    setVisibleCount(ITEMS_PER_PAGE);
+  };
+
+  const handleLoadMore = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setVisibleCount(prev => prev + ITEMS_PER_PAGE);
+      setLoading(false);
+    }, 600);
+  };
+
   return (
     <main className="news-page">
       <Navbar />
@@ -44,58 +72,84 @@ const NewsClient = ({ news }: { news: any[] }) => {
           <div className="feed-header">
             <h2 className="title-gradient">Letzte Updates</h2>
             <div className="filter-chips">
-              <span className="chip active">Alle</span>
-              <span className="chip">Events</span>
-              <span className="chip">Technik</span>
-              <span className="chip">Platz</span>
+              {filters.map(filter => (
+                <button
+                  key={filter}
+                  className={`chip ${activeFilter === filter ? 'active' : ''}`}
+                  onClick={() => handleFilterChange(filter)}
+                >
+                  {filter}
+                </button>
+              ))}
             </div>
           </div>
 
           <div className="news-grid">
-            {news.map((item, index) => (
-              <motion.article 
-                key={item.id}
-                className="news-card glass"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className="card-image-box">
-                  <img src={item.image || '/news_article_pilot_model_1774782897920.png'} alt={item.title} className="card-img" />
-                  <div className="card-tag">{item.tag}</div>
-                </div>
-                
-                <div className="card-content">
-                  <div className="card-meta">
-                    <Calendar size={14} className="text-secondary" />
-                    <span>{new Date(item.date).toLocaleDateString('de-DE')}</span>
-                    <span className="dot" />
-                    <span>{item.location}</span>
+            <AnimatePresence mode="popLayout">
+              {visibleNews.length === 0 ? (
+                <motion.p
+                  key="no-results"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="no-results"
+                >
+                  Keine Beiträge in dieser Kategorie.
+                </motion.p>
+              ) : visibleNews.map((item, index) => (
+                <motion.article
+                  key={item.id}
+                  className="news-card glass"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                >
+                  <div className="card-image-box">
+                    <img src={item.image || '/news_article_pilot_model_1774782897920.png'} alt={item.title} className="card-img" />
+                    <div className="card-tag">{item.tag}</div>
                   </div>
-                  
-                  <h3 className="card-title">{item.title}</h3>
-                  <p className="card-text">{item.content}</p>
-                  
-                  <div className="card-footer">
-                    <button className="read-more">
-                      Details <ArrowRight size={16} />
-                    </button>
-                    <div className="footer-actions">
-                      <Share2 size={18} />
-                      <MessageSquare size={18} />
+
+                  <div className="card-content">
+                    <div className="card-meta">
+                      <Calendar size={14} className="text-secondary" />
+                      <span>{new Date(item.date).toLocaleDateString('de-DE')}</span>
+                      <span className="dot" />
+                      <span>{item.location}</span>
+                    </div>
+
+                    <h3 className="card-title">{item.title}</h3>
+                    <p className="card-text">{item.content}</p>
+
+                    <div className="card-footer">
+                      <button className="read-more">
+                        Details <ArrowRight size={16} />
+                      </button>
+                      <div className="footer-actions">
+                        <Share2 size={18} />
+                        <MessageSquare size={18} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.article>
-            ))}
+                </motion.article>
+              ))}
+            </AnimatePresence>
           </div>
 
-          {/* Archive Link */}
-          <div className="archive-section">
-            <button className="btn-archive">
-              Ältere Beiträge laden
-            </button>
-          </div>
+          {/* Load More */}
+          {hasMore && (
+            <div className="archive-section">
+              <button className="btn-archive" onClick={handleLoadMore} disabled={loading}>
+                {loading ? (
+                  <><Loader2 size={18} className="spin" /> Wird geladen...</>
+                ) : (
+                  'Ältere Beiträge laden'
+                )}
+              </button>
+            </div>
+          )}
+          {!hasMore && filteredNews.length > ITEMS_PER_PAGE && (
+            <p className="all-loaded">Alle Beiträge geladen.</p>
+          )}
         </div>
       </section>
 
@@ -203,6 +257,20 @@ const NewsClient = ({ news }: { news: any[] }) => {
         .filter-chips {
           display: flex;
           gap: 10px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+          padding-bottom: 4px;
+          flex-shrink: 0;
+        }
+
+        .filter-chips::-webkit-scrollbar {
+          display: none;
+        }
+
+        .chip {
+          flex-shrink: 0;
         }
 
         .chip {
@@ -359,6 +427,38 @@ const NewsClient = ({ news }: { news: any[] }) => {
           background: rgba(255, 255, 255, 0.08);
           border-color: #567eb6;
         }
+
+        .btn-archive:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .btn-archive {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .chip { background: none; border: 1px solid var(--card-border); cursor: pointer; font-family: inherit; }
+
+        .no-results {
+          grid-column: 1 / -1;
+          text-align: center;
+          color: var(--text-secondary);
+          padding: 4rem;
+          font-size: 1.1rem;
+        }
+
+        .all-loaded {
+          text-align: center;
+          color: var(--text-secondary);
+          margin-top: 3rem;
+          font-size: 0.9rem;
+          opacity: 0.6;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin { animation: spin 0.8s linear infinite; }
       `}</style>
     </main>
   );
