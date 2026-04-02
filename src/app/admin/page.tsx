@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Reorder } from 'framer-motion';
-import { Settings, Newspaper, Calendar, Users, Info, Image as ImageIcon, FileText, Archive, Home } from 'lucide-react';
+import { Settings, Newspaper, Calendar, Users, Info, Image as ImageIcon, FileText, Archive, Home, LayoutDashboard } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const tileIcons: Record<string, React.ReactNode> = {
@@ -17,7 +17,8 @@ const tileIcons: Record<string, React.ReactNode> = {
   info: <Info size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
   gallery: <ImageIcon size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
   bauberichte: <FileText size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
-  archiv: <Archive size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />
+  archiv: <Archive size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
+  dashboard: <LayoutDashboard size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />
 };
 
 const DEFAULT_TILES = [
@@ -31,7 +32,8 @@ const DEFAULT_TILES = [
   { id: 'info', title: 'Infos verwalten', desc: 'Passe Platzordnung, Vereinsdokumente und Hinweise an.', href: '/admin/info', btn: 'Dokumente verwalten' },
   { id: 'gallery', title: 'Galerie verwalten', desc: 'Lade neue Bilder hoch oder organisiere bestehende Alben.', href: '/admin/gallery', btn: 'Bilder hochladen' },
   { id: 'bauberichte', title: 'Bauberichte verwalten', desc: 'Erstelle Konstruktions-Logs und aktualisiere Baufortschritte.', href: '/admin/bauberichte', btn: 'Zu Bauberichten' },
-  { id: 'archiv', title: 'Archiv verwalten', desc: 'Historische Dokumente, Meilensteine und das digitale Vereinsarchiv.', href: '/admin/archiv', btn: 'Archiv öffnen' }
+  { id: 'archiv', title: 'Archiv verwalten', desc: 'Historische Dokumente, Meilensteine und das digitale Vereinsarchiv.', href: '/admin/archiv', btn: 'Archiv öffnen' },
+  { id: 'dashboard', title: 'Mitgliederbereich', desc: 'Wechsle direkt in das interne Dashboard der Vereinsmitglieder.', href: '/dashboard', btn: 'Dashboard öffnen' }
 ];
 
 export default function AdminDashboard() {
