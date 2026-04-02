@@ -18,7 +18,7 @@ export async function loginAction(formData: FormData) {
   if (db.members.length === 0) {
     if (email === 'admin@fmsc.de' && (pw === 'fmsc2026' || pw === 'opa')) {
       const cookieStore = await cookies();
-      cookieStore.set('auth', 'fallback-admin|admin', { maxAge: 60 * 60 * 24 * 30 });
+      cookieStore.set('auth', 'fallback-admin|admin', { maxAge: 60 * 60 * 24 * 7 });
       return { success: true, role: 'admin' };
     }
     return { success: false, error: 'Keine Accounts vorhanden. Nutze den Fallback-Admin Login.' };
@@ -37,8 +37,17 @@ export async function loginAction(formData: FormData) {
   
   // Login erfolgreich
   const cookieStore = await cookies();
-  cookieStore.set('auth', `${user.id}|${user.role}`, { maxAge: 60 * 60 * 24 * 30 });
+  cookieStore.set('auth', `${user.id}|${user.role}`, { maxAge: 60 * 60 * 24 * 7 });
   return { success: true, role: user.role };
+}
+
+export async function checkAuthAction() {
+  const cookieStore = await cookies();
+  const auth = cookieStore.get('auth')?.value;
+  if (!auth) return { success: false };
+  
+  const [id, role] = auth.split('|');
+  return { success: true, role };
 }
 
 export async function logoutAction() {

@@ -65,7 +65,6 @@ const Navbar = () => {
               <span className="logo-title">Flugmodellsportclub</span>
               <span className="logo-subtitle">Königshoven 1975 e.V.</span>
             </div>
-
           </Link>
 
           {/* Desktop Nav */}
@@ -132,13 +131,10 @@ const Navbar = () => {
             <Link href="/events" className={`nav-link ${pathname === '/events' ? 'active' : ''}`}>Termine</Link>
             <Link href="/info" className={`nav-link ${pathname === '/info' ? 'active' : ''}`}>Infos</Link>
             <Link href="/contact" className={`nav-link ${pathname === '/contact' ? 'active' : ''}`}>Kontakt</Link>
-
-            <ThemeToggle />
-
             <Link href="/login" className="login-btn">
-              <LayoutDashboard size={18} />
               <span>Intern</span>
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </nav>

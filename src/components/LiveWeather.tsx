@@ -207,15 +207,15 @@ const LiveWeather = () => {
 
       <style jsx>{`
         .weather-section {
-          padding: 6rem 0;
-          margin-top: -8rem;
+          padding: 12rem 0 8rem 0;
+          margin-top: 0;
           position: relative;
           z-index: 20;
           overflow: hidden;
         }
 
         @media (max-width: 768px) {
-          .weather-section { padding: 3rem 0; margin-top: -4rem; }
+          .weather-section { padding: 3rem 0; margin-top: 0; }
         }
 
         .dashboard-wrapper {

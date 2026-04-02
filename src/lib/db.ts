@@ -95,6 +95,14 @@ export interface ArchiveMilestone {
   text: string;
 }
 
+export interface InternalDoc {
+  id: string;
+  title: string;
+  url: string;
+  date: string;
+  uploadedBy: string; // Member name
+}
+
 export interface InfoSafetyRule {
   id: string;
   title: string;
@@ -121,8 +129,10 @@ export interface MemberItem {
   email: string;
   name: string;
   passwordHash: string;
-  role: 'admin' | 'member';
+  role: 'admin' | 'board' | 'member';
   createdAt: string;
+  profileImage?: string;
+  phone?: string;
 }
 
 export interface DbSchema {
@@ -137,6 +147,7 @@ export interface DbSchema {
   archiv_docs: ArchiveDoc[];
   archiv_milestones: ArchiveMilestone[];
   members: MemberItem[];
+  internal_docs: InternalDoc[];
 }
 
 const dbPath = path.join(process.cwd(), 'data.json');
@@ -199,6 +210,8 @@ export async function getDbData(): Promise<DbSchema> {
         }
       });
     }
+
+    if (!data.internal_docs) data.internal_docs = [];
     
     return data;
   } catch (error) {
@@ -244,6 +257,7 @@ function createEmptyDb(): DbSchema {
       bauberichte: [],
       archiv_docs: [],
       archiv_milestones: [],
-      members: []
+      members: [],
+      internal_docs: []
     };
 }

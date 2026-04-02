@@ -5,13 +5,28 @@ import { useRouter } from 'next/navigation';
 import { Plane, Lock, Mail, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { loginAction } from './actions';
+import { loginAction, checkAuthAction } from './actions';
+import { useEffect } from 'react';
 
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkAuth() {
+      const res = await checkAuthAction();
+      if (res.success) {
+        if (res.role === 'admin') router.push('/admin');
+        else router.push('/dashboard');
+      } else {
+        setLoading(false);
+      }
+    }
+    checkAuth();
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +45,14 @@ const LoginPage = () => {
       setError(res.error || 'Fehler beim Einloggen');
     }
   };
+
+  if (loading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', color: 'var(--foreground)' }}>
+        Laden...
+      </div>
+    );
+  }
 
   return (
     <main className="login-page">

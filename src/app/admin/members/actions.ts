@@ -7,7 +7,8 @@ export async function addMemberAction(formData: FormData) {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const role = formData.get('role') as 'admin' | 'member';
+  const phone = formData.get('phone') as string;
+  const role = formData.get('role') as 'admin' | 'board' | 'member';
 
   if (!name || !email || !password || !role) {
     return { success: false, error: 'Bitte alle Felder ausfüllen.' };
@@ -25,7 +26,8 @@ export async function addMemberAction(formData: FormData) {
     email,
     passwordHash: hashPassword(password),
     role,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    phone: phone || ''
   };
 
   db.members.push(newMember);
@@ -36,7 +38,8 @@ export async function addMemberAction(formData: FormData) {
 
 export async function updateMemberAction(formData: FormData) {
   const id = formData.get('id') as string;
-  const role = formData.get('role') as 'admin' | 'member';
+  const role = formData.get('role') as 'admin' | 'board' | 'member';
+  const phone = formData.get('phone') as string;
   const newPassword = formData.get('password') as string;
 
   const db = await getDbData();
@@ -45,6 +48,9 @@ export async function updateMemberAction(formData: FormData) {
   if (index === -1) return { success: false, error: 'Mitglied nicht gefunden' };
   
   db.members[index].role = role;
+  if (phone !== undefined) {
+    db.members[index].phone = phone;
+  }
   
   if (newPassword && newPassword.trim().length > 0) {
     db.members[index].passwordHash = hashPassword(newPassword);

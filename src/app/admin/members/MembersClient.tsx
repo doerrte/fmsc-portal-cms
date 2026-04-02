@@ -14,11 +14,13 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
     name: '',
     email: '',
     password: '',
-    role: 'member' as 'admin' | 'member'
+    phone: '',
+    role: 'member' as 'admin' | 'board' | 'member'
   });
 
   const [editData, setEditData] = useState({
-    role: 'member' as 'admin' | 'member',
+    role: 'member' as 'admin' | 'board' | 'member',
+    phone: '',
     password: ''
   });
 
@@ -32,6 +34,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
     form.append('name', formData.name);
     form.append('email', formData.email);
     form.append('password', formData.password);
+    form.append('phone', formData.phone);
     form.append('role', formData.role);
 
     const res = await addMemberAction(form);
@@ -44,7 +47,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
 
   const handleEditInit = (m: MemberItem) => {
     setEditingId(m.id);
-    setEditData({ role: m.role, password: '' });
+    setEditData({ role: m.role, phone: m.phone || '', password: '' });
   };
 
   const handleEditSubmit = async (m: MemberItem) => {
@@ -121,14 +124,20 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                   value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})}
                   style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'var(--foreground)' }}
                 />
+                <input 
+                  type="text" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  placeholder="Handynummer (optional)"
+                  style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'var(--foreground)' }}
+                />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Rolle</label>
                 <select 
-                  value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value as 'admin'|'member'})}
+                  value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value as 'admin'|'board'|'member'})}
                   style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'var(--foreground)' }}
                 >
                   <option value="member" style={{ color: 'black' }}>Standard-Mitglied (Nur Dashboard)</option>
+                  <option value="board" style={{ color: 'black' }}>Vorstandsmitglied (Dashboard + Dokumente)</option>
                   <option value="admin" style={{ color: 'black' }}>Administrator (Voller Zugriff)</option>
                 </select>
               </div>
@@ -169,12 +178,20 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Handy</label>
+                  <input 
+                    type="text" value={editData.phone} onChange={(e) => setEditData({...editData, phone: e.target.value})}
+                    style={{ padding: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'var(--foreground)', width: '100%' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                   <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Rolle</label>
                   <select 
-                    value={editData.role} onChange={(e) => setEditData({...editData, role: e.target.value as 'admin'|'member'})}
+                    value={editData.role} onChange={(e) => setEditData({...editData, role: e.target.value as 'admin'|'board'|'member'})}
                     style={{ padding: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'var(--foreground)', width: '100%' }}
                   >
                     <option value="member" style={{ color: 'black' }}>Mitglied</option>
+                    <option value="board" style={{ color: 'black' }}>Vorstand</option>
                     <option value="admin" style={{ color: 'black' }}>Admin</option>
                   </select>
                 </div>
@@ -192,19 +209,26 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
               // View Mode
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                  <div style={{ padding: '12px', background: m.role === 'admin' ? 'rgba(249, 115, 22, 0.1)' : 'rgba(255,255,255,0.05)', borderRadius: '12px', color: m.role === 'admin' ? '#f97316' : 'rgba(255,255,255,0.6)' }}>
-                    {m.role === 'admin' ? <Shield size={24} /> : <User size={24} />}
+                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', overflow: 'hidden', background: m.role === 'admin' ? 'rgba(249, 115, 22, 0.1)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: m.role === 'admin' ? '#f97316' : 'rgba(255,255,255,0.6)' }}>
+                    {m.profileImage ? (
+                      <img src={m.profileImage} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      m.role === 'admin' ? <Shield size={24} /> : <User size={24} />
+                    )}
                   </div>
                   <div>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{m.name}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{m.email}</p>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{m.email}</span>
+                      {m.phone && <span style={{ color: '#567eb6', fontSize: '0.85rem', fontWeight: '600' }}>{m.phone}</span>}
+                    </div>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '0.8rem', padding: '4px 10px', background: m.role === 'admin' ? '#f97316' : 'rgba(255,255,255,0.1)', borderRadius: '99px', fontWeight: 'bold' }}>
-                      {m.role === 'admin' ? 'Administrator' : 'Mitglied'}
+                    <span style={{ fontSize: '0.8rem', padding: '4px 10px', background: m.role === 'admin' ? '#f97316' : (m.role === 'board' ? '#567eb6' : 'rgba(255,255,255,0.1)'), borderRadius: '99px', fontWeight: 'bold' }}>
+                      {m.role === 'admin' ? 'Administrator' : (m.role === 'board' ? 'Vorstand' : 'Mitglied')}
                     </span>
                   </div>
                   <div style={{ display: 'flex', gap: '10px' }}>

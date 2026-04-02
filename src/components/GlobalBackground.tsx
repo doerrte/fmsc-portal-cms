@@ -15,6 +15,7 @@ const GlobalBackground = () => {
         fill 
         priority
         className="object-cover"
+        style={{ filter: 'blur(60px)', opacity: 0.45 }}
       />
       <div className={`overlay ${theme === 'dark' ? 'dark-overlay' : 'light-overlay'}`} />
 

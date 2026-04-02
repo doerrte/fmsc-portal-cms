@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (url.pathname.startsWith('/dashboard')) {
-    if (!role || (role !== 'admin' && role !== 'member')) {
+    if (!role || (role !== 'admin' && role !== 'member' && role !== 'board')) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }

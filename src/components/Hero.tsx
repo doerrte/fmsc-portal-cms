@@ -3,10 +3,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Play, ArrowRight } from 'lucide-react';
+import { useTheme } from './ThemeProvider';
 import EditButton from './EditButton';
 
 const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string, bgImage?: string }) => {
   const imageUrl = bgImage || '/hero_modelflying_jet_cinematic_1774782875980.png';
+  const { theme } = useTheme();
   return (
     <section className="hero" style={{ background: `#020617 url('${imageUrl}') center/cover no-repeat` }}>
       <div className="hero-overlay" />
@@ -18,10 +20,16 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            src="/logo_clean.png?v=8"
-            alt="FMSC Logo v8"
+            src="/logo_clean.png"
+            alt="FMSC Official Logo"
             className="official-logo block mx-auto lg:w-[1300px] h-auto"
-            style={{ width: '220px', maxWidth: '220px' }}
+            style={{ 
+              width: '252px', 
+              maxWidth: '252px',
+              filter: theme === 'light' ? 'brightness(0)' : 'none',
+              imageRendering: '-webkit-optimize-contrast',
+              transform: 'translateZ(0)'
+            }}
           />
         </div>
 
@@ -93,13 +101,11 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
         .official-logo {
           transition: all 0.3s ease;
           opacity: 0.95;
-          filter: var(--logo-filter);
         }
 
         .official-logo:hover {
           opacity: 1;
           transform: translateY(-2px) scale(1.05);
-          filter: var(--logo-filter) drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
         }
 
         @media (max-width: 1024px) {
@@ -201,13 +207,27 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           .hero-description { margin-inline: auto; font-size: 1.1rem; }
         }
 
-        .hero-actions {
-          display: flex;
-          gap: 1.5rem;
+        :global(.hero-actions) {
+          display: flex !important;
+          flex-direction: row !important;
+          flex-wrap: nowrap !important;
+          gap: 2.5rem !important;
+          margin-top: 2rem !important;
+          justify-content: flex-start !important;
+          width: 100% !important;
         }
 
         @media (max-width: 1024px) {
-          .hero-actions { justify-content: center; }
+          :global(.hero-actions) { 
+            flex-direction: column !important; 
+            align-items: center !important; 
+            gap: 1.5rem !important; 
+            justify-content: center !important;
+          }
+          .btn-primary, .btn-secondary {
+            width: 100% !important;
+            max-width: 300px !important;
+          }
         }
 
         .btn-primary {
@@ -218,8 +238,11 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           font-weight: 700;
           display: flex;
           align-items: center;
-          gap: 10px;
+          justify-content: center;
+          gap: 12px;
           font-size: 1.1rem;
+          width: 260px !important;
+          white-space: nowrap !important;
           transition: all 0.3s;
         }
 
@@ -238,7 +261,10 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           font-size: 1.1rem;
           display: flex;
           align-items: center;
-          gap: 10px;
+          justify-content: center;
+          gap: 12px;
+          width: 260px !important;
+          white-space: nowrap !important;
           border: 1px solid var(--card-border);
           transition: all 0.3s;
         }
