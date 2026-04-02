@@ -5,6 +5,14 @@ import { Plane, Calendar, Clock, Plus, History, LogOut, LayoutDashboard, Databas
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { logoutAction } from '@/app/login/actions';
+import { getSafeMembersAction } from './actions';
+import { Users } from 'lucide-react';
+
+interface MemberData {
+  id: string;
+  name: string;
+  role: string;
+}
 
 interface FlightRecord {
   id: string;
@@ -16,10 +24,22 @@ interface FlightRecord {
 }
 
 const DashboardPage = () => {
+  const [activeTab, setActiveTab] = React.useState('flugbuch');
+  const [members, setMembers] = React.useState<MemberData[]>([]);
   const [flights, setFlights] = useState<FlightRecord[]>([
     { id: '1', pilot_name: 'Max Mustermann', aircraft_name: 'Stuka JU-87', date: '2026-03-28', duration: 15, notes: 'Erfolgreicher Erstflug nach Reparatur.' },
     { id: '2', pilot_name: 'Erika Musterfrau', aircraft_name: 'ASW 28 Glider', date: '2026-03-27', duration: 45, notes: 'Gute Thermik am Nachmittag.' },
   ]);
+
+  React.useEffect(() => {
+    async function loadMembers() {
+      const res = await getSafeMembersAction();
+      if (res.success && res.members) {
+        setMembers(res.members);
+      }
+    }
+    loadMembers();
+  }, []);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newFlight, setNewFlight] = useState({
@@ -56,8 +76,8 @@ const DashboardPage = () => {
             <span>Dashboard</span>
           </div>
           <nav className="sidebar-nav">
-            <a href="#" className="nav-item active"><Database size={18} /> Flugbuch</a>
-            <a href="#" className="nav-item"><History size={18} /> Meine Flüge</a>
+            <button onClick={() => setActiveTab('flugbuch')} className={`nav-item ${activeTab === 'flugbuch' ? 'active' : ''}`} style={{ border: 'none', background: activeTab === 'flugbuch' ? 'rgba(251, 146, 60, 0.1)' : 'transparent', width: '100%', cursor: 'pointer', textAlign: 'left', color: activeTab === 'flugbuch' ? 'var(--primary)' : 'var(--text-secondary)' }}><Database size={18} /> Flugbuch</button>
+            <button onClick={() => setActiveTab('mitglieder')} className={`nav-item ${activeTab === 'mitglieder' ? 'active' : ''}`} style={{ border: 'none', background: activeTab === 'mitglieder' ? 'rgba(251, 146, 60, 0.1)' : 'transparent', width: '100%', cursor: 'pointer', textAlign: 'left', color: activeTab === 'mitglieder' ? 'var(--primary)' : 'var(--text-secondary)' }}><Users size={18} /> Mitglieder</button>
             <form action={logoutAction} style={{ margin: 0, padding: 0 }}>
               <button type="submit" className="nav-item logout" style={{ background: 'transparent', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <LogOut size={18} /> Abmelden
@@ -67,16 +87,18 @@ const DashboardPage = () => {
         </aside>
 
         <section className="main-content">
-          <header className="content-header">
-            <div>
-              <h1>Digitales Flugbuch</h1>
-              <p>Erfassen Sie Ihre heutigen Flugstunden am Königshovener Feld.</p>
-            </div>
-            <button className="add-btn" onClick={() => setShowAddForm(true)}>
-              <Plus size={20} />
-              Flug hinzufügen
-            </button>
-          </header>
+          {activeTab === 'flugbuch' && (
+            <>
+              <header className="content-header">
+                <div>
+                  <h1>Digitales Flugbuch</h1>
+                  <p>Erfassen Sie Ihre heutigen Flugstunden am Königshovener Feld.</p>
+                </div>
+                <button className="add-btn" onClick={() => setShowAddForm(true)}>
+                  <Plus size={20} />
+                  Flug hinzufügen
+                </button>
+              </header>
 
           {showAddForm && (
             <div className="modal-overlay">
@@ -148,21 +170,55 @@ const DashboardPage = () => {
               <span>Datum</span>
               <span>Dauer</span>
             </div>
-            {flights.map(flight => (
-              <div key={flight.id} className="flight-item glass">
-                <div className="model-info">
-                  <Plane className="pilot-icon" size={20} />
-                  <div>
-                    <span className="model-name">{flight.aircraft_name}</span>
-                    <span className="notes">{flight.notes}</span>
+              {flights.map(flight => (
+                <div key={flight.id} className="flight-item glass">
+                  <div className="model-info">
+                    <Plane className="pilot-icon" size={20} />
+                    <div>
+                      <span className="model-name">{flight.aircraft_name}</span>
+                      <span className="notes">{flight.notes}</span>
+                    </div>
                   </div>
+                  <span className="pilot-name">{flight.pilot_name}</span>
+                  <span className="date">{flight.date}</span>
+                  <span className="duration-pill">{flight.duration} min</span>
                 </div>
-                <span className="pilot-name">{flight.pilot_name}</span>
-                <span className="date">{flight.date}</span>
-                <span className="duration-pill">{flight.duration} min</span>
+              ))}
+            </div>
+            </>
+          )}
+
+          {activeTab === 'mitglieder' && (
+            <>
+              <header className="content-header">
+                <div>
+                  <h1>Vereinsmitglieder</h1>
+                  <p>Eine Liste aller aktiven Pilotinnen und Piloten unseres Vereins.</p>
+                </div>
+              </header>
+
+              <div className="flight-list">
+                <div className="list-header glass">
+                  <span>Rolle</span>
+                  <span>Name</span>
+                  <span>ID</span>
+                </div>
+                {members.map(m => (
+                  <div key={m.id} className="flight-item glass">
+                    <div className="model-info">
+                      <Users className="pilot-icon" size={20} />
+                      <div>
+                        <span className="model-name" style={{textTransform: 'capitalize'}}>{m.role === 'admin' ? 'Administrator' : 'Mitglied'}</span>
+                      </div>
+                    </div>
+                    <span className="pilot-name">{m.name}</span>
+                    <span className="date" style={{fontFamily: 'monospace', opacity: 0.6}}>#{m.id}</span>
+                    <span className="duration-pill" style={{background: 'rgba(86,126,182,0.1)', color: '#567eb6'}}>Aktiv</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </section>
       </div>
 
