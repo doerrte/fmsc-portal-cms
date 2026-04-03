@@ -83,14 +83,12 @@ function generateVapidHeader(endpoint: string, privateKeyInput: string, publicKe
     const x = base64UrlDecode(jwk.x);
     const y = base64UrlDecode(jwk.y);
     cleanPublicKey = base64UrlEncode(Buffer.concat([Buffer.from([0x04]), x, y]));
+  } else if (publicKeyInput.includes('-') || publicKeyInput.includes('_')) {
+    // Already base64url, use as is
+    cleanPublicKey = publicKeyInput;
   } else {
-    // Legacy/DER fallback
-    const publicKeyObject = crypto.createPublicKey({
-      key: base64UrlDecode(publicKeyInput),
-      format: 'der',
-      type: 'spki'
-    });
-    const rawPubKey = (publicKeyObject.export({ type: 'x9.62', format: 'der' } as any)) as Buffer;
+    // Standard base64, convert to base64url
+    const rawPubKey = Buffer.from(publicKeyInput, 'base64');
     cleanPublicKey = base64UrlEncode(rawPubKey);
   }
 
