@@ -19,6 +19,11 @@ export default function PushNotificationManager() {
       checkSubscription();
       fetchIdentity();
       
+      // Proactively update Service Worker to clear caches
+      navigator.serviceWorker.ready.then(reg => {
+        reg.update().then(() => console.log('[SW] Update check performed'));
+      });
+
       if (typeof navigator !== 'undefined' && 'clearAppBadge' in navigator) {
         (navigator as any).clearAppBadge().catch((err: any) => console.log('Clear badge error:', err));
       }

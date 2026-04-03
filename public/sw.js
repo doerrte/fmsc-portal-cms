@@ -22,36 +22,41 @@ self.addEventListener('push', function(event) {
     }
 
     const title = data.title || 'FMSC Portal ✈️';
-    const body = data.body || 'Neue Nachricht!';
-    
-    // Notify the UI if it's open
-    const channel = new BroadcastChannel('push-channel');
-    channel.postMessage({ title, body, data });
-
-    // Set App Badge (Icon Counter)
-    if (self.navigator.setAppBadge && data.badgeCount !== undefined) {
-      self.navigator.setAppBadge(data.badgeCount);
+    try {
+      const data = event.data.json();
+      title = data.title || title;
+      body = data.body || body;
+      icon = data.icon || icon;
+      tag = data.tag || tag;
+      url = data.url || url;
+      vibrate = data.vibrate || vibrate;
+      badgeCount = data.badgeCount !== undefined ? data.badgeCount : badgeCount;
+    } catch (e) {
+      console.error('[SW] JSON parse error, using fallback notification:', e);
+      // Fallback: title and body are already set to defaults above
     }
-
-    const options = {
-      body: body,
-      icon: data.icon || '/icon.png',
-      badge: '/badge-icon.png', // Small monochrome icon for Android status bar
-      image: data.image || null, // Large image support for Chrome/Android
-      vibrate: data.vibrate || [200, 100, 200], // Vibration pattern
-      tag: data.tag || 'fmsc-contact-inquiry',
-      renotify: true,
-      data: { url: data.url || '/dashboard?tab=nachrichten' },
-      actions: data.actions || [
-        { action: 'view', title: 'Ansehen' },
-        { action: 'close', title: 'Schließen' }
-      ]
-    };
-
-    event.waitUntil(
-      self.registration.showNotification(title, options)
-    );
   }
+
+  const notificationPromise = self.registration.showNotification(title, {
+    body,
+    icon,
+    badge: '/badge.png',
+    tag,
+    renotify: true,
+    data: { url },
+    actions: [
+      { action: 'open', title: 'Ansehen' },
+      { action: 'close', title: 'Schließen' }
+    ],
+    vibrate
+  });
+
+  // Badge Update
+  if ('setAppBadge' in self.navigator) {
+    self.navigator.setAppBadge(badgeCount).catch(err => console.log('Badge error:', err));
+  }
+
+  event.waitUntil(notificationPromise);
 });
 
 self.addEventListener('notificationclick', function(event) {

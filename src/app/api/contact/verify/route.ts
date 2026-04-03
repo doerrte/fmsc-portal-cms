@@ -48,18 +48,18 @@ export async function POST(request: Request) {
       // 4. Trigger Push Notifications for Admin/Board members
       try {
         if (dbData.push_subscriptions && dbData.push_subscriptions.length > 0) {
-          const unreadCount = dbData.messages.filter((m: ContactMessage) => m.status === 'new').length;
+          const unreadCount = dbData.messages.filter((m: ContactMessage) => m.status === 'new').length || 1;
           
           console.log(`[CONTACT PUSH] New message from ${newMessage.name}. Total unread: ${unreadCount}`);
 
-          // Use EXACT same structure as the working simulation to guarantee delivery
+          // ULTRA-MINIMAL PAYLOAD: Guaranteed same format as successful Simulation
           const notificationPayload = JSON.stringify({
-            title: `${newMessage.name} (Kontaktformular)`,
-            body: `E-Mail: ${newMessage.email}\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 100)}...`,
+            title: `${newMessage.name} (Kontakt)`,
+            body: `Betreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 80)}...`,
             url: '/dashboard?tab=nachrichten',
-            badgeCount: unreadCount || 1,
+            badgeCount: unreadCount,
             tag: 'contact-form-message',
-            vibrate: [200, 100, 200, 100, 200],
+            vibrate: [200, 100, 200],
             icon: '/icon.png'
           });
 
