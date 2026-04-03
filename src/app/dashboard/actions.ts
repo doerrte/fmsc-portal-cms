@@ -303,11 +303,24 @@ export async function testPushAction() {
   const staleSubIds: string[] = [];
   const results = await Promise.all(uniqueSubs.map(async (subData) => {
     try {
-      await sendNotification(subData.subscription, JSON.stringify({
-        title: 'FMSC Portal ✈️',
-        body: `Zustellung erfolgreich um ${new Date().toLocaleTimeString()}!`,
-        icon: '/icon.png'
-      }));
+      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+      if (!vapidPublicKey || !vapidPrivateKey) throw new Error('VAPID keys not configured');
+
+      const res = await sendNotification(
+        subData.subscription, 
+        JSON.stringify({
+          title: 'FMSC Portal ✈️',
+          body: `Zustellung erfolgreich um ${new Date().toLocaleTimeString()}!`,
+          icon: '/icon.png'
+        }),
+        vapidPrivateKey,
+        vapidPublicKey
+      );
+
+      if (!res.ok) {
+        throw new Error(`Push service status: ${res.status}`);
+      }
       return { success: true };
     } catch (err: any) {
       const errMsg = err.message || '';
@@ -376,7 +389,11 @@ export async function testSinglePushAction(subscriptionJson: string) {
       badgeCount: 42
     });
     
-    await sendNotification(subscription, payload);
+    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+    if (!vapidPublicKey || !vapidPrivateKey) throw new Error('VAPID keys not configured');
+    
+    await sendNotification(subscription, payload, vapidPrivateKey, vapidPublicKey);
     return { success: true };
   } catch (err: any) {
     console.error('[PUSH] Single test failed:', err);
