@@ -118,13 +118,23 @@ export default function PushNotificationManager() {
     setIsLoading(false);
   }
 
-  async function sendTestNotification() {
+  async function testPush() {
     setIsLoading(true);
     try {
       const res = await testPushAction();
-      if (res.success) alert(`Test-Push an ${res.count} Geräte gesendet.`);
-      else alert('Fehler: ' + res.error);
-    } catch (error) { alert('Fehler beim Senden.'); }
+      console.log('[PUSH AUDIT RESULT]', res);
+      if (res.success) {
+        if (res.pushAttempted) {
+          alert(`Test-Push an ${res.results.successCount} Geräte gesendet.`);
+        } else {
+          alert('Keine Geräte für diesen Benutzer gefunden. (Details in Console)');
+        }
+      } else {
+        alert('Serverfehler beim Testen.');
+      }
+    } catch (e) {
+      alert('Verbindung fehlgeschlagen.');
+    }
     setIsLoading(false);
   }
 
@@ -199,7 +209,7 @@ export default function PushNotificationManager() {
             <div className="space-y-4 pt-4 border-t border-white/5">
               <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest"><Settings2 size={14} /> Diagnose</div>
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={sendTestNotification} disabled={isLoading} className="bg-secondary/10 hover:bg-secondary/20 text-secondary text-xs font-bold py-2 px-3 rounded-lg border border-secondary/20 transition-all">Test-Alarm</button>
+                <button onClick={testPush} disabled={isLoading} className="bg-secondary/10 hover:bg-secondary/20 text-secondary text-xs font-bold py-2 px-3 rounded-lg border border-secondary/20 transition-all">Test-Alarm</button>
                 <button onClick={sendSimulationNotification} disabled={isLoading} className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-bold py-2 px-3 rounded-lg border border-blue-500/20 transition-all underline decoration-dotted">Kontakt-Alarm</button>
               </div>
             </div>

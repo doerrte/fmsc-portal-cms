@@ -196,16 +196,22 @@ export async function testPushAction() {
   const [userId, role] = authCookie.split('|');
   const db = await getDbData();
   const currentUserId = userId.trim();
+  const allDbIds = (db.push_subscriptions || []).map((s: any) => (s.userId || s.user_id || '').trim());
   
   const subs = (db.push_subscriptions || []).filter((s: any) => {
     const dbUserId = (s.userId || s.user_id || '').trim();
-    console.log(`[PUSH AUDIT] Comparing session:${currentUserId} with db:${dbUserId}`);
     return dbUserId === currentUserId;
   });
 
+  const auditTrail = {
+    sessionUserId: currentUserId,
+    foundInDbCount: allDbIds.length,
+    allDbUserIds: allDbIds,
+    matchingSubsCount: subs.length
+  };
+
   if (subs.length === 0) {
-    console.warn(`[PUSH AUDIT] No matching devices for user ${currentUserId}. Found IDs:`, (db.push_subscriptions || []).map((s:any) => s.userId || s.user_id));
-    return { success: true, pushAttempted: false, results: { successCount: 0, errorCount: 0 } };
+    return { success: true, pushAttempted: false, auditTrail, results: { successCount: 0, errorCount: 0 } };
   }
 
   const uniqueSubs = Array.from(new Map(subs.map(s => [s.subscription.endpoint, s])).values());
