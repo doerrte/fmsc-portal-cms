@@ -36,7 +36,9 @@ export async function sendNotification(subscription: PushSubscription, payload: 
       'Urgency': 'high',
       'Content-Encoding': 'aes128gcm',
       'Authorization': vapidHeader,
-      'Crypto-Key': `p256ecdsa=${vapidPublicKey}`
+      'Crypto-Key': `p256ecdsa=${vapidPublicKey}`,
+      'apns-push-type': 'alert',
+      'apns-priority': '10'
     },
     body: encryptionResult as any
   });
