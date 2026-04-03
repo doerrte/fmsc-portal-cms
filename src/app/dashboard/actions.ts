@@ -267,8 +267,8 @@ export async function savePushSubscriptionAction(subscriptionRaw: string) {
     return { success: false, error: 'Datenbank-Speicherfehler: ' + (saveError?.message || 'Unbekannt') };
   }
 
-  console.log(`[PUSH] ${existingIndex > -1 ? 'Updated' : 'Created new'} subscription for user: ${userId}`);
-  return { success: true, isUpdate: existingIndex > -1 };
+  console.log(`[PUSH] ${existingIndex > -1 ? 'Updated' : 'Created new'} subscription for user: ${userId}. Endpoint: ${subscription.endpoint.substring(0, 30)}...`);
+  return { success: true, isUpdate: existingIndex > -1, userId };
 }
 
 export async function testPushAction() {
@@ -277,6 +277,7 @@ export async function testPushAction() {
   if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
 
   const [userId, role] = authCookie.split('|');
+  console.log(`[PUSH TEST] Starting broadcast test from user: ${userId} (${role})`);
   const db = await getDbData();
   
   // Get all unique subscriptions for admins/board members and current user

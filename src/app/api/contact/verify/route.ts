@@ -96,7 +96,15 @@ export async function POST(request: Request) {
           targetSubscriptions.forEach(s => uniqueEndpoints.set(s.subscription.endpoint, s));
           const uniqueSubs = Array.from(uniqueEndpoints.values());
 
-          console.log(`[CONTACT PUSH] Final unique delivery targets: ${uniqueSubs.length}`);
+          console.log(`[CONTACT PUSH] Final unique delivery targets from ADMIN filter: ${uniqueSubs.length}`);
+
+          // FALLBACK LOGIC: If no admins found via role-matching, notify EVERYONE who has subscribed 
+          // (assuming only admins/board can reach the dashboard to subscribe anyway).
+          const finalDeliveryPool = uniqueSubs.length > 0 ? uniqueSubs : dbData.push_subscriptions;
+          
+          if (uniqueSubs.length === 0) {
+            console.warn(`[CONTACT PUSH] NO ADMINS FOUND via role-matching. Falling back to ALL ${dbData.push_subscriptions.length} registered subscriptions.`);
+          }
 
           // Get VAPID keys
           const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -105,12 +113,16 @@ export async function POST(request: Request) {
           if (!vapidPublicKey || !vapidPrivateKey) {
             console.error('[CONTACT PUSH] VAPID keys are missing from environment');
           } else {
+            console.log(`[CONTACT PUSH] Starting delivery to ${finalDeliveryPool.length} devices...`);
+            
             // CRITICAL: We MUST await the promises to ensure the function doesn't exit early on Vercel
             await Promise.all(
-              uniqueSubs.map(s => 
-                sendNotification(s.subscription, notificationPayload, vapidPrivateKey, vapidPublicKey).catch((err: unknown) => 
-                  console.error(`[CONTACT PUSH] Failed for device ${s.id}:`, err)
-                )
+              finalDeliveryPool.map(s => 
+                sendNotification(s.subscription, notificationPayload, vapidPrivateKey, vapidPublicKey)
+                  .then(() => console.log(`[CONTACT PUSH] Success for ${s.id}`))
+                  .catch((err: unknown) => 
+                    console.error(`[CONTACT PUSH] Failed for device ${s.id}:`, err)
+                  )
               )
             );
           }
