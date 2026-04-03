@@ -42,19 +42,35 @@ export default function PushNotificationManager() {
 
   async function showDebugInfo() {
     if (!subscription) {
-      alert('Kein aktives Abonnement auf diesem Gerät gefunden. (Technisch: Subscription-Objekt im Browser-State ist null)');
+      alert('Kein aktives Abonnement gefunden. Bitte erst "Aktivieren".');
       return;
     }
-    const info = JSON.stringify(subscription.toJSON(), null, 2);
     const endpoint = subscription.endpoint;
     
+    // Auto-copy to clipboard for easier sharing
+    try {
+      await navigator.clipboard.writeText(endpoint);
+    } catch (e) {
+      console.error('Clipboard error:', e);
+    }
+
     // Auto-verify with server
     try {
       const actions = await import('@/app/dashboard/actions');
       const res = await actions.verifySubscriptionAction(endpoint);
-      alert(`TECHNISCHE DATEN:\n\nServer-Check: ${res.exists ? '✅ In Datenbank gefunden' : '❌ FEHLT IN DATENBANK'}\n\nEndpoint: ${endpoint.substring(0, 50)}...\n\nFull JSON: ${info}`);
+      alert(`✅ ID KOPIERT!\n\nStatus: ${res.exists ? 'Gefunden' : 'Nicht in DB'}\n\nSie können die ID jetzt hier im Chat einfügen.`);
     } catch (e: any) {
-      alert(`Fehler beim System-Check: ${e.message}`);
+      alert(`System-Check: ${e.message}`);
+    }
+  }
+
+  async function copyIdToClipboard() {
+    if (!subscription) return alert('Bitte erst Push aktivieren.');
+    try {
+      await navigator.clipboard.writeText(subscription.endpoint);
+      alert('ID erfolgreich kopiert!');
+    } catch (e) {
+      alert('Fehler beim Kopieren.');
     }
   }
 
@@ -411,6 +427,12 @@ export default function PushNotificationManager() {
           className="text-[10px] text-blue-500/50 underline hover:text-blue-400 py-1"
         >
           Nur dieses Handy testen
+        </button>
+        <button 
+          onClick={copyIdToClipboard}
+          className="text-[10px] text-orange-500/50 underline hover:text-orange-400 py-1 font-bold"
+        >
+          ID Kopieren
         </button>
       </div>
 
