@@ -96,9 +96,25 @@ export default function PushNotificationManager() {
     setMessage(null);
     console.log('Starting push subscription process...');
     try {
-      // 1. Ensure sw is registered
-      await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-      const registration = await navigator.serviceWorker.ready;
+      // 1. Ensure sw is registered and ACTIVE
+      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      let registration = await navigator.serviceWorker.ready;
+
+      // Force wait for the 'active' state if it's still installing/waiting
+      if (!registration.active) {
+        console.log('SW not active yet, waiting for activation...');
+        await new Promise<void>((resolve) => {
+          const checkActive = () => {
+            if (reg.active) {
+              registration = reg;
+              resolve();
+            } else {
+              setTimeout(checkActive, 100);
+            }
+          };
+          checkActive();
+        });
+      }
 
       // 2. Request permission
       const permission = await Notification.requestPermission();
