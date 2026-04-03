@@ -53,6 +53,13 @@ export default function PushNotificationManager() {
     for (let i = 0; i < rawData.length; ++i) {
       outputArray[i] = rawData.charCodeAt(i);
     }
+
+    // If the key is a full SPKI DER (91 bytes for P-256), extract the last 65 bytes (the raw point)
+    if (outputArray.length === 91) {
+      console.log('Detected SPKI DER public key, extracting raw point...');
+      return outputArray.subarray(26);
+    }
+
     return outputArray;
   }
 
