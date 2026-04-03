@@ -6,6 +6,12 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim());
 });
 
+// CRITICAL for iOS Safari: Must have a fetch handler to be considered a functional PWA
+self.addEventListener('fetch', (event) => {
+  // We don't need to cache anything yet, just proof of life
+  return;
+});
+
 self.addEventListener('push', function(event) {
   if (event.data) {
     let data;
