@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '20mb',
     },
   },
+  transpilePackages: ['react-google-recaptcha'],
 };
 
 export default nextConfig;
