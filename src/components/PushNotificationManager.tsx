@@ -189,6 +189,15 @@ export default function PushNotificationManager() {
     }
   }
 
+  async function testVibration() {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([200, 100, 200]);
+      alert('Vibrationstest angestoßen! (Nur Android/manche Browser). Falls es NICHT vibriert, hat die App evtl. keinen Hardware-Zugriff.');
+    } else {
+      alert('Vibration am Handy/Browser nicht unterstützt.');
+    }
+  }
+
   async function unsubscribeFromPush() {
     console.log('Deaktivieren button clicked');
     setLoading(true);
@@ -342,6 +351,12 @@ export default function PushNotificationManager() {
               className="text-[10px] text-gray-600 underline hover:text-gray-400 block mx-auto py-2"
             >
               System-Check (Diagnose)
+            </button>
+            <button 
+              onClick={testVibration}
+              className="text-[10px] text-gray-600 underline hover:text-gray-400 block mx-auto py-1"
+            >
+              Hardware-Test (Vibration)
             </button>
             <button 
               onClick={forceUpdateWorker}
