@@ -52,13 +52,16 @@ export async function POST(request: Request) {
           
           console.log(`[CONTACT PUSH] New message from ${newMessage.name}. Total unread: ${unreadCount}`);
 
+          const cleanTitle = `${newMessage.name} (Kontaktformular)`.replace(/[^\x20-\x7E\xC0-\xFF]/g, '');
+          const cleanBody = `E-Mail: ${newMessage.email}\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 100)}...`.replace(/[^\x20-\x7E\n\xC0-\xFF]/g, '');
+
           const notificationPayload = JSON.stringify({
-            title: `${newMessage.name} (vom FMSC Kontaktformular)`,
-            body: `E-Mail: ${newMessage.email}\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 150)}${newMessage.message.length > 150 ? '...' : ''}`,
+            title: cleanTitle,
+            body: cleanBody,
             url: '/dashboard?tab=nachrichten',
             badgeCount: unreadCount,
             tag: 'contact-form-message',
-            vibrate: [200, 100, 200, 100, 200], // S-O-S style or double tap for better attention
+            vibrate: [200, 100, 200, 100, 200],
             icon: '/icon.png'
           });
 
