@@ -161,9 +161,9 @@ function encryptPayload(payload: string, p256dhBase64: string, authBase64: strin
   const sharedSecret = serverEcdh.computeSecret(clientPublicKey);
   const authSecret = base64UrlDecode(authBase64);
 
-  const prk = Buffer.from(crypto.hkdfSync('sha256', sharedSecret, authSecret, Buffer.from('Content-Encoding: auth\0', 'utf8'), 32));
-  const cek = Buffer.from(crypto.hkdfSync('sha256', prk, salt, Buffer.concat([Buffer.from('Content-Encoding: aes128gcm\0', 'utf8'), Buffer.from('WebPush: info\0', 'utf8'), clientPublicKey, serverPublicKey]), 16));
-  const nonce = Buffer.from(crypto.hkdfSync('sha256', prk, salt, Buffer.concat([Buffer.from('Content-Encoding: nonce\0', 'utf8'), Buffer.from('WebPush: info\0', 'utf8'), clientPublicKey, serverPublicKey]), 12));
+  const prk = Buffer.from(crypto.hkdfSync('sha256', sharedSecret, authSecret, Buffer.concat([Buffer.from('Content-Encoding: auth', 'utf8'), Buffer.from([0x00])]), 32));
+  const cek = Buffer.from(crypto.hkdfSync('sha256', prk, salt, Buffer.concat([Buffer.from('Content-Encoding: aes128gcm', 'utf8'), Buffer.from([0x00]), Buffer.from('WebPush: info', 'utf8'), Buffer.from([0x00]), clientPublicKey, serverPublicKey]), 16));
+  const nonce = Buffer.from(crypto.hkdfSync('sha256', prk, salt, Buffer.concat([Buffer.from('Content-Encoding: nonce', 'utf8'), Buffer.from([0x00]), Buffer.from('WebPush: info', 'utf8'), Buffer.from([0x00]), clientPublicKey, serverPublicKey]), 12));
 
   const cipher = crypto.createCipheriv('aes-128-gcm', cek, nonce);
   const ciphertext = Buffer.concat([cipher.update(recordBuf), cipher.final()]);
