@@ -27,7 +27,7 @@ export async function sendNotification(subscription: PushSubscription, payload: 
   // 2. Encrypt Payload (AES-128-GCM)
   const encryptionResult = encryptPayload(payload, subscription.keys.p256dh, subscription.keys.auth);
 
-  // 3. Send HTTP POST to Push Service
+  console.log(`[WEBPUSH] Fetching endpoint: ${subscription.endpoint}`);
   const response = await fetch(subscription.endpoint, {
     method: 'POST',
     headers: {
@@ -39,8 +39,10 @@ export async function sendNotification(subscription: PushSubscription, payload: 
     body: encryptionResult as any
   });
 
+  console.log(`[WEBPUSH] Response status: ${response.status}`);
   if (!response.ok) {
     const errorText = await response.text();
+    console.error(`[WEBPUSH] Error response: ${errorText}`);
     throw new Error(`Push service error (${response.status}): ${errorText}`);
   }
 

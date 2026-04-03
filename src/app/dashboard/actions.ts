@@ -263,28 +263,27 @@ export async function testPushAction() {
   const userId = authCookie.split('|')[0];
   const db = await getDbData();
   
-  const userSubs = db.push_subscriptions.filter((s: PushSubscriptionItem) => s.userId === userId);
+  const subs = db.push_subscriptions.filter((s: PushSubscriptionItem) => s.userId === userId);
   
-  if (userSubs.length === 0) {
-    return { success: false, error: 'Keine Push-Abonnements für diesen Browser gefunden. Bitte aktiviere Benachrichtigungen zuerst.' };
-  }
+  console.log(`[TEST PUSH] Found ${subs?.length || 0} subscriptions for user ${userId}`);
 
-  let successCount = 0;
-  for (const subItem of userSubs) {
+  const results = await Promise.all((subs || []).map(async (subData) => {
     try {
-      console.log(`Attempting test push to subscription ${subItem.id} for user ${userId}`);
-      await sendNotification(subItem.subscription, JSON.stringify({
-        title: 'Test-Benachrichtigung ✈️',
-        body: 'Dies ist ein Test der FMSC Push-Technologie. Sie funktioniert!',
-        url: '/dashboard'
+      console.log(`[TEST PUSH] Starting send to sub: ${subData.id}`);
+      const result = await sendNotification(subData.subscription, JSON.stringify({
+        title: 'FMSC Portal Test',
+        body: 'Dies ist eine Test-Benachrichtigung.',
+        icon: '/icons/icon-192x192.png'
       }));
-      successCount++;
-      console.log(`Test push successful for ${subItem.id}`);
+      console.log(`[TEST PUSH] Success for sub: ${subData.id}`);
+      return { subId: subData.id, success: true };
     } catch (err: any) {
-      console.error(`VAPID ERROR for sub ${subItem.id}:`, err.message || err);
-      if (err.stack) console.error(err.stack);
+      console.error(`[TEST PUSH] ERROR for sub ${subData.id}:`, err.message || err);
+      return { subId: subData.id, success: false, error: err.message || err };
     }
-  }
+  }));
 
+  const successCount = results.filter(r => r.success).length;
+  console.log(`[TEST PUSH] Completed. Total success: ${successCount}`);
   return { success: true, count: successCount };
 }
