@@ -310,8 +310,8 @@ export async function testPushAction() {
       const res = await sendNotification(
         subData.subscription, 
         JSON.stringify({
-          title: 'FMSC Portal ✈️',
-          body: `Zustellung erfolgreich um ${new Date().toLocaleTimeString()}!`,
+          title: 'Test-Zustellung',
+          body: `Erfolgreich um ${new Date().toLocaleTimeString()}!`,
           icon: '/icon.png'
         }),
         vapidPrivateKey,
@@ -416,7 +416,7 @@ export async function testContactPushAction() {
   if (!vapidPublicKey || !vapidPrivateKey) throw new Error('VAPID keys not configured');
 
   const payload = JSON.stringify({
-    title: '✈️ FMSC: Max Mustermann',
+    title: 'Max Mustermann',
     body: 'E-Mail: max@mustermann.de\nBetreff: Schnupperflug\n\nHallo, ich würde gerne mal bei Euch vorbeischauen und mitfliegen!',
     url: '/dashboard?tab=nachrichten',
     tag: 'contact-form-message',
