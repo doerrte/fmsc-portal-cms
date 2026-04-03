@@ -18,16 +18,17 @@ self.addEventListener('push', function(event) {
 
     const title = data.title || 'FMSC Portal ✈️';
     const body = data.body || 'Neue Nachricht empfangen.';
+    const iconUrl = new URL('/icon.png', self.location.origin).href;
     
     // Notify the UI if it's open (Foreground Alert)
     const channel = new BroadcastChannel('push-channel');
-    channel.postMessage({ title, body, icon: '/icon.png' });
+    channel.postMessage({ title, body, icon: iconUrl });
 
     // Fallback options for high compatibility (iOS/Mobile)
     const options = {
       body: body,
-      icon: '/icon.png',
-      badge: '/icon.png',
+      icon: iconUrl,
+      badge: iconUrl,
       tag: 'fmsc-push-notification',
       renotify: true,
       vibrate: [200, 100, 200],
