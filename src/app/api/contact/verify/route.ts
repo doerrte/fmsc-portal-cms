@@ -53,7 +53,7 @@ export async function POST(request: Request) {
           console.log(`[CONTACT PUSH] New message from ${newMessage.name}. Total unread: ${unreadCount}`);
 
           const notificationPayload = JSON.stringify({
-            title: newMessage.name,
+            title: `${newMessage.name} (vom FMSC Kontaktformular)`,
             body: `E-Mail: ${newMessage.email}\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 150)}${newMessage.message.length > 150 ? '...' : ''}`,
             url: '/dashboard?tab=nachrichten',
             badgeCount: unreadCount,
