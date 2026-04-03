@@ -279,8 +279,7 @@ export async function testPushAction() {
   const [userId, role] = authCookie.split('|');
   const db = await getDbData();
   
-  // For the test push, we look for subscriptions of ALL admins or the current user
-  // to be 100% sure we hit the right one.
+  // Get all unique subscriptions for admins/board members and current user
   const adminIds = db.members
     .filter((m: any) => m.role === 'admin' || m.role === 'board')
     .map((m: any) => m.id);
@@ -290,13 +289,15 @@ export async function testPushAction() {
     return sId === userId || adminIds.includes(sId);
   });
   
-  console.log(`[TEST PUSH] Current User: ${userId}, Role: ${role}`);
-  console.log(`[TEST PUSH] Found ${subs?.length || 0} subscriptions in admin-pool`);
+  console.log(`[PUSH] Test-Broadcast started for user: ${userId} (${role})`);
+  console.log(`[PUSH] Found ${subs.length} candidates in the admin-pool.`);
 
   // Use a map to avoid duplicate endpoints during test
   const uniqueEndpoints = new Map();
   subs.forEach(s => uniqueEndpoints.set(s.subscription.endpoint, s));
   const uniqueSubs = Array.from(uniqueEndpoints.values());
+  
+  console.log(`[PUSH] Identified ${uniqueSubs.length} unique endpoints to message.`);
 
   let lastError = null;
   const staleSubIds: string[] = [];
@@ -304,7 +305,7 @@ export async function testPushAction() {
     try {
       await sendNotification(subData.subscription, JSON.stringify({
         title: 'FMSC Portal ✈️',
-        body: 'Die Push-Benachrichtigungen sind jetzt aktiv!',
+        body: `Zustellung erfolgreich um ${new Date().toLocaleTimeString()}!`,
         icon: '/icon.png'
       }));
       return { success: true };
@@ -312,9 +313,8 @@ export async function testPushAction() {
       const errMsg = err.message || '';
       console.error(`[PUSH] Error for sub ${subData.id}:`, errMsg);
       
-      // If the error is terminal (Mismatch, Gone, or Invalid URL), mark for deletion
+      // Cleanup for terminal errors
       if (errMsg.includes('VapidPkHashMismatch') || 
-          errMsg.includes('do not correspond to the credentials') ||
           errMsg.includes('410') || 
           errMsg.includes('403') || 
           errMsg.includes('404') ||
@@ -327,9 +327,8 @@ export async function testPushAction() {
     }
   }));
 
-  // Cleanup stale subscriptions
+  // Automatic Cleanup
   if (staleSubIds.length > 0) {
-    console.log(`[PUSH] Cleaning up ${staleSubIds.length} stale subscriptions...`);
     db.push_subscriptions = db.push_subscriptions.filter(s => !staleSubIds.includes(s.id));
     await saveDbData(db);
   }
