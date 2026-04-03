@@ -296,6 +296,7 @@ export async function testPushAction() {
   const uniqueSubs = Array.from(uniqueEndpoints.values());
 
   let lastError = null;
+  const staleSubIds: string[] = [];
   const results = await Promise.all(uniqueSubs.map(async (subData) => {
     try {
       await sendNotification(subData.subscription, JSON.stringify({
@@ -305,10 +306,25 @@ export async function testPushAction() {
       }));
       return { success: true };
     } catch (err: any) {
-      lastError = err.message || err;
+      const errMsg = err.message || '';
+      console.error(`[PUSH] Error for sub ${subData.id}:`, errMsg);
+      
+      // If the error is terminal (Mismatch or Gone), mark for deletion
+      if (errMsg.includes('VapidPkHashMismatch') || errMsg.includes('410') || errMsg.includes('404')) {
+        staleSubIds.push(subData.id);
+      }
+      
+      lastError = errMsg;
       return { success: false };
     }
   }));
+
+  // Cleanup stale subscriptions
+  if (staleSubIds.length > 0) {
+    console.log(`[PUSH] Cleaning up ${staleSubIds.length} stale subscriptions...`);
+    db.push_subscriptions = db.push_subscriptions.filter(s => !staleSubIds.includes(s.id));
+    await saveDbData(db);
+  }
 
   const successCount = results.filter(r => r.success).length;
   const failCount = results.filter(r => !r.success).length;
@@ -317,6 +333,7 @@ export async function testPushAction() {
     success: true, 
     count: successCount, 
     failed: failCount,
+    cleaned: staleSubIds.length,
     error: lastError 
   };
 }

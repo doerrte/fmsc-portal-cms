@@ -155,7 +155,7 @@ export default function PushNotificationManager() {
           });
         } else {
           setMessage({ 
-            text: `Test-Push: ${response.count} erfolgreich, ${response.failed || 0} fehlgeschlagen.`, 
+            text: `Test-Push: ${response.count} erfolgreich, ${response.failed || 0} fehlgeschlagen. ${response.cleaned ? `(${response.cleaned} ungültige Geräte bereinigt)` : ''}`, 
             type: 'success' 
           });
         }
