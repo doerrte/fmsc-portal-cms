@@ -46,35 +46,54 @@ export async function POST(request: Request) {
       await saveDbData(dbData);
 
       // 4. Trigger Push Notifications for Admin/Board members
-      if (dbData.push_subscriptions && dbData.push_subscriptions.length > 0) {
-        const unreadCount = dbData.messages.filter((m: ContactMessage) => m.status === 'new').length;
-        
-        const notificationPayload = JSON.stringify({
-          title: `Neue Nachricht: ${newMessage.subject}`,
-          body: `${newMessage.name}: ${newMessage.message.substring(0, 50)}${newMessage.message.length > 50 ? '...' : ''}`,
-          url: '/dashboard?tab=nachrichten',
-          badgeCount: unreadCount
-        });
+      try {
+        if (dbData.push_subscriptions && dbData.push_subscriptions.length > 0) {
+          const unreadCount = dbData.messages.filter((m: ContactMessage) => m.status === 'new').length;
+          
+          console.log(`[CONTACT PUSH] New message from ${newMessage.name}. Total unread: ${unreadCount}`);
 
-        // Filter valid subscriptions (users who are admin or board)
-        const authorizedUserIds = new Set(
-          dbData.members
-            .filter((m: MemberItem) => m.role === 'admin' || m.role === 'board')
-            .map((m: MemberItem) => m.id)
-        );
+          const notificationPayload = JSON.stringify({
+            title: `FMSC: Neue Nachricht von ${newMessage.name}`,
+            body: `${newMessage.subject}: ${newMessage.message.substring(0, 60)}${newMessage.message.length > 60 ? '...' : ''}`,
+            url: '/dashboard?tab=nachrichten',
+            badgeCount: unreadCount,
+            icon: '/icons/icon-192x192.png'
+          });
 
-        const targetSubscriptions = dbData.push_subscriptions.filter(
-          (sub: PushSubscriptionItem) => authorizedUserIds.has(sub.userId)
-        );
+          // Identify valid admin/board IDs
+          const authorizedUserIds = new Set(
+            dbData.members
+              .filter((m: MemberItem) => m.role === 'admin' || m.role === 'board')
+              .map((m: MemberItem) => m.id)
+          );
 
-        // Send notifications in parallel (ignoring failures for individual devices)
-        Promise.all(
-          targetSubscriptions.map(s => 
-            sendNotification(s.subscription, notificationPayload).catch((err: unknown) => 
-              console.error(`Push failed for subscription ${s.id}:`, err)
+          // Always include 'admin_initial' as an authorized ID just in case
+          authorizedUserIds.add('admin_initial');
+
+          const targetSubscriptions = dbData.push_subscriptions.filter(
+            (sub: PushSubscriptionItem) => authorizedUserIds.has(sub.userId)
+          );
+
+          console.log(`[CONTACT PUSH] Targeting ${targetSubscriptions.length} admin devices.`);
+
+          // Use a map to avoid duplicate endpoints
+          const uniqueEndpoints = new Map();
+          targetSubscriptions.forEach(s => uniqueEndpoints.set(s.subscription.endpoint, s));
+          const uniqueSubs = Array.from(uniqueEndpoints.values());
+
+          // CRITICAL: We MUST await the promises to ensure the function doesn't exit early on Vercel
+          await Promise.all(
+            uniqueSubs.map(s => 
+              sendNotification(s.subscription, notificationPayload).catch((err: unknown) => 
+                console.error(`[CONTACT PUSH] Failed for device ${s.id}:`, err)
+              )
             )
-          )
-        );
+          );
+          
+          console.log(`[CONTACT PUSH] Dispatch completed.`);
+        }
+      } catch (pushErr) {
+        console.error('[CONTACT PUSH] Fatal error in push cycle:', pushErr);
       }
 
       return NextResponse.json({ success: true });
