@@ -380,7 +380,6 @@ export async function clearMyPushSubscriptionsAction() {
 }
 
 export async function testSinglePushAction(subscriptionJson: string) {
-  const { sendNotification } = await import('@/lib/webpush');
   try {
     const subscription = JSON.parse(subscriptionJson);
     const payload = JSON.stringify({
@@ -399,4 +398,39 @@ export async function testSinglePushAction(subscriptionJson: string) {
     console.error('[PUSH] Single test failed:', err);
     return { success: false, error: err.message };
   }
+}
+
+export async function testContactPushAction() {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('auth')?.value || cookieStore.get('admin_auth')?.value;
+  if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
+
+  const [userId] = authCookie.split('|');
+  const db = await getDbData();
+  
+  const mySubs = db.push_subscriptions.filter((s: any) => (s.userId || s.user_id) === userId);
+  if (mySubs.length === 0) return { success: false, error: 'Kein Abo für diesen User gefunden.' };
+
+  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+  if (!vapidPublicKey || !vapidPrivateKey) throw new Error('VAPID keys not configured');
+
+  const payload = JSON.stringify({
+    title: '✈️ FMSC: Test-Kontaktanfrage',
+    body: 'Max Mustermann: Dies ist eine simulierte Anfrage zur Überprüfung des Push-Systems.',
+    url: '/dashboard?tab=nachrichten',
+    tag: 'contact-form-message',
+    icon: '/icon.png'
+  });
+
+  const results = await Promise.all(mySubs.map(async (s) => {
+    try {
+      const res = await sendNotification(s.subscription, payload, vapidPrivateKey, vapidPublicKey);
+      return res.ok;
+    } catch (e) {
+      return false;
+    }
+  }));
+
+  return { success: results.some(r => r), count: results.filter(r => r).length };
 }

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bell, BellOff, Send, Smartphone, CheckCircle } from 'lucide-react';
-import { savePushSubscriptionAction, testPushAction } from '@/app/dashboard/actions';
+import { Bell, BellOff } from 'lucide-react';
+import { savePushSubscriptionAction, testPushAction, testSinglePushAction, testContactPushAction, verifySubscriptionAction, clearMyPushSubscriptionsAction } from '@/app/dashboard/actions';
 
 export default function PushNotificationManager() {
   const [hasMounted, setHasMounted] = useState(false);
@@ -12,67 +12,19 @@ export default function PushNotificationManager() {
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    console.log('PushNotificationManager mounted');
     setHasMounted(true);
-    
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
-      console.log('Push notifications ARE supported by this browser');
       setIsSupported(true);
       checkSubscription();
-      
-      // Diagnostic check for the Public Key
-      if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
-        console.warn('VAPID public key is missing! Check Vercel Environment Variables.');
-      } else {
-        console.log('VAPID public key found in browser:', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY.substring(0, 10) + '...');
-      }
-    } else {
-      console.log('Push notifications NOT supported or serviceWorker missing in navigator');
     }
-
-    // Diagnostic Foreground Listener
+    
     if ('BroadcastChannel' in window) {
       const channel = new BroadcastChannel('push-channel');
       channel.onmessage = (event) => {
-        console.log('[DIAG] Received foreground push message:', event.data);
-        alert(`Beweis: Push-Nachricht "${event.data.title}" am Handy empfangen! Wenn Sie kein Banner sehen, blockiert Ihr Gerät die Anzeige.`);
+        alert(`PUSH EMPFANGEN: ${event.data.title}\n\n${event.data.body}`);
       };
     }
   }, []);
-
-  async function showDebugInfo() {
-    if (!subscription) {
-      alert('Kein aktives Abonnement gefunden. Bitte erst "Aktivieren".');
-      return;
-    }
-    const endpoint = subscription.endpoint;
-    
-    // Auto-copy to clipboard for easier sharing
-    try {
-      await navigator.clipboard.writeText(endpoint);
-    } catch (e) {
-      console.error('Clipboard error:', e);
-    }
-
-    // Auto-verify with server
-    try {
-      const actions = await import('@/app/dashboard/actions');
-      const res = await actions.verifySubscriptionAction(endpoint);
-      alert(`✅ ID KOPIERT!\n\nStatus: ${res.exists ? 'Gefunden' : 'Nicht in DB'}\n\nSie können die ID jetzt hier im Chat einfügen.`);
-    } catch (e: any) {
-      alert(`System-Check: ${e.message}`);
-    }
-  }
-
-  async function copyIdToClipboard() {
-    if (!subscription) return alert('Bitte erst Push aktivieren.');
-    try {
-      await navigator.clipboard.writeText(subscription.endpoint);
-      alert('ID erfolgreich kopiert!');
-    } catch (e) {
-      alert('Fehler beim Kopieren.');
-    }
-  }
 
   async function checkSubscription() {
     try {
@@ -86,12 +38,9 @@ export default function PushNotificationManager() {
 
   function urlBase64ToUint8Array(publicKeyInput: string) {
     let base64String = publicKeyInput.trim();
-    
-    // Check if it's a JWK
     if (base64String.startsWith('{')) {
       try {
         const jwk = JSON.parse(base64String);
-        // Standard P-256 raw point is 0x04 + x + y
         const x = Uint8Array.from(window.atob(jwk.x.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
         const y = Uint8Array.from(window.atob(jwk.y.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
         const raw = new Uint8Array(1 + x.length + y.length);
@@ -103,40 +52,24 @@ export default function PushNotificationManager() {
         console.error('Failed to parse JWK public key', e);
       }
     }
-
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
-
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
     const rawData = window.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
-
     for (let i = 0; i < rawData.length; ++i) {
       outputArray[i] = rawData.charCodeAt(i);
     }
-
-    // If the key is a full SPKI DER (91 bytes for P-256), extract the last 65 bytes (the raw point)
-    if (outputArray.length === 91) {
-      console.log('Detected SPKI DER public key, extracting raw point...');
-      return outputArray.subarray(26);
-    }
-
-    return outputArray;
+    return outputArray.length === 91 ? outputArray.subarray(26) : outputArray;
   }
 
   async function subscribeToPush() {
     setLoading(true);
     setMessage(null);
-    console.log('Starting push subscription process...');
     try {
-      // 1. Ensure Service Worker is registered and ACTIVE
       const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       let registration = await navigator.serviceWorker.ready;
       
-      // Extra safety check for iOS: explicitly wait for registration.active to exist
       if (!registration.active) {
-        console.log('SW ready but not yet active, waiting...');
         await new Promise<void>((resolve) => {
           const checkReady = () => {
             if (reg.active) {
@@ -150,296 +83,178 @@ export default function PushNotificationManager() {
         });
       }
 
-      // 2. Request permission (if not already granted)
       if (Notification.permission !== 'granted') {
         const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-          throw new Error('Berechtigung für Mitteilungen verweigert.');
-        }
+        if (permission !== 'granted') throw new Error('Berechtigung verweigert.');
       }
 
-      // 3. Subscribe
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!vapidKey) throw new Error('VAPID Key fehlt in Umgebungsvariablen.');
+      if (!vapidKey) throw new Error('VAPID Key fehlt.');
 
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidKey)
       });
 
-      // 4. Save to DB
-      console.log('Sending subscription to server...');
       const res = await savePushSubscriptionAction(JSON.stringify(sub.toJSON()));
       if (res.success) {
         setSubscription(sub);
-        const msg = res.isUpdate ? 'Abonnement aktualisiert!' : 'Erfolgreich neu abonniert!';
-        setMessage({ text: msg, type: 'success' });
-        alert(`ERFOLG: ${msg}`);
+        setMessage({ text: 'Erfolgreich abonniert!', type: 'success' });
       } else {
-        throw new Error(res.error || 'Serverfehler beim Speichern.');
+        throw new Error(res.error || 'Speicherfehler');
       }
     } catch (err: any) {
-      console.error('Subscription error:', err);
-      const errorMsg = err.message || 'Fehler beim Aktivieren.';
-      setMessage({ text: errorMsg, type: 'error' });
-      alert(`DIAGNOSE FEHLER: ${errorMsg}`);
+      setMessage({ text: err.message, type: 'error' });
+      alert(`Fehler: ${err.message}`);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function forceUpdateWorker() {
-    if (!confirm('Dies erzwingt ein Update der Hintergrund-Dienste. Fortfahren?')) return;
-    setLoading(true);
-    try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const reg of registrations) {
-        await reg.update();
-      }
-      // Re-register with cache-busting
-      await navigator.serviceWorker.register('/sw.js?v=' + Date.now(), { scope: '/' });
-      alert('Update erfolgreich angestoßen. Bitte laden Sie die Seite nun einmal neu.');
-    } catch (err) {
-      console.error('Update error:', err);
-      alert('Update fehlgeschlagen.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function clearOldSubscriptions() {
-    if (!confirm('Dies löscht ALLE Ihre Registrierungen in der Datenbank. Sie müssen sich danach neu anmelden. Fortfahren?')) return;
-    setLoading(true);
-    try {
-      const actions = await import('@/app/dashboard/actions');
-      const res = await actions.clearMyPushSubscriptionsAction();
-      if (res.success) {
-        alert(`${res.deletedCount} alte Abos gelöscht. Bitte jetzt auf "Deaktivieren" und dann neu "Aktivieren" klicken.`);
-        setSubscription(null);
-      }
-    } catch (err: any) {
-      alert('Fehler beim Löschen: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function testThisDeviceOnly() {
-    if (!subscription) return alert('Bitte erst Push aktivieren.');
-    setLoading(true);
-    try {
-      const actions = await import('@/app/dashboard/actions');
-      const res = await actions.testSinglePushAction(JSON.stringify(subscription.toJSON()));
-      if (res.success) {
-        alert('Einzel-Push erfolgreich gesendet! Prüfen Sie Ihr Handy.');
-      } else {
-        alert('Fehler: ' + res.error);
-      }
-    } catch (err: any) {
-      alert('Fehler beim Einzel-Test: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function testVibration() {
-    if ('vibrate' in navigator) {
-      navigator.vibrate([200, 100, 200]);
-      alert('Vibrationstest angestoßen! (Nur Android/manche Browser). Falls es NICHT vibriert, hat die App evtl. keinen Hardware-Zugriff.');
-    } else {
-      alert('Vibration am Handy/Browser nicht unterstützt.');
     }
   }
 
   async function unsubscribeFromPush() {
-    console.log('Deaktivieren button clicked');
     setLoading(true);
     try {
       const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.getSubscription();
       if (sub) {
         await sub.unsubscribe();
+        setSubscription(null);
+        setMessage({ text: 'Deaktiviert.', type: 'success' });
       }
-      
-      // Also try to unregister the worker for a clean state
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const reg of registrations) {
-        await reg.unregister();
-      }
-      
-      setSubscription(null);
-      setMessage({ text: 'Push-Benachrichtigungen deaktiviert und zurückgesetzt.', type: 'success' });
-    } catch (err) {
-      console.error('Unsubscribe error:', err);
-      setMessage({ text: 'Deaktivierung fehlgeschlagen.', type: 'error' });
+    } catch (err: any) {
+      alert('Fehler: ' + err.message);
     } finally {
       setLoading(false);
     }
   }
 
-  async function hardReset() {
-    if (!confirm('Dies löscht alle Browser-Registrierungen für Push auf diesem Gerät. Fortfahren?')) return;
+  async function simulateContactPush() {
     setLoading(true);
     try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const reg of registrations) {
-        await reg.unregister();
-      }
-      localStorage.removeItem('fmsc_push_last_sub'); // Optional cleanup
-      window.location.reload();
-    } catch (err) {
-      console.error('Reset error:', err);
-      alert('Reset fehlgeschlagen.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function sendTestPush() {
-    console.log('Test-Push button clicked');
-    setLoading(true);
-    try {
-      const response = await testPushAction() as any;
-      console.log('Server response:', response);
-      if (response.success) {
-        if (response.count === 0 && response.error) {
-          setMessage({ 
-            text: `Test-Push Fehler: ${response.error}`, 
-            type: 'error' 
-          });
-        } else {
-          setMessage({ 
-            text: `Test-Push: ${response.count} erfolgreich, ${response.failed || 0} fehlgeschlagen. ${response.cleaned ? `(${response.cleaned} ungültige Geräte bereinigt)` : ''}`, 
-            type: 'success' 
-          });
-        }
+      const res = await testContactPushAction();
+      if (res.success) {
+        alert(`Erfolg! ${res.count} Gerät(e) kontaktiert.`);
       } else {
-        setMessage({ text: 'Test-Push Fehler: ' + response.error, type: 'error' });
+        alert('Simulation fehlgeschlagen: ' + (res.error || 'Kein Abo gefunden.'));
       }
-    } catch (err) {
-      console.error('Test Push Error:', err);
-      setMessage({ text: 'Test-Push fehlgeschlagen (Client-Fehler)', type: 'error' });
+    } catch (e: any) {
+      alert('Simulations-Fehler: ' + e.message);
     } finally {
       setLoading(false);
     }
   }
 
-  if (!hasMounted) {
-    return <div className="p-4 bg-white/5 rounded-xl border border-white/10 animate-pulse text-gray-500 text-sm">Lade Push-Einstellungen...</div>;
+  async function testPushBroadCast() {
+    setLoading(true);
+    try {
+      const res = await testPushAction();
+      if (res.success) {
+        alert(`Zustellung erfolgreich! ${res.count} Geräte erreicht.`);
+      } else {
+        alert('Test fehlgeschlagen.');
+      }
+    } catch (err: any) {
+      alert('Fehler: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
+  async function testThisDeviceOnly() {
+    if (!subscription) return alert('Bitte erst aktivieren.');
+    setLoading(true);
+    try {
+      const res = await testSinglePushAction(JSON.stringify(subscription.toJSON()));
+      if (res.success) {
+        alert('Einzel-Push erfolgreich gesendet!');
+      } else {
+        alert('Fehler: ' + res.error);
+      }
+    } catch (err: any) {
+      alert('Fehler: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function forceUpdateWorker() {
+    setLoading(true);
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const reg of registrations) await reg.update();
+      await navigator.serviceWorker.register('/sw.js?v=' + Date.now(), { scope: '/' });
+      alert('Update erfolgreich. Bitte Seite neu laden.');
+    } catch (err) {
+      alert('Update fehlgeschlagen.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function showDebugInfo() {
+    if (!subscription) return alert('Kein Abo gefunden.');
+    const endpoint = subscription.endpoint;
+    try {
+      await navigator.clipboard.writeText(endpoint);
+      const res = await verifySubscriptionAction(endpoint);
+      alert(`✅ ID KOPIERT!\n\nStatus: ${res.exists ? 'In DB' : 'Nicht in DB'}`);
+    } catch (e: any) {
+      alert('Fehler: ' + e.message);
+    }
+  }
+
+  async function copyIdToClipboard() {
+    if (!subscription) return alert('Bitte erst aktivieren.');
+    try {
+      await navigator.clipboard.writeText(subscription.endpoint);
+      alert('ID kopiert!');
+    } catch (e) {
+      alert('Fehler.');
+    }
+  }
+
+  if (!hasMounted) return null;
   if (!isSupported) {
     return (
-      <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-center gap-3">
-        <BellOff className="text-yellow-500 shrink-0" size={24} />
-        <p className="text-sm text-yellow-200/80">Push-Benachrichtigungen werden von diesem Browser nicht unterstützt.</p>
+      <div className="flex flex-col items-center gap-2 p-4 bg-white/5 rounded-xl border border-white/10 backdrop-blur-sm">
+        <BellOff className="w-8 h-8 text-white/30 mb-2" />
+        <span className="text-xs text-white/40 text-center">Nicht unterstützt.</span>
       </div>
     );
   }
 
   return (
-    <div className="p-5 bg-white/5 rounded-2xl border border-white/10 glass shadow-xl">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-orange-500/20 rounded-lg">
-          <Bell className="text-orange-500" size={20} />
-        </div>
-        <h3 className="font-bold text-lg">Push-Benachrichtigungen</h3>
+    <div className="flex flex-col items-center gap-2 p-4 bg-white/5 rounded-xl border border-white/10 backdrop-blur-sm">
+      <div className="flex items-center gap-2 mb-2">
+        <div className={`w-2 h-2 rounded-full ${subscription ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+        <span className="text-sm font-medium text-white/90">
+          Push: {subscription ? 'Abonniert ✅' : 'Inaktiv ❌'}
+        </span>
       </div>
-      
-      {subscription ? (
-        <div className="space-y-4">
-          <p className="text-sm text-green-400 font-medium flex items-center gap-2">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            Aktiviert auf diesem Gerät
-          </p>
-          <div className="flex flex-wrap gap-4 pt-2">
-            <button 
-              onClick={sendTestPush} 
-              disabled={loading}
-              className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white rounded-xl font-bold flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/20"
-            >
-              {loading ? <span className="animate-spin text-lg">🌀</span> : <Send size={18} />}
-              Test-Push
-            </button>
-            <button 
-              onClick={unsubscribeFromPush} 
-              disabled={loading}
-              className="px-5 py-2.5 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-white border border-white/10 rounded-xl font-bold flex items-center gap-2 transition-all"
-            >
-              <BellOff size={18} />
-              Deaktivieren
-            </button>
-          </div>
-          <div className="pt-2">
-            <p className="text-[10px] text-gray-500 font-mono break-all opacity-50">
-              ID: {subscription.endpoint.split('/').pop()?.substring(0, 20)}...
-            </p>
-            <button 
-              onClick={hardReset}
-              className="text-[10px] text-gray-600 underline hover:text-gray-400 mt-1"
-            >
-              Probleme? Service-Worker Reset
-            </button>
-          </div>
-        </div>
+
+      {!subscription ? (
+        <button onClick={subscribeToPush} disabled={loading} className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white rounded-lg font-semibold transition-all active:scale-95">
+          {loading ? 'Aktivierung...' : 'Jetzt Aktivieren'}
+        </button>
       ) : (
-        <div className="space-y-4">
-          <p className="text-sm text-gray-400">Bleiben Sie über neue Kontaktanfragen informiert, auch wenn das Portal geschlossen ist.</p>
-          <button 
-            onClick={subscribeToPush} 
-            disabled={loading}
-            className="w-full sm:w-auto px-6 py-3 bg-white text-black hover:bg-gray-100 disabled:opacity-50 rounded-xl font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-white/10"
-          >
-            {loading ? <span className="animate-spin text-lg">🌀</span> : <Bell size={20} />}
-            Jetzt Aktivieren
-          </button>
-        </div>
+        <button onClick={unsubscribeFromPush} disabled={loading} className="w-full py-2 px-4 bg-white/10 hover:bg-white/20 text-white/70 rounded-lg font-medium transition-all active:scale-95 text-xs">
+          Deaktivieren
+        </button>
       )}
-      
-      {/* Global Diagnostics - Always visible */}
-      <div className="mt-8 pt-4 border-t border-white/5 flex flex-wrap justify-center gap-x-4 gap-y-1">
-        <button 
-          onClick={showDebugInfo}
-          className="text-[10px] text-gray-500 underline hover:text-gray-300 py-1"
-        >
-          System-Check (Diagnose)
-        </button>
-        <button 
-          onClick={testVibration}
-          className="text-[10px] text-gray-500 underline hover:text-gray-300 py-1"
-        >
-          Hardware-Test
-        </button>
-        <button 
-          onClick={forceUpdateWorker}
-          className="text-[10px] text-gray-500 underline hover:text-gray-300 py-1"
-        >
-          Update erzwingen
-        </button>
-        <button 
-          onClick={clearOldSubscriptions}
-          className="text-[10px] text-red-500/50 underline hover:text-red-400 py-1"
-        >
-          DB-Großputz
-        </button>
-        <button 
-          onClick={testThisDeviceOnly}
-          className="text-[10px] text-blue-500/50 underline hover:text-blue-400 py-1"
-        >
-          Nur dieses Handy testen
-        </button>
-        <button 
-          onClick={copyIdToClipboard}
-          className="text-[10px] text-orange-500/50 underline hover:text-orange-400 py-1 font-bold"
-        >
-          ID Kopieren
-        </button>
+
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
+        <button onClick={showDebugInfo} className="text-[10px] text-white/40 underline py-1">Diagnose</button>
+        <button onClick={testPushBroadCast} className="text-[10px] text-green-500/50 underline py-1">Alle Admins testen</button>
+        <button onClick={testThisDeviceOnly} className="text-[10px] text-blue-500/50 underline py-1">Nur mein Handy</button>
+        <button onClick={simulateContactPush} className="text-[10px] text-orange-500/50 underline py-1">Kontakt-Alarm Sim</button>
+        <button onClick={forceUpdateWorker} className="text-[10px] text-orange-500/50 underline py-1">Update</button>
+        <button onClick={copyIdToClipboard} className="text-[10px] text-orange-500/50 underline font-bold py-1">ID Kopieren</button>
       </div>
 
       {message && (
-        <p className={`mt-4 text-xs font-medium px-3 py-2 rounded-lg ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+        <div className={`mt-2 text-[10px] text-center ${message.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
           {message.text}
-        </p>
+        </div>
       )}
     </div>
   );

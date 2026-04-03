@@ -53,17 +53,21 @@ export async function POST(request: Request) {
           console.log(`[CONTACT PUSH] New message from ${newMessage.name}. Total unread: ${unreadCount}`);
 
           const notificationPayload = JSON.stringify({
-            title: `FMSC: Neue Nachricht von ${newMessage.name}`,
-            body: `${newMessage.subject}: ${newMessage.message.substring(0, 60)}${newMessage.message.length > 60 ? '...' : ''}`,
+            title: `✈️ FMSC: Nachricht von ${newMessage.name}`,
+            body: `${newMessage.subject}: ${newMessage.message.substring(0, 100)}${newMessage.message.length > 100 ? '...' : ''}`,
             url: '/dashboard?tab=nachrichten',
             badgeCount: unreadCount,
+            tag: 'contact-form-message',
             icon: '/icon.png'
           });
 
-          // Identify valid admin/board IDs
+          // Identify valid admin/board IDs (case-insensitive for safety)
           const authorizedUserIds = new Set(
             dbData.members
-              .filter((m: MemberItem) => m.role === 'admin' || m.role === 'board')
+              .filter((m: MemberItem) => {
+                const role = (m.role || '').toLowerCase();
+                return role === 'admin' || role === 'board';
+              })
               .map((m: MemberItem) => m.id)
           );
 
@@ -74,7 +78,7 @@ export async function POST(request: Request) {
             (sub: PushSubscriptionItem) => authorizedUserIds.has(sub.userId)
           );
 
-          console.log(`[CONTACT PUSH] Targeting ${targetSubscriptions.length} admin devices.`);
+          console.log(`[CONTACT PUSH] Targeting ${targetSubscriptions.length} admin devices from ${authorizedUserIds.size} authorized accounts.`);
 
           // Use a map to avoid duplicate endpoints
           const uniqueEndpoints = new Map();
