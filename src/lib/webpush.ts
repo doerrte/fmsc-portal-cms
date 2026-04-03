@@ -27,6 +27,7 @@ export async function sendNotification(subscription: PushSubscription, payload: 
   // 2. Encrypt Payload (AES-128-GCM)
   const encryptionResult = encryptPayload(payload, subscription.keys.p256dh, subscription.keys.auth);
 
+  // 3. Send HTTP POST to Push Service
   console.log(`[WEBPUSH] Fetching endpoint: ${subscription.endpoint}`);
   const response = await fetch(subscription.endpoint, {
     method: 'POST',
@@ -60,7 +61,7 @@ function base64UrlDecode(str: string): Buffer {
 /**
  * Generates the VAPID Authorization header
  */
-function generateVapidHeader(endpoint: string, privateKey: string, publicKey: string): string {
+function generateVapidHeader(endpoint: string, privateKeyBase64: string, publicKeyBase64: string): string {
   const url = new URL(endpoint);
   const origin = `${url.protocol}//${url.host}`;
   
@@ -71,38 +72,35 @@ function generateVapidHeader(endpoint: string, privateKey: string, publicKey: st
     sub: 'mailto:info@fmsc-koenigshoven.de'
   };
 
-  const token = createVapidToken(header, payload, privateKey, publicKey);
-  // VAPID header must NOT have a space after the comma and MUST NOT have padding in the 'k' parameter
-  const cleanPublicKey = publicKey.replace(/=/g, '');
+  const token = createVapidToken(header, payload, privateKeyBase64);
+  
+  // k parameter must be the RAW uncompressed public key (65 bytes) in base64url
+  // Since our publicKeyBase64 is now a full SPKI DER, we need to extract the raw key
+  const publicKeyObject = crypto.createPublicKey({
+    key: base64UrlDecode(publicKeyBase64),
+    format: 'der',
+    type: 'spki'
+  });
+  const rawPubKey = publicKeyObject.export({ type: 'x9.62', format: 'der' });
+  // ASN.1 for P-256 usually starts with 0x04 for uncompressed point
+  const cleanPublicKey = base64UrlEncode(rawPubKey);
+
   return `vapid t=${token},k=${cleanPublicKey}`;
 }
 
 /**
  * Creates a signed JWT for VAPID
  */
-function createVapidToken(header: Record<string, string>, payload: Record<string, unknown>, privateKeyBase64: string, publicKeyBase64: string): string {
+function createVapidToken(header: Record<string, string>, payload: Record<string, unknown>, privateKeyBase64: string): string {
   const headerEncoded = base64UrlEncode(Buffer.from(JSON.stringify(header)));
   const payloadEncoded = base64UrlEncode(Buffer.from(JSON.stringify(payload)));
   const unsignedToken = `${headerEncoded}.${payloadEncoded}`;
 
-  // Extract X and Y coordinates from the uncompressed public key (65 bytes)
-  // VAPID public key starts with 0x04 (uncompressed point indicator)
-  const pubBuffer = base64UrlDecode(publicKeyBase64);
-  // Support both 65-byte (with 0x04) and 64-byte raw keys
-  const xBuffer = pubBuffer.length === 65 ? pubBuffer.subarray(1, 33) : pubBuffer.subarray(0, 32);
-  const yBuffer = pubBuffer.length === 65 ? pubBuffer.subarray(33, 65) : pubBuffer.subarray(32, 64);
-
-  // Use JWK (JSON Web Key) import
-  // Node.js requires x and y even for private key import in JWK format
+  // Import full PKCS#8 DER private key
   const privateKeyObject = crypto.createPrivateKey({
-    key: {
-      kty: 'EC',
-      crv: 'P-256',
-      x: base64UrlEncode(xBuffer),
-      y: base64UrlEncode(yBuffer),
-      d: base64UrlEncode(base64UrlDecode(privateKeyBase64))
-    },
-    format: 'jwk'
+    key: base64UrlDecode(privateKeyBase64),
+    format: 'der',
+    type: 'pkcs8'
   });
 
   const signer = crypto.createSign('SHA256');
