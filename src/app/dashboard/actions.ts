@@ -351,3 +351,36 @@ export async function verifySubscriptionAction(endpoint: string) {
   const exists = db.push_subscriptions?.some((s: any) => s.subscription?.endpoint === endpoint);
   return { success: true, exists };
 }
+
+export async function clearMyPushSubscriptionsAction() {
+  const authCookie = (await cookies()).get('fmsc_auth')?.value;
+  if (!authCookie) return { success: false, error: 'Nicht angemeldet' };
+  const userId = authCookie.split('|')[0];
+  
+  const db = await getDbData();
+  const initialCount = db.push_subscriptions?.length || 0;
+  db.push_subscriptions = db.push_subscriptions.filter((s: any) => (s.userId || s.user_id) !== userId);
+  const deletedCount = initialCount - db.push_subscriptions.length;
+  
+  await saveDbData(db);
+  console.log(`[PUSH] Cleared ${deletedCount} subscriptions for user: ${userId}`);
+  return { success: true, deletedCount };
+}
+
+export async function testSinglePushAction(subscriptionJson: string) {
+  const { sendNotification } = await import('@/lib/webpush');
+  try {
+    const subscription = JSON.parse(subscriptionJson);
+    const payload = JSON.stringify({
+      title: 'Einzel-Test 🎯',
+      body: 'Diese Nachricht wurde nur an DIESES Gerät gesendet.',
+      badgeCount: 42
+    });
+    
+    await sendNotification(subscription, payload);
+    return { success: true };
+  } catch (err: any) {
+    console.error('[PUSH] Single test failed:', err);
+    return { success: false, error: err.message };
+  }
+}

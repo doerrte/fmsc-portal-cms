@@ -189,6 +189,41 @@ export default function PushNotificationManager() {
     }
   }
 
+  async function clearOldSubscriptions() {
+    if (!confirm('Dies löscht ALLE Ihre Registrierungen in der Datenbank. Sie müssen sich danach neu anmelden. Fortfahren?')) return;
+    setLoading(true);
+    try {
+      const actions = await import('@/app/dashboard/actions');
+      const res = await actions.clearMyPushSubscriptionsAction();
+      if (res.success) {
+        alert(`${res.deletedCount} alte Abos gelöscht. Bitte jetzt auf "Deaktivieren" und dann neu "Aktivieren" klicken.`);
+        setSubscription(null);
+      }
+    } catch (err: any) {
+      alert('Fehler beim Löschen: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function testThisDeviceOnly() {
+    if (!subscription) return alert('Bitte erst Push aktivieren.');
+    setLoading(true);
+    try {
+      const actions = await import('@/app/dashboard/actions');
+      const res = await actions.testSinglePushAction(JSON.stringify(subscription.toJSON()));
+      if (res.success) {
+        alert('Einzel-Push erfolgreich gesendet! Prüfen Sie Ihr Handy.');
+      } else {
+        alert('Fehler: ' + res.error);
+      }
+    } catch (err: any) {
+      alert('Fehler beim Einzel-Test: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function testVibration() {
     if ('vibrate' in navigator) {
       navigator.vibrate([200, 100, 200]);
@@ -362,6 +397,18 @@ export default function PushNotificationManager() {
           className="text-[10px] text-gray-500 underline hover:text-gray-300 py-1"
         >
           Update erzwingen
+        </button>
+        <button 
+          onClick={clearOldSubscriptions}
+          className="text-[10px] text-red-500/50 underline hover:text-red-400 py-1"
+        >
+          DB-Großputz
+        </button>
+        <button 
+          onClick={testThisDeviceOnly}
+          className="text-[10px] text-blue-500/50 underline hover:text-blue-400 py-1"
+        >
+          Nur dieses Handy testen
         </button>
       </div>
 
