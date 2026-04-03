@@ -81,14 +81,22 @@ export async function POST(request: Request) {
           targetSubscriptions.forEach(s => uniqueEndpoints.set(s.subscription.endpoint, s));
           const uniqueSubs = Array.from(uniqueEndpoints.values());
 
-          // CRITICAL: We MUST await the promises to ensure the function doesn't exit early on Vercel
-          await Promise.all(
-            uniqueSubs.map(s => 
-              sendNotification(s.subscription, notificationPayload).catch((err: unknown) => 
-                console.error(`[CONTACT PUSH] Failed for device ${s.id}:`, err)
+          // Get VAPID keys
+          const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+          const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+          
+          if (!vapidPublicKey || !vapidPrivateKey) {
+            console.error('[CONTACT PUSH] VAPID keys are missing from environment');
+          } else {
+            // CRITICAL: We MUST await the promises to ensure the function doesn't exit early on Vercel
+            await Promise.all(
+              uniqueSubs.map(s => 
+                sendNotification(s.subscription, notificationPayload, vapidPrivateKey, vapidPublicKey).catch((err: unknown) => 
+                  console.error(`[CONTACT PUSH] Failed for device ${s.id}:`, err)
+                )
               )
-            )
-          );
+            );
+          }
           
           console.log(`[CONTACT PUSH] Dispatch completed.`);
         }
