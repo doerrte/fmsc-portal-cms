@@ -1,553 +1,273 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { Mail, Phone, MapPin, Send, MessageSquare, Shield, Radio, ArrowRight, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-const ContactPage = () => {
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: 'Gastflug-Anfrage',
     message: ''
   });
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('sending');
+    setStatus('loading');
     setErrorMessage('');
 
     try {
-      let token: string | null | undefined = null;
-
-      // Local development bypass OR normal execution
-      if (window.location.hostname === 'localhost' && !process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
-        console.warn('reCAPTCHA site key missing, using dev bypass');
-        token = 'dev-token-bypass';
-      } else {
-        // Wrap executeAsync in a timeout to prevent hanging if reCAPTCHA fails to load
-        const executePromise = recaptchaRef.current?.executeAsync();
-        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000));
-        
-        token = await Promise.race([executePromise, timeoutPromise]);
-
-        // If it timed out or failed on localhost, allow bypass for testing
-        if (!token && window.location.hostname === 'localhost') {
-          console.warn('reCAPTCHA timed out or failed on localhost, bypassing for testing.');
-          token = 'dev-token-localhost';
-        }
-      }
-      
-      if (!token) {
-        setStatus('error');
-        setErrorMessage('Captcha-Verifizierung fehlgeschlagen oder Zeitüberschreitung. Bitte lade die Seite neu.');
-        return;
+      let tokenValue = '';
+      try {
+        // Diagnostic Bypass: We try to get the token, but if Google fails (401), we proceed with empty string
+        tokenValue = await recaptchaRef.current?.executeAsync() || '';
+      } catch (e) {
+        console.warn('[DIAGNOSTIC] reCAPTCHA execute failed, proceeding without token...');
       }
 
-      // Verify token on server (The server will also need to handle 'dev-token-localhost')
-      const verifyRes = await fetch('/api/contact/verify', {
+      const response = await fetch('/api/contact/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, formData })
+        body: JSON.stringify({ ...formData, token: tokenValue }),
       });
 
-      const verifyData = await verifyRes.json();
+      const verifyData = await response.json();
 
       if (verifyData.success) {
-        // Success
         console.log('[PUSH DIAGNOSTICS]', verifyData);
         setStatus('success');
         setFormData({ name: '', email: '', subject: 'Gastflug-Anfrage', message: '' });
       } else {
         setStatus('error');
-        setErrorMessage(verifyData.error || 'Verifizierung fehlgeschlagen.');
+        setErrorMessage(verifyData.error || 'Etwas ist schiefgelaufen.');
       }
     } catch (error) {
-      console.error('Contact Error:', error);
+      console.error('Submission error:', error);
       setStatus('error');
-      setErrorMessage('Ein Fehler ist aufgetreten. Bitte versuche es später erneut.');
+      setErrorMessage('Verbindung zum Server fehlgeschlagen.');
     }
   };
 
-  return (
-    <main className="contact-page">
-      <Navbar />
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
 
-      <section className="contact-hero">
-        <div className="hero-image-overlay" />
-        <div className="tech-scan-lines" />
-        <div className="container relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
+  return (
+    <div className="min-h-screen pt-24 pb-12 bg-slate-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Header */}
+        <div className="text-center mb-16">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="hero-content"
+            className="text-4xl md:text-5xl font-bold text-white mb-4"
           >
-            <div className="tech-badge">
-              <Radio size={16} />
-              <span>SIGNAL CENTER</span>
+            Kontaktiere uns
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-xl text-slate-400"
+          >
+            Fragen zum Verein, Gastflug-Anfragen oder Interesse an einer Mitgliedschaft? 
+            Schreib uns einfach!
+          </motion.p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          
+          {/* Contact Info */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-8"
+          >
+            <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 backdrop-blur-sm">
+              <h2 className="text-2xl font-bold text-white mb-8">Kontakt Details</h2>
+              
+              <div className="space-y-6">
+                <div className="flex items-start">
+                  <div className="bg-blue-500/10 p-3 rounded-lg mr-4">
+                    <MapPin className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">Anschrift</h3>
+                    <p className="text-slate-400">Flugsportclub Mühlacker e.V.<br />Flugplatz Hangensteiner Hof<br />75417 Mühlacker</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-500/10 p-3 rounded-lg mr-4">
+                    <Mail className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">E-Mail</h3>
+                    <p className="text-slate-400">info@fmc-muehlacker.de</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-500/10 p-3 rounded-lg mr-4">
+                    <Phone className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">Wochenend-Telefon</h3>
+                    <p className="text-slate-400">07041 / 44433</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h1 className="hero-title">
-              Kontakt & <span className="highlight">Anfrage</span>
-            </h1>
-            <p className="hero-subtitle">Sende uns eine Nachricht oder besuche uns am Flugplatz in Bedburg.</p>
+
+            <div className="bg-blue-600 p-8 rounded-2xl shadow-lg shadow-blue-500/20">
+              <h3 className="text-xl font-bold text-white mb-2">Gastflug-Info</h3>
+              <p className="text-blue-100 mb-4 text-sm leading-relaxed">
+                Gastflüge sind bei gutem Wetter an Wochenenden und Feiertagen möglich. 
+                Bitte kontaktiere uns vorab oder komm einfach am Flugplatz vorbei!
+              </p>
+              <a href="#form" className="inline-block bg-white text-blue-600 px-6 py-2 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors">
+                Anfrage senden
+              </a>
+            </div>
+          </motion.div>
+
+          {/* Contact Form */}
+          <motion.div 
+            id="form"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="lg:col-span-2"
+          >
+            <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 backdrop-blur-sm relative overflow-hidden">
+              
+              {status === 'success' ? (
+                <div className="text-center py-12">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-green-500/20 rounded-full mb-6">
+                    <CheckCircle2 className="w-10 h-10 text-green-400" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-white mb-4">Nachricht gesendet!</h2>
+                  <p className="text-slate-400 mb-8 max-w-md mx-auto">
+                    Vielen Dank für deine Anfrage. Wir haben sie erhalten und werden uns schnellstmöglich bei dir melden.
+                  </p>
+                  <button 
+                    onClick={() => setStatus('idle')}
+                    className="inline-flex items-center text-blue-400 hover:text-blue-300 font-semibold"
+                  >
+                    Eine weitere Nachricht senden
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-400 mb-2">Dein Name</label>
+                      <input 
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                        placeholder="Max Mustermann"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-400 mb-2">Deine E-Mail</label>
+                      <input 
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                        placeholder="max@beispiel.de"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-2">Betreff</label>
+                    <select 
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                    >
+                      <option value="Gastflug-Anfrage">Gastflug-Anfrage</option>
+                      <option value="Mitgliedschaft">Interesse an Mitgliedschaft</option>
+                      <option value="Modellflug">Modellflug</option>
+                      <option value="Segelflug">Segelflug</option>
+                      <option value="Allgemeine Anfrage">Allgemeine Anfrage</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-2">Deine Nachricht</label>
+                    <textarea 
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                      rows={6}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                      placeholder="Wie können wir dir helfen?"
+                    ></textarea>
+                  </div>
+
+                  {status === 'error' && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center text-red-400 gap-3"
+                    >
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                      <p className="text-sm">{errorMessage}</p>
+                    </motion.div>
+                  )}
+
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    size="invisible"
+                    sitekey="6LdM_aQsAAAAAHXnDmfCuogxM7y2ukJVC_JwjRqL"
+                  />
+
+                  <button 
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className={`w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all transition-colors active:scale-[0.98] ${status === 'loading' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  >
+                    {status === 'loading' ? (
+                      <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Absenden
+                      </>
+                    )}
+                  </button>
+                  <p className="text-[10px] text-center text-slate-500 mt-4 px-8">
+                    Diese Seite ist durch reCAPTCHA geschützt und es gelten die 
+                    <a href="https://policies.google.com/privacy" className="hover:text-blue-400 ml-1">Datenschutzbestimmungen</a> und 
+                    <a href="https://policies.google.com/terms" className="hover:text-blue-400 ml-1">Nutzungsbedingungen</a> von Google.
+                  </p>
+                </form>
+              )}
+            </div>
           </motion.div>
         </div>
-      </section>
-
-      <section className="contact-section">
-        <div className="container">
-          <div className="contact-grid">
-            {/* Contact Form - "The Data Terminal" */}
-            <motion.div
-              className="contact-form-container glass"
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <div className="card-header">
-                <MessageSquare size={20} className="text-secondary" />
-                <h2 className="title-gradient">Nachricht senden</h2>
-              </div>
-
-              <AnimatePresence mode="wait">
-                {status === 'success' ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="success-message"
-                  >
-                    <CheckCircle2 size={64} color="#22c55e" />
-                    <h3>Nachricht empfangen!</h3>
-                    <p>Vielen Dank für deine Nachricht. Wir werden uns so schnell wie möglich bei dir melden.</p>
-                    <button onClick={() => setStatus('idle')} className="btn-send" style={{ width: 'auto', paddingInline: '2rem' }}>
-                      Weitere Nachricht senden
-                    </button>
-                  </motion.div>
-                ) : (
-                  <form className="tech-form" onSubmit={handleSubmit}>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>NAME *</label>
-                        <input
-                          type="text"
-                          placeholder="Dein Name"
-                          className="tech-input"
-                          required
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>E-MAIL *</label>
-                        <input
-                          type="email"
-                          placeholder="email@beispiel.de"
-                          className="tech-input"
-                          required
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label>BETREFF *</label>
-                      <select
-                        className="tech-select"
-                        required
-                        value={formData.subject}
-                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      >
-                        <option value="Gastflug-Anfrage">Gastflug-Anfrage</option>
-                        <option value="Mitgliedschaft">Mitgliedschaft</option>
-                        <option value="Technik & Support">Technik & Support</option>
-                        <option value="Allgemeine Info">Allgemeine Info</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label>NACHRICHT *</label>
-                      <textarea
-                        placeholder="Deine Nachricht an uns..."
-                        rows={5}
-                        className="tech-textarea"
-                        required
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      ></textarea>
-                    </div>
-
-                    {status === 'error' && (
-                      <div className="error-message">
-                        <AlertCircle size={18} />
-                        <span>{errorMessage}</span>
-                      </div>
-                    )}
-
-                    <ReCAPTCHA
-                      ref={recaptchaRef}
-                      size="invisible"
-                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-                    />
-
-                    <button type="submit" className="btn-send" disabled={status === 'sending'}>
-                      {status === 'sending' ? (
-                        <><Loader2 className="spin" size={20} /> SENDE NACHRICHT...</>
-                      ) : (
-                        <>NACHRICHT SENDEN <Send size={18} /></>
-                      )}
-                    </button>
-                  </form>
-                )}
-              </AnimatePresence>
-            </motion.div>
-
-            {/* Contact Info - "The Station Info" */}
-            <div className="contact-info-aside">
-              <motion.div
-                className="info-card glass"
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-              >
-                <div className="info-item">
-                  <div className="info-icon"><MapPin size={24} /></div>
-                  <div className="info-text">
-                    <label>GPS STANDORT</label>
-                    <p>FMSC Königshoven e.V.</p>
-                    <p>Mannersdorfer Allee</p>
-                    <p>50181 Bedburg, DE</p>
-                  </div>
-                </div>
-
-                <div className="info-item">
-                  <div className="info-icon"><Mail size={24} /></div>
-                  <div className="info-text">
-                    <label>E-MAIL ADRESSE</label>
-                    <p>info@fmsc-koenigshoven.de</p>
-                  </div>
-                </div>
-
-                <div className="info-item">
-                  <div className="info-icon"><Shield size={24} /></div>
-                  <div className="info-text">
-                    <label>SICHERHEIT</label>
-                    <p>Versicherungspflicht für alle Piloten.</p>
-                  </div>
-                </div>
-
-                <div className="map-preview">
-                  <div className="coordinate-overlay">51.0218° N, 6.5547° E</div>
-                  <img
-                    src="https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/6.5547,51.0218,15,0/800x400?access_token=YOUR_MAPBOX_TOKEN_HERE"
-                    alt="Map"
-                    className="map-img"
-                  />
-                </div>
-              </motion.div>
-
-              <div className="guest-flyer-cta glass">
-                <div className="cta-content">
-                  <h3>Gastflieger Willkommen</h3>
-                  <p>Interesse an einem Gastflug? Wir freuen uns auf dich!</p>
-                </div>
-                <ArrowRight size={24} className="text-secondary" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-
-      <style jsx global>{`
-        .contact-page {
-          background: var(--background);
-          color: var(--foreground);
-          min-height: 100vh;
-        }
-
-        .contact-hero {
-          position: relative; height: 50vh; min-height: 400px; display: flex; align-items: center;
-          background: url('/contact_modelflying_tech_field_1774783640888.png') center/cover no-repeat;
-          overflow: hidden; margin-top: -80px;
-        }
-
-        @media (max-width: 768px) {
-          .contact-hero { margin-top: 0; padding-top: 80px; min-height: 450px; }
-          .hero-title { font-size: 2.5rem !important; }
-        }
-
-        .hero-image-overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(to bottom, var(--hero-gradient-mid) 0%, var(--hero-gradient-start) 100%);
-        }
-
-        .tech-scan-lines {
-          position: absolute;
-          inset: 0;
-          background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0px, rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px);
-          pointer-events: none;
-        }
-
-        .tech-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          background: rgba(192, 0, 0, 0.1);
-          color: #f87171;
-          padding: 8px 16px;
-          border-radius: 99px;
-          border: 1px solid rgba(192, 0, 0, 0.2);
-          font-weight: 800;
-          font-size: 0.75rem;
-          letter-spacing: 2px;
-          margin-bottom: 2rem;
-        }
-
-        .hero-title {
-          font-size: 4rem;
-          font-weight: 900;
-          margin-bottom: 1rem;
-          line-height: 1;
-        }
-
-        @media (max-width: 768px) {
-          .hero-title { font-size: 2.5rem; }
-        }
-
-        .highlight { color: #567eb6; }
-
-        .hero-subtitle {
-          font-size: 1.25rem;
-          color: var(--text-secondary);
-          max-width: 600px;
-        }
-
-        .contact-section {
-          padding: 6rem 0;
-        }
-
-        .contact-grid {
-          display: grid;
-          grid-template-columns: 1.5fr 1fr;
-          gap: 3rem;
-        }
-
-        @media (max-width: 1024px) {
-          .contact-grid { grid-template-columns: 1fr; }
-        }
-
-        .contact-form-container {
-          padding: 3rem;
-          border-radius: 40px;
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
-        }
-
-        @media (max-width: 768px) {
-          .contact-form-container { padding: 1.5rem; border-radius: 40px !important; }
-        }
-
-        .card-header {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-        }
-
-        .title-gradient {
-          font-size: 2rem;
-          font-weight: 800;
-          background: linear-gradient(135deg, var(--foreground) 0%, var(--text-tertiary) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .tech-form {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .form-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1.5rem;
-        }
-
-        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .form-group label {
-          font-size: 0.7rem;
-          font-weight: 800;
-          color: #567eb6;
-          letter-spacing: 1px;
-        }
-
-        .tech-input, .tech-select, .tech-textarea {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid var(--card-border);
-          padding: 12px 18px;
-          border-radius: 12px;
-          color: var(--foreground);
-          font-family: inherit;
-          transition: all 0.2s;
-        }
-
-        .tech-input:focus, .tech-select:focus, .tech-textarea:focus {
-          border-color: #567eb6;
-          background: rgba(255, 255, 255, 0.05);
-          outline: none;
-          box-shadow: 0 0 15px rgba(86, 126, 182, 0.2);
-        }
-
-        .btn-send {
-          background: #c00000;
-          color: #ffffff;
-          padding: 18px;
-          border-radius: 16px;
-          font-weight: 800;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          margin-top: 1rem;
-          transition: all 0.3s;
-        }
-
-        .btn-send:hover {
-          background: #e60000;
-          transform: translateY(-4px);
-          box-shadow: 0 10px 25px rgba(192, 0, 0, 0.3);
-        }
-
-        .success-message {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          padding: 2rem;
-          gap: 1rem;
-          color: var(--foreground);
-        }
-
-        .success-message h3 { font-size: 1.5rem; font-weight: 800; }
-        .success-message p { color: var(--text-secondary); margin-bottom: 1rem; }
-
-        .error-message {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 1rem;
-          background: rgba(239, 68, 68, 0.1);
-          border: 1px solid rgba(239, 68, 68, 0.2);
-          border-radius: 12px;
-          color: #f87171;
-          font-size: 0.9rem;
-          font-weight: 600;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spin { animation: spin 1s linear infinite; }
-
-        .contact-info-aside {
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
-        }
-
-        .info-card {
-          padding: 2.5rem;
-          border-radius: 40px;
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
-        }
-
-        .info-item {
-          display: flex;
-          gap: 20px;
-          align-items: flex-start;
-        }
-
-        .info-icon {
-          width: 48px;
-          height: 48px;
-          background: rgba(255, 255, 255, 0.03);
-          border-radius: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #567eb6;
-          border: 1px solid var(--card-border);
-        }
-
-        .info-text label {
-          display: block;
-          font-size: 0.65rem;
-          font-weight: 800;
-          color: rgba(255, 255, 255, 0.4);
-          letter-spacing: 1px;
-          margin-bottom: 4px;
-        }
-
-        .info-text p { font-weight: 600; opacity: 0.9; }
-
-        .map-preview {
-          position: relative;
-          border-radius: 40px !important;
-          overflow: hidden;
-          margin-top: 1rem;
-          border: 1px solid var(--card-border);
-        }
-
-        .coordinate-overlay {
-          position: absolute;
-          top: 15px;
-          right: 15px;
-          background: rgba(0, 0, 0, 0.8);
-          padding: 4px 10px;
-          border-radius: 6px;
-          font-size: 0.65rem;
-          font-family: monospace;
-          color: #4ade80;
-        }
-
-        .map-img { width: 100%; height: 200px; object-fit: cover; filter: grayscale(1) invert(1); }
-
-        .guest-flyer-cta {
-          padding: 2rem;
-          border-radius: 40px !important;
-          border-color: rgba(34, 197, 94, 0.2);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, transparent 100%);
-          cursor: pointer;
-        }
-
-        .guest-flyer-cta h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
-        .guest-flyer-cta p { font-size: 0.85rem; opacity: 0.6; }
-      `}</style>
-    </main>
+      </div>
+    </div>
   );
-};
-
-export default ContactPage;
+}

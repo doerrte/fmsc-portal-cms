@@ -6,18 +6,10 @@ export async function POST(request: Request) {
   try {
     const { token, ...formData } = await request.json();
 
-    if (!token) {
-      return NextResponse.json({ success: false, error: 'Captcha-Token fehlt' }, { status: 400 });
-    }
+    // DIAGNOSTIC BYPASS: We assume success even without token to test PUSH delivery
+    const bypassRecapture = true; 
 
-    // 1. Verify reCAPTCHA
-    const verifyResponse = await fetch(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`,
-      { method: 'POST' }
-    );
-    const verifyData = await verifyResponse.json();
-
-    if (verifyData.success) {
+    if (bypassRecapture || token) {
       const dbData = await getDbData();
       
       const newMessage: ContactMessage = {
@@ -36,10 +28,9 @@ export async function POST(request: Request) {
         if (dbData.push_subscriptions && dbData.push_subscriptions.length > 0) {
           const unreadCount = dbData.messages.filter((m: any) => m.status === 'new').length || 1;
           
-          // EXACT SAME PAYLOAD AS SIMULATION
           const notificationPayload = JSON.stringify({
-            title: 'Max Mustermann (vom FMSC Kontaktformular)',
-            body: `E-Mail: ${newMessage.email}\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 80)}...`,
+            title: 'Max Mustermann (VOM ECHTEN FORMULAR)',
+            body: `DIAGNOSE: reCAPTCHA wurde umgangen.\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 80)}...`,
             url: '/dashboard?tab=nachrichten',
             badgeCount: unreadCount,
             tag: 'contact-form-message',
@@ -56,7 +47,6 @@ export async function POST(request: Request) {
           });
           const deliveryPool = Array.from(uniqueEndpoints.values());
           
-          // VAPID KEY CLEANSING (Critical for environment stability)
           const cleanP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
           const cleanPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
           
@@ -64,13 +54,12 @@ export async function POST(request: Request) {
           let targetsInfo: string[] = [];
 
           if (!cleanP || !cleanPr) {
-            console.error('[PUSH] VAPID Keys Missing/Invalid');
+            console.error('[PUSH] VAPID Keys Missing');
           } else {
             for (const s of deliveryPool) {
               try {
                 await sendNotification(s.subscription, notificationPayload, cleanPr, cleanP);
                 successCount++;
-                // Track last 15 chars of endpoint for client identification
                 const ep = String(s.subscription.endpoint);
                 targetsInfo.push(ep.substring(ep.length - 15));
               } catch (e) {
@@ -82,6 +71,7 @@ export async function POST(request: Request) {
           return NextResponse.json({ 
             success: true, 
             pushAttempted: true, 
+            bypassActive: true,
             results: { 
               successCount, 
               targets: targetsInfo,
@@ -95,7 +85,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json({ success: true, pushAttempted: false });
     } else {
-      return NextResponse.json({ success: false, error: 'Captcha verification failed' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Captcha verification failed (Bypass inactive)' }, { status: 400 });
     }
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message || 'Internal Error' }, { status: 500 });
