@@ -19,6 +19,10 @@ self.addEventListener('push', function(event) {
     const title = data.title || 'FMSC Portal ✈️';
     const body = data.body || 'Neue Nachricht empfangen.';
     
+    // Notify the UI if it's open (Foreground Alert)
+    const channel = new BroadcastChannel('push-channel');
+    channel.postMessage({ title, body, icon: '/icon.png' });
+
     // Fallback options for high compatibility (iOS/Mobile)
     const options = {
       body: body,
@@ -26,6 +30,7 @@ self.addEventListener('push', function(event) {
       badge: '/icon.png',
       tag: 'fmsc-push-notification',
       renotify: true,
+      vibrate: [200, 100, 200],
       data: {
         url: data.url || '/dashboard?tab=nachrichten'
       }
@@ -35,7 +40,6 @@ self.addEventListener('push', function(event) {
     event.waitUntil(
       self.registration.showNotification(title, options).catch(err => {
         console.error('Complex notification failed, showing simple fallback:', err);
-        // Absolute fallback: Only title and body
         return self.registration.showNotification(title, { body: body });
       })
     );

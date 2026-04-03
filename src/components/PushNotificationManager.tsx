@@ -29,6 +29,15 @@ export default function PushNotificationManager() {
     } else {
       console.log('Push notifications NOT supported or serviceWorker missing in navigator');
     }
+
+    // Diagnostic Foreground Listener
+    if ('BroadcastChannel' in window) {
+      const channel = new BroadcastChannel('push-channel');
+      channel.onmessage = (event) => {
+        console.log('[DIAG] Received foreground push message:', event.data);
+        alert(`Beweis: Push-Nachricht "${event.data.title}" am Handy empfangen! Wenn Sie kein Banner sehen, blockiert Ihr Gerät die Anzeige.`);
+      };
+    }
   }, []);
 
   async function checkSubscription() {
