@@ -113,13 +113,13 @@ export async function POST(request: Request) {
           const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
           const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
           
+          let successCount = 0;
+          let errorCount = 0;
+
           if (!vapidPublicKey || !vapidPrivateKey) {
             console.error('[CONTACT PUSH] VAPID keys are missing from environment');
           } else {
             console.log(`[CONTACT PUSH] Starting sequential delivery to ${finalDeliveryPool.length} devices...`);
-            
-            let successCount = 0;
-            let errorCount = 0;
             
             // CRITICAL: Using for...of with await instead of Promise.all to ensure 
             // the serverless function doesn't kill the process mid-broadcast.
@@ -135,25 +135,29 @@ export async function POST(request: Request) {
             }
             
             console.log(`[CONTACT PUSH] Dispatch finished. Success: ${successCount}, Errors: ${errorCount}`);
-            
-            return NextResponse.json({ 
-              success: true, 
-              pushAttempted: true, 
-              successCount, 
-              errorCount 
-            });
           }
+          
+          return NextResponse.json({ 
+            success: true, 
+            pushAttempted: true, 
+            results: { successCount, errorCount } 
+          });
         }
-      } catch (pushErr) {
-        console.error('[CONTACT PUSH] Fatal error in push cycle:', pushErr);
-      }
 
-      return NextResponse.json({ success: true, pushAttempted: false });
+        return NextResponse.json({ success: true, pushAttempted: false, reason: 'No subscriptions found' });
+      } catch (pushErr: any) {
+        console.error('[CONTACT PUSH] Fatal error in push cycle:', pushErr);
+        return NextResponse.json({ 
+          success: true, 
+          pushAttempted: true, 
+          pushError: pushErr.message || 'Unknown push error' 
+        });
+      }
     } else {
       return NextResponse.json({ success: false, error: 'Captcha verification failed' }, { status: 400 });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('reCAPTCHA Error:', error);
-    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
