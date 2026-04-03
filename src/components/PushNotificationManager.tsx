@@ -107,16 +107,21 @@ export default function PushNotificationManager() {
       });
 
       // 4. Save to DB
+      console.log('Sending subscription to server...');
       const res = await savePushSubscriptionAction(JSON.stringify(sub.toJSON()));
       if (res.success) {
         setSubscription(sub);
-        setMessage({ text: 'Abonniert!', type: 'success' });
+        const msg = res.isUpdate ? 'Abonnement aktualisiert!' : 'Erfolgreich neu abonniert!';
+        setMessage({ text: msg, type: 'success' });
+        alert(`ERFOLG: ${msg}`);
       } else {
         throw new Error(res.error || 'Serverfehler beim Speichern.');
       }
     } catch (err: any) {
       console.error('Subscription error:', err);
-      setMessage({ text: err.message || 'Fehler beim Aktivieren.', type: 'error' });
+      const errorMsg = err.message || 'Fehler beim Aktivieren.';
+      setMessage({ text: errorMsg, type: 'error' });
+      alert(`DIAGNOSE FEHLER: ${errorMsg}`);
     } finally {
       setLoading(false);
     }

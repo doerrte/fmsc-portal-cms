@@ -264,8 +264,8 @@ export async function savePushSubscriptionAction(subscriptionRaw: string) {
     return { success: false, error: 'Datenbank-Speicherfehler: ' + (saveError?.message || 'Unbekannt') };
   }
 
-  console.log(`[PUSH] Saved subscription for user: ${userId}`);
-  return { success: true };
+  console.log(`[PUSH] ${existingIndex > -1 ? 'Updated' : 'Created new'} subscription for user: ${userId}`);
+  return { success: true, isUpdate: existingIndex > -1 };
 }
 
 export async function testPushAction() {
