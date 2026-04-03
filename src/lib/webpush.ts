@@ -14,25 +14,15 @@ interface PushSubscription {
 }
 
 export async function sendNotification(subscription: PushSubscription, payload: string) {
-  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
-  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
+  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
 
   if (!vapidPublicKey || !vapidPrivateKey) {
-    throw new Error('VAPID keys not configured');
+    throw new Error('VAPID keys not configured in environment variables');
   }
 
-  // 1. Generate VAPID JWT
-  const endpoint = new URL(subscription.endpoint);
-  const origin = endpoint.origin;
-  
-  const jwtHeader = { typ: 'JWT', alg: 'ES256' };
-  const jwtPayload = {
-    aud: origin,
-    exp: Math.floor(Date.now() / 1000) + 12 * 3600, // 12 hours
-    sub: 'mailto:info@fmsc-koenigshoven.de'
-  };
-
-  const token = createVapidToken(jwtHeader, jwtPayload, vapidPrivateKey);
+  // 1. Generate VAPID Header
+  const vapidHeader = generateVapidHeader(subscription.endpoint, vapidPrivateKey, vapidPublicKey);
 
   // 2. Encrypt Payload (AES-128-GCM)
   const encryptionResult = encryptPayload(payload, subscription.keys.p256dh, subscription.keys.auth);
@@ -43,10 +33,10 @@ export async function sendNotification(subscription: PushSubscription, payload: 
     headers: {
       'TTL': '86400',
       'Content-Encoding': 'aes128gcm',
-      'Authorization': `vapid t=${token}, k=${vapidPublicKey}`,
+      'Authorization': vapidHeader,
       'Content-Type': 'application/octet-stream'
     },
-    body: encryptionResult as unknown as BodyInit
+    body: encryptionResult
   });
 
   if (!response.ok) {
@@ -66,20 +56,47 @@ function base64UrlDecode(str: string): Buffer {
 }
 
 /**
+ * Generates the VAPID Authorization header
+ */
+function generateVapidHeader(endpoint: string, privateKey: string, publicKey: string): string {
+  const url = new URL(endpoint);
+  const origin = `${url.protocol}//${url.host}`;
+  
+  const header = { alg: 'ES256', typ: 'JWT' };
+  const payload = {
+    aud: origin,
+    exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60, // 12 hours
+    sub: 'mailto:info@fmsc-koenigshoven.de'
+  };
+
+  const token = createVapidToken(header, payload, privateKey, publicKey);
+  return `vapid t=${token}, k=${publicKey}`;
+}
+
+/**
  * Creates a signed JWT for VAPID
  */
-function createVapidToken(header: Record<string, string>, payload: Record<string, unknown>, privateKeyBase64: string): string {
+function createVapidToken(header: Record<string, string>, payload: Record<string, unknown>, privateKeyBase64: string, publicKeyBase64: string): string {
   const headerEncoded = base64UrlEncode(Buffer.from(JSON.stringify(header)));
   const payloadEncoded = base64UrlEncode(Buffer.from(JSON.stringify(payload)));
   const unsignedToken = `${headerEncoded}.${payloadEncoded}`;
 
-  // Use JWK (JSON Web Key) import which is more robust than manual ASN.1 wrapping
-  // The private key in VAPID is the 'd' parameter of the EC key
-  const privateKey = crypto.createPrivateKey({
+  // Extract X and Y coordinates from the uncompressed public key (65 bytes)
+  // VAPID public key starts with 0x04 (uncompressed point indicator)
+  const pubBuffer = base64UrlDecode(publicKeyBase64);
+  // Support both 65-byte (with 0x04) and 64-byte raw keys
+  const xBuffer = pubBuffer.length === 65 ? pubBuffer.subarray(1, 33) : pubBuffer.subarray(0, 32);
+  const yBuffer = pubBuffer.length === 65 ? pubBuffer.subarray(33, 65) : pubBuffer.subarray(32, 64);
+
+  // Use JWK (JSON Web Key) import
+  // Node.js requires x and y even for private key import in JWK format
+  const privateKeyObject = crypto.createPrivateKey({
     key: {
       kty: 'EC',
       crv: 'P-256',
-      d: base64UrlEncode(base64UrlDecode(privateKeyBase64)) // Ensure it is base64-url encoded
+      x: base64UrlEncode(xBuffer),
+      y: base64UrlEncode(yBuffer),
+      d: base64UrlEncode(base64UrlDecode(privateKeyBase64))
     },
     format: 'jwk'
   });
@@ -87,7 +104,7 @@ function createVapidToken(header: Record<string, string>, payload: Record<string
   const signer = crypto.createSign('SHA256');
   signer.update(unsignedToken);
   // ASN.1 DER signature from crypto.sign must be converted to raw (r, s) for JWT
-  const derSignature = signer.sign(privateKey);
+  const derSignature = signer.sign(privateKeyObject);
   const rawSignature = derToRaw(derSignature);
 
   return `${unsignedToken}.${base64UrlEncode(rawSignature)}`;
