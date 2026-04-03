@@ -548,8 +548,7 @@ const DashboardPage = () => {
                 </div>
               </header>
 
-              <div style={{ marginBottom: '2rem', padding: '1rem', background: 'rgba(251, 146, 60, 0.1)', borderRadius: '12px', border: '1px dashed #f97316' }}>
-                <p style={{ color: '#f97316', fontSize: '0.8rem', marginBottom: '0.5rem' }}>DEBUG: Push-Manager Bereich (Rolle: {currentUser?.role})</p>
+              <div style={{ marginBottom: '2rem' }}>
                 <PushNotificationManager />
               </div>
 

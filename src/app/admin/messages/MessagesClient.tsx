@@ -6,6 +6,7 @@ import { Mail, Trash2, CheckCircle, Clock, ChevronRight, MessageSquare, User, At
 import { motion, AnimatePresence } from 'framer-motion';
 import { deleteMessage, updateMessageStatus } from './actions';
 import Link from 'next/link';
+import PushNotificationManager from '@/components/PushNotificationManager';
 
 interface MessagesClientProps {
   initialMessages: ContactMessage[];
@@ -48,6 +49,11 @@ export default function MessagesClient({ initialMessages }: MessagesClientProps)
         </Link>
         <h1 className="title-gradient">Nachrichten Center</h1>
         <p className="subtitle">Verwalte eingegangene Kontaktanfragen von der Webseite.</p>
+
+        <div style={{ marginTop: '2rem', marginBottom: '2rem', padding: '1.5rem', background: 'rgba(251, 146, 60, 0.1)', borderRadius: '16px', border: '1px dashed #f97316' }}>
+          <p style={{ color: '#f97316', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.5rem' }}>DEBUG: Admin Push-Manager Bereich</p>
+          <PushNotificationManager />
+        </div>
       </div>
 
       <div className="messages-grid">
