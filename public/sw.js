@@ -1,3 +1,6 @@
+// Service Worker Version: 2.1.3 (Final Stability Fix)
+/* eslint-disable no-restricted-globals */
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
@@ -6,22 +9,23 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim());
 });
 
-// CRITICAL for iOS Safari: Must have a fetch handler to be considered a functional PWA
+// CRITICAL for iOS Safari: Must have a fetch handler
 self.addEventListener('fetch', (event) => {
-  // We don't need to cache anything yet, just proof of life
   return;
 });
 
-self.addEventListener('push', function(event) {
-  if (event.data) {
-    let data;
-    try {
-      data = event.data.json();
-    } catch (e) {
-      data = { title: 'FMSC Nachricht', body: event.data.text() };
-    }
+self.addEventListener('push', (event) => {
+  console.log('[SW] Push received');
 
-    const title = data.title || 'FMSC Portal ✈️';
+  let title = 'FMSC Portal ✈️';
+  let body = 'Neue Nachricht erhalten!';
+  let icon = '/icon.png';
+  let tag = 'fmsc-notification';
+  let url = '/dashboard?tab=nachrichten';
+  let vibrate = [200, 100, 200];
+  let badgeCount = 1;
+
+  if (event.data) {
     try {
       const data = event.data.json();
       title = data.title || title;
@@ -32,8 +36,8 @@ self.addEventListener('push', function(event) {
       vibrate = data.vibrate || vibrate;
       badgeCount = data.badgeCount !== undefined ? data.badgeCount : badgeCount;
     } catch (e) {
-      console.error('[SW] JSON parse error, using fallback notification:', e);
-      // Fallback: title and body are already set to defaults above
+      console.warn('[SW] Parsing payload failed, using text fallback');
+      body = event.data.text() || body;
     }
   }
 
@@ -51,50 +55,36 @@ self.addEventListener('push', function(event) {
     vibrate
   });
 
-  // Badge Update
   if ('setAppBadge' in self.navigator) {
-    self.navigator.setAppBadge(badgeCount).catch(err => console.log('Badge error:', err));
+    self.navigator.setAppBadge(badgeCount).catch(() => {});
   }
 
   event.waitUntil(notificationPromise);
 });
 
-self.addEventListener('notificationclick', function(event) {
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-
   if (event.action === 'close') return;
 
-  // Default behavior or 'view' action
   let urlToOpen = new URL('/', self.location.origin).href;
   if (event.notification.data && event.notification.data.url) {
-    try {
-      urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
-    } catch (e) {
-      console.warn('Malformed notification URL');
-    }
+    urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
   }
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      // If a window is already open at this URL, focus it
       for (let client of windowClients) {
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
-        }
+        if (client.url === urlToOpen && 'focus' in client) return client.focus();
       }
-      // Otherwise, open a new window
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
+      if (clients.openWindow) return clients.openWindow(urlToOpen);
     })
   );
 });
 
-// App Badge clearing logic (can also be handled in the main app)
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CLEAR_BADGE') {
     if ('clearAppBadge' in navigator) {
-      navigator.clearAppBadge().catch(err => console.error('Error clearing badge:', err));
+      navigator.clearAppBadge().catch(() => {});
     }
   }
 });
