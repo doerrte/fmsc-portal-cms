@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plane, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Plane, Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { loginAction, checkAuthAction } from './actions';
-import { useEffect } from 'react';
 
 const LoginPage = () => {
   const router = useRouter();
@@ -14,35 +13,53 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    // Timeout: if Supabase takes too long, just show the form
+    const timeout = setTimeout(() => setLoading(false), 3000);
+
     async function checkAuth() {
-      const res = await checkAuthAction();
-      if (res.success) {
-        if (res.role === 'admin') router.push('/admin');
-        else router.push('/dashboard');
-      } else {
+      try {
+        const res = await checkAuthAction();
+        clearTimeout(timeout);
+        if (res.success) {
+          if (res.role === 'admin') router.push('/admin');
+          else router.push('/dashboard');
+        } else {
+          setLoading(false);
+        }
+      } catch {
+        clearTimeout(timeout);
         setLoading(false);
       }
     }
     checkAuth();
+    return () => clearTimeout(timeout);
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('password', password);
-    const res = await loginAction(formData);
-    if (res.success) {
-      if (res.role === 'admin') {
-        router.push('/admin');
+    setError('');
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+      const res = await loginAction(formData);
+      if (res.success) {
+        if (res.role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/dashboard');
+        }
       } else {
-        router.push('/dashboard');
+        setError(res.error || 'Fehler beim Einloggen');
+        setSubmitting(false);
       }
-      setTimeout(() => router.refresh(), 100);
-    } else {
-      setError(res.error || 'Fehler beim Einloggen');
+    } catch {
+      setError('Verbindungsfehler. Bitte versuche es erneut.');
+      setSubmitting(false);
     }
   };
 
@@ -89,9 +106,12 @@ const LoginPage = () => {
               />
             </div>
 
-            <button type="submit" className="login-submit">
-              Anmelden
-              <ArrowRight size={20} />
+            <button type="submit" className="login-submit" disabled={submitting}>
+              {submitting ? (
+                <><Loader2 size={20} className="spin" /> Wird angemeldet...</>
+              ) : (
+                <>Anmelden <ArrowRight size={20} /></>
+              )}
             </button>
             {error && <p style={{ color: '#ef4444', fontSize: '0.9rem', marginTop: '1rem', fontWeight: 'bold' }}>{error}</p>}
           </form>
@@ -207,6 +227,15 @@ const LoginPage = () => {
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(251, 146, 60, 0.3);
         }
+
+        .login-submit:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin { animation: spin 0.8s linear infinite; }
       `}</style>
     </main>
   );

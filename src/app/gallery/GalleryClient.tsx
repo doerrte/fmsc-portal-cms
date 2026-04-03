@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Image as ImageIcon, PlayCircle, X, Maximize2, Filter, Camera, Video, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,8 +14,6 @@ const GalleryClient = ({ items }: { items: any[] }) => {
 
   return (
     <main className="gallery-page">
-      <Navbar />
-
       <section className="gallery-hero">
         <div className="hero-image-overlay" />
         <div className="tech-scan-lines" />
@@ -54,8 +51,8 @@ const GalleryClient = ({ items }: { items: any[] }) => {
             ))}
           </div>
 
-          {/* Grid */}
-          <motion.div layout className="gallery-grid">
+          {/* Masonry Grid */}
+          <motion.div layout className="gallery-masonry">
             <AnimatePresence mode='popLayout'>
               {filteredItems.map((item) => (
                 <motion.div 
@@ -64,7 +61,7 @@ const GalleryClient = ({ items }: { items: any[] }) => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className="gallery-item-wrapper"
+                  className="gallery-column-item"
                   onClick={() => setSelectedItem(item)}
                 >
                   <div className="gallery-item glass">
@@ -81,11 +78,6 @@ const GalleryClient = ({ items }: { items: any[] }) => {
                 </motion.div>
               ))}
             </AnimatePresence>
-            {filteredItems.length === 0 && (
-              <div style={{ padding: '2rem', textAlign: 'center', gridColumn: '1 / -1' }}>
-                <p>Noch keine Medien hochgeladen. Klicke auf "Galerie verwalten", um Bilder oder Videos hinzuzufügen.</p>
-              </div>
-            )}
           </motion.div>
         </div>
       </section>
@@ -181,19 +173,28 @@ const GalleryClient = ({ items }: { items: any[] }) => {
         .filter-btn.active { background: #567eb6; color: var(--foreground); }
         .filter-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.05); color: var(--foreground); }
 
-        .gallery-grid {
-          display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;
+        .gallery-masonry {
+          columns: 3;
+          column-gap: 1.5rem;
+          width: 100%;
         }
 
-        .gallery-item-wrapper { cursor: pointer; }
+        @media (max-width: 1024px) { .gallery-masonry { columns: 2; } }
+        @media (max-width: 600px) { .gallery-masonry { columns: 1; } }
+
+        .gallery-column-item {
+          break-inside: avoid;
+          margin-bottom: 1.5rem;
+          cursor: pointer;
+        }
 
         .gallery-item {
-          position: relative; border-radius: 24px; overflow: hidden; height: 250px;
+          position: relative; border-radius: 24px; overflow: hidden;
           transition: transform 0.4s ease; border: 1px solid var(--card-border);
         }
 
-        .item-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-        .gallery-item:hover .item-img { transform: scale(1.1); }
+        .item-img { width: 100%; height: auto; display: block; transition: transform 0.6s ease; }
+        .gallery-item:hover .item-img { transform: scale(1.05); }
 
         .item-overlay {
           position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);

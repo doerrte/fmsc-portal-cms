@@ -1,22 +1,37 @@
 'use client';
 
-import Navbar from '@/components/Navbar';
+import React, { useState, useEffect } from 'react';
 import Hero from '@/components/Hero';
 import EditButton from '@/components/EditButton';
 import LiveWeather from '@/components/LiveWeather';
 import Footer from '@/components/Footer';
 import { Calendar, Newspaper, Users, Info } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 export default function HomeClient({ data }: { data: any }) {
   const { settings, news } = data;
-  const topNews = news && news.length > 0 ? news[0] : null;
+  const featuredNews = news && news.length > 0 ? news.slice(0, 3) : [];
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (featuredNews.length <= 1 || isPaused) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % featuredNews.length);
+    }, 7000); // 7s for more reading time
+    return () => clearInterval(timer);
+  }, [featuredNews.length, isPaused]);
+
+  const paginate = (newDirection: number) => {
+    setCurrentSlide((prev) => (prev + newDirection + featuredNews.length) % featuredNews.length);
+  };
+
   return (
     <main>
-      <Navbar />
-      <Hero 
-        title={settings?.homepageHeroTitle} 
-        subtitle={settings?.homepageHeroSubtitle} 
+      <Hero
+        title={settings?.homepageHeroTitle}
+        subtitle={settings?.homepageHeroSubtitle}
         bgImage={settings?.homepageHeroImage}
       />
       <LiveWeather />
@@ -54,7 +69,7 @@ export default function HomeClient({ data }: { data: any }) {
         </div>
       </section>
 
-      {/* Featured News / Teaser */}
+      {/* Featured News / Carousel */}
       <section className="featured-section">
         <div className="container">
           <div className="section-header">
@@ -65,20 +80,66 @@ export default function HomeClient({ data }: { data: any }) {
             <p>{settings?.homepageTeaserSubtitle || 'Was im Verein gerade passiert.'}</p>
           </div>
 
-          {topNews && (
-            <div className="news-teaser glass" style={settings?.homepageTeaserImage ? { background: `linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(10, 12, 16, 0.95) 100%), url('${settings.homepageTeaserImage}') center/cover no-repeat` } : {}}>
-              <div className="teaser-content">
-                <span className="teaser-tag">{topNews.tag}</span>
-                <h3>{topNews.title}</h3>
-                <p>{topNews.content}</p>
-                <div className="teaser-meta">
-                  <span>{new Date(topNews.date).toLocaleDateString('de-DE')}</span>
-                  <span>•</span>
-                  <span>{topNews.location}</span>
-                </div>
+          <div className="carousel-container"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}>
+            <AnimatePresence mode="wait">
+              {featuredNews.map((item: any, index: number) => (
+                index === currentSlide && (
+                  <motion.div
+                    key={item.id}
+                    className="news-teaser glass interactive"
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.4}
+                    onDragEnd={(e: any, { offset }: any) => {
+                      if (offset.x > 150) paginate(-1);
+                      else if (offset.x < -150) paginate(1);
+                    }}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    whileHover={{ scale: 1.01 }}
+                    style={{
+                      borderRadius: '20px',
+                      overflow: 'hidden',
+                      paddingLeft: '1rem',
+                      background: item.image
+                        ? `linear-gradient(135deg, var(--teaser-overlay-start) 0%, var(--teaser-overlay-end) 100%), url('${item.image}') center/cover no-repeat`
+                        : `linear-gradient(135deg, var(--teaser-overlay-start) 0%, var(--teaser-overlay-end) 100%)`
+                    }}
+                  >
+                    <Link href={`/news/${item.id}`} className="teaser-inner-link" draggable={false}>
+                      <div className="teaser-content">
+                        <span className="teaser-tag">{item.tag || 'News'}</span>
+                        <h3>{item.title}</h3>
+                        <p>{item.content}</p>
+                        <div className="teaser-meta">
+                          <span>{new Date(item.date).toLocaleDateString('de-DE')}</span>
+                          <span>•</span>
+                          <span>{item.location}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )
+              ))}
+            </AnimatePresence>
+
+            {featuredNews.length > 1 && (
+              <div className="carousel-dots">
+                {featuredNews.map((_: any, idx: number) => (
+                  <button
+                    key={idx}
+                    className={`dot ${idx === currentSlide ? 'active' : ''}`}
+                    onClick={() => setCurrentSlide(idx)}
+                    aria-label={`Slide ${idx + 1}`}
+                  />
+                ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </section>
 
@@ -102,7 +163,7 @@ export default function HomeClient({ data }: { data: any }) {
 
         .card {
           padding: 2.5rem;
-          border-radius: 24px;
+          border-radius: 32px;
           transition: all 0.3s;
           display: flex;
           flex-direction: column;
@@ -160,28 +221,81 @@ export default function HomeClient({ data }: { data: any }) {
         }
 
         .news-teaser {
-          padding: 3rem;
-          border-radius: 32px;
-          background: linear-gradient(135deg, rgba(86, 126, 182, 0.05) 0%, var(--glass-bg) 100%);
+          padding: 5rem 6rem;
+          padding-left: 10rem; /* Move content further right */
+          border-radius: 20px;
+          min-height: 480px;
+          display: flex;
+          align-items: center;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.22);
           border: 1px solid var(--card-border);
+          transform: translateZ(0); /* GPU fix for clipping radius */
+          -webkit-mask-image: -webkit-radial-gradient(white, black); /* Chrome clipping fix */
+        }
+
+        .carousel-container {
+          position: relative;
+        }
+
+        .carousel-dots {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          margin-top: 2rem;
+        }
+
+        .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--card-border);
+          transition: all 0.3s;
+          padding: 0;
+        }
+
+        .dot.active {
+          background: var(--primary);
+          transform: scale(1.5);
         }
 
         .teaser-tag {
           background: var(--primary);
-          color: var(--foreground);
-          padding: 4px 12px;
+          color: white;
+          padding: 4px 14px;
           border-radius: 99px;
           font-size: 0.75rem;
-          font-weight: 700;
+          font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 1px;
-          margin-bottom: 1rem;
+          margin-bottom: 1.5rem;
           display: inline-block;
         }
 
         .news-teaser h3 {
-          font-size: 2rem;
+          font-size: 2.5rem;
           margin-bottom: 1rem;
+          font-weight: 800;
+          line-height: 1.1;
+        }
+
+        .teaser-inner-link {
+          display: flex;
+          width: 100%;
+          height: 100%;
+          align-items: center;
+          text-decoration: none;
+          color: inherit;
+        }
+
+        .news-teaser.interactive {
+          cursor: grab;
+          touch-action: none;
+        }
+
+        .news-teaser.interactive:active {
+          cursor: grabbing;
         }
 
         .news-teaser p {
@@ -189,22 +303,24 @@ export default function HomeClient({ data }: { data: any }) {
           color: var(--text-secondary);
           margin-bottom: 2rem;
           max-width: 800px;
+          line-height: 1.6;
         }
 
         .teaser-meta {
           display: flex;
-          gap: 1rem;
-          font-size: 0.85rem;
+          gap: 1.25rem;
+          font-size: 1rem;
           font-weight: 600;
-          color: var(--accent);
-          opacity: 0.8;
+          color: var(--primary);
+          opacity: 1;
+          margin-top: 0.5rem;
         }
         @media (max-width: 768px) {
           .quick-access, .featured-section { padding: 4rem 0; }
           .title-gradient { font-size: 1.8rem; }
           .card { padding: 1.5rem; border-radius: 20px; }
-          .news-teaser { padding: 1.5rem; border-radius: 20px; }
-          .news-teaser h3 { font-size: 1.5rem; }
+          .news-teaser { padding: 2rem; border-radius: 32px; min-height: 350px; }
+          .news-teaser h3 { font-size: 1.6rem; }
           .news-teaser p { font-size: 1rem; }
         }
       `}</style>

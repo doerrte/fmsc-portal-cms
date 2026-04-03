@@ -87,11 +87,45 @@ const LiveWeather = () => {
           onMouseLeave={handleMouseLeave}
           style={{ rotateX, rotateY, perspective: 1000 }}
         >
-          <div className="weather-dashboard glass">
+          <div className={`weather-dashboard glass ${weather && weather.windGusts > 35 ? 'is-stormy' : ''}`}>
             {/* Background Tech Effects */}
             <div className="tech-overlay">
               <div className="scanning-line" />
-              <div className="grid-background" />
+              <motion.div 
+                className="grid-background" 
+                animate={weather && weather.windGusts > 25 ? { 
+                  x: [0, 10, -10, 0],
+                  y: [0, 5, -5, 0],
+                  opacity: [0.05, 0.1, 0.05]
+                } : {}}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+              {/* Rain Drops Effect */}
+              {weather && weather.precipitationProbability > 20 && (
+                <div className="rain-overlay">
+                  {[...Array(15)].map((_, i) => (
+                    <motion.div 
+                      key={i} 
+                      className="rain-drop"
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ 
+                        opacity: [0, 0.4, 0], 
+                        scale: [0.5, 1.2, 1],
+                        y: [0, 20]
+                      }}
+                      transition={{ 
+                        duration: 2 + Math.random() * 2, 
+                        repeat: Infinity,
+                        delay: Math.random() * 5
+                      }}
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="dashboard-content">
@@ -106,6 +140,18 @@ const LiveWeather = () => {
                 </div>
 
                 <div className="compass-container">
+                  <AnimatePresence>
+                    {weather && weather.windGusts > 35 && (
+                      <motion.div 
+                        className="warning-ring"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1.1 }}
+                        exit={{ opacity: 0, scale: 1.5 }}
+                        transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+                      />
+                    )}
+                  </AnimatePresence>
+
                   {/* Outer ring and Ticks */}
                   <div className="compass-outer">
                     {[...Array(36)].map((_, i) => (
@@ -127,8 +173,12 @@ const LiveWeather = () => {
                   <div className="needle-hub">
                     <motion.div 
                       className="precision-needle"
-                      animate={{ rotate: weather?.windDirection || 0 }}
-                      transition={{ type: "spring", stiffness: 45, damping: 12 }}
+                      animate={{ 
+                        rotate: weather?.windDirection || 0,
+                      }}
+                      transition={{ 
+                        rotate: { type: "spring", stiffness: 45, damping: 12 },
+                      }}
                     >
                       <div className="needle-top" />
                       <div className="needle-bottom" />
@@ -228,8 +278,14 @@ const LiveWeather = () => {
           border-radius: 40px;
           padding: 4rem;
           overflow: hidden;
-          background: rgba(10, 15, 25, 0.4);
+          background: var(--glass-bg);
+          backdrop-filter: var(--glass-blur);
           border: 1px solid var(--card-border);
+          box-shadow: 0 40px 80px rgba(0, 0, 0, 0.15);
+        }
+
+        :global([data-theme='dark']) .weather-dashboard {
+          background: rgba(10, 15, 25, 0.6);
           box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
         }
 
@@ -251,9 +307,9 @@ const LiveWeather = () => {
         .grid-background {
           position: absolute;
           inset: 0;
-          background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+          background-image: radial-gradient(var(--foreground) 1px, transparent 1px);
           background-size: 30px 30px;
-          opacity: 0.5;
+          opacity: 0.05;
         }
 
         .scanning-line {
@@ -519,6 +575,36 @@ const LiveWeather = () => {
 
         .status-banner.clear { background: rgba(34, 197, 94, 0.1); color: var(--status-clear); border: 1px solid rgba(34, 197, 94, 0.2); }
         .status-banner.caution { background: rgba(220, 38, 38, 0.1); color: var(--status-caution); border: 1px solid rgba(220, 38, 38, 0.2); }
+
+        /* HUD 2.0 Effects */
+        .is-stormy {
+          border-color: rgba(192, 0, 0, 0.5) !important;
+          box-shadow: 0 0 40px rgba(192, 0, 0, 0.2), 0 40px 80px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .warning-ring {
+          position: absolute;
+          inset: -10px;
+          border: 2px solid rgba(192, 0, 0, 0.4);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+
+        .rain-overlay {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          pointer-events: none;
+        }
+
+        .rain-drop {
+          position: absolute;
+          width: 2px;
+          height: 2px;
+          background: rgba(255, 255, 255, 0.6);
+          border-radius: 50%;
+          box-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+        }
 
         .weather-skeleton {
           height: 480px;

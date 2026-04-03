@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, ArrowRight, Share2, MessageSquare, Radio, Loader2 } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import Link from 'next/link';
 import Footer from '@/components/Footer';
 import EditButton from '@/components/EditButton';
 
@@ -38,8 +38,6 @@ const NewsClient = ({ news }: { news: any[] }) => {
 
   return (
     <main className="news-page">
-      <Navbar />
-      
       {/* Dynamic News Hero */}
       <section className="news-hero">
         <div className="hero-image-overlay" />
@@ -104,12 +102,19 @@ const NewsClient = ({ news }: { news: any[] }) => {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <div className="card-image-box">
-                    <img src={item.image || '/news_article_pilot_model_1774782897920.png'} alt={item.title} className="card-img" />
-                    <div className="card-tag">{item.tag}</div>
-                  </div>
+                  {item.image && (
+                    <div className="card-image-box">
+                      <img src={item.image} alt={item.title} className="card-img" />
+                      <div className="card-tag">{item.tag}</div>
+                    </div>
+                  )}
 
                   <div className="card-content">
+                    {!item.image && (
+                      <div className="card-tag-inline" style={{ marginBottom: '1rem' }}>
+                        <span className="tag-badge">{item.tag}</span>
+                      </div>
+                    )}
                     <div className="card-meta">
                       <Calendar size={14} className="text-secondary" />
                       <span>{new Date(item.date).toLocaleDateString('de-DE')}</span>
@@ -121,9 +126,9 @@ const NewsClient = ({ news }: { news: any[] }) => {
                     <p className="card-text">{item.content}</p>
 
                     <div className="card-footer">
-                      <button className="read-more">
+                      <Link href={`/news/${item.id}`} className="read-more">
                         Details <ArrowRight size={16} />
-                      </button>
+                      </Link>
                       <div className="footer-actions">
                         <Share2 size={18} />
                         <MessageSquare size={18} />
@@ -344,6 +349,18 @@ const NewsClient = ({ news }: { news: any[] }) => {
           font-weight: 800;
           font-size: 0.7rem;
           letter-spacing: 1px;
+        }
+
+        .tag-badge {
+          background: rgba(86, 126, 182, 0.15);
+          color: #567eb6;
+          padding: 6px 14px;
+          border-radius: 99px;
+          font-weight: 800;
+          font-size: 0.7rem;
+          letter-spacing: 1px;
+          border: 1px solid rgba(86, 126, 182, 0.2);
+          text-transform: uppercase;
         }
 
         .card-content {

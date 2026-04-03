@@ -3,13 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { ChevronDown, LayoutDashboard, Info, Users, MapPin, Calendar, MessageSquare, Newspaper, Image, FileText, Archive, PlayCircle } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, Info, Users, MapPin, Calendar, MessageSquare, Newspaper, Image, FileText, Archive, LogOut, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
+import { checkAuthAction, logoutAction } from '@/app/login/actions';
+import { useAdmin } from './AdminContext';
 
 const Navbar = () => {
+  const isAdmin = useAdmin();
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -17,9 +22,22 @@ const Navbar = () => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
+    
+    const checkAuthStatus = async () => {
+      const res = await checkAuthAction();
+      if (res.success) {
+        setIsLoggedIn(true);
+        setUserRole(res.role || null);
+      } else {
+        setIsLoggedIn(false);
+        setUserRole(null);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
+    checkAuthStatus();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [pathname]); // Re-check on nav
 
   const aboutSubLinks = [
     { name: 'Verein (Übersicht)', href: '/about', icon: Info },
@@ -33,25 +51,44 @@ const Navbar = () => {
     { name: 'Archiv', href: '/archiv', icon: Archive },
   ];
 
-  const allLinksForMobile = [
-    { name: 'Navigation...', href: '' },
-    { name: 'Home', href: '/' },
-    { name: 'Neuigkeiten', href: '/news' },
-    { name: 'Verein (Übersicht)', href: '/about' },
-    { name: 'Unser Vorstand', href: '/vorstand' },
-    { name: 'Unser Flugplatz', href: '/flugplatz' },
-    { name: 'Galerie', href: '/gallery' },
-    { name: 'Bauberichte', href: '/bauberichte' },
-    { name: 'Archiv', href: '/archiv' },
-    { name: 'Termine', href: '/events' },
-    { name: 'Infos', href: '/info' },
-    { name: 'Kontakt', href: '/contact' },
-    { name: 'Mitgliederbereich', href: '/login' },
-  ];
+  const getMobileLinks = () => {
+    const baseLinks = [
+      { name: 'Navigation...', href: '' },
+      { name: 'Home', href: '/' },
+      { name: 'Neuigkeiten', href: '/news' },
+      { name: 'Verein (Übersicht)', href: '/about' },
+      { name: 'Unser Vorstand', href: '/vorstand' },
+      { name: 'Unser Flugplatz', href: '/flugplatz' },
+      { name: 'Galerie', href: '/gallery' },
+      { name: 'Bauberichte', href: '/bauberichte' },
+      { name: 'Archiv', href: '/archiv' },
+      { name: 'Termine', href: '/events' },
+      { name: 'Infos', href: '/info' },
+      { name: 'Kontakt', href: '/contact' },
+    ];
 
-  const handleMobileNav = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (isLoggedIn) {
+      if (userRole === 'admin') {
+        baseLinks.push({ name: 'Admin-Panel', href: '/admin' });
+      } else {
+        baseLinks.push({ name: 'Mitglieder-Dashboard', href: '/dashboard' });
+      }
+      baseLinks.push({ name: 'Abmelden', href: 'logout' });
+    } else {
+      baseLinks.push({ name: 'Mitgliederbereich', href: '/login' });
+    }
+
+    return baseLinks;
+  };
+
+  const handleMobileNav = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const href = e.target.value;
-    if (href) {
+    if (href === 'logout') {
+      await logoutAction();
+      setIsLoggedIn(false);
+      setUserRole(null);
+      router.push('/');
+    } else if (href) {
       router.push(href);
     }
   };
@@ -131,9 +168,22 @@ const Navbar = () => {
             <Link href="/events" className={`nav-link ${pathname === '/events' ? 'active' : ''}`}>Termine</Link>
             <Link href="/info" className={`nav-link ${pathname === '/info' ? 'active' : ''}`}>Infos</Link>
             <Link href="/contact" className={`nav-link ${pathname === '/contact' ? 'active' : ''}`}>Kontakt</Link>
-            <Link href="/login" className="login-btn">
-              <span>Intern</span>
-            </Link>
+            
+            {isLoggedIn ? (
+              <div className="auth-links">
+                <Link href={userRole === 'admin' ? '/admin' : '/dashboard'} className="dashboard-btn">
+                  {userRole === 'admin' ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
+                  <span>{userRole === 'admin' ? 'Admin' : 'Dashboard'}</span>
+                </Link>
+                <button onClick={() => { logoutAction(); setIsLoggedIn(false); router.push('/'); }} className="logout-inline-btn">
+                  <LogOut size={16} />
+                </button>
+              </div>
+            ) : (
+              <Link href="/login" className="login-btn">
+                <span>Intern</span>
+              </Link>
+            )}
             <ThemeToggle />
           </div>
         </div>
@@ -142,7 +192,7 @@ const Navbar = () => {
       <div className="mobile-nav-wrapper">
         <div className="select-container">
           <select className="mobile-select" onChange={handleMobileNav} value={pathname}>
-            {allLinksForMobile.map((link) => (
+            {getMobileLinks().map((link) => (
               <option key={link.name} value={link.href}> {link.name} </option>
             ))}
           </select>
@@ -156,7 +206,8 @@ const Navbar = () => {
       <style jsx>{`
         .navbar {
           position: fixed;
-          top: 0; left: 0; right: 0;
+          top: 0;
+          left: 0; right: 0;
           z-index: 1000;
           height: 80px;
           display: flex;
@@ -342,6 +393,53 @@ const Navbar = () => {
 
         .login-btn:hover { background: #e60000; transform: translateY(-2px); }
 
+        .auth-links {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .dashboard-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #567eb6;
+          color: white;
+          padding: 8px 18px;
+          border-radius: 99px;
+          font-weight: 800;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          transition: all 0.2s;
+          text-decoration: none;
+        }
+
+        .dashboard-btn:hover {
+          background: #4a6da1;
+          transform: translateY(-2px);
+        }
+
+        .logout-inline-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(192, 0, 0, 0.1);
+          color: #c00000;
+          border: 1px solid rgba(192, 0, 0, 0.2);
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .logout-inline-btn:hover {
+          background: #c00000;
+          color: white;
+          transform: scale(1.1);
+        }
+
         .mobile-nav-wrapper {
           position: fixed;
           bottom: 1.5rem; left: 1.5rem; right: 1.5rem;
@@ -374,6 +472,7 @@ const Navbar = () => {
           font-size: 1rem;
           font-weight: 700;
           width: 100%;
+          height: 52px; /* Fixed height for consistency */
           cursor: pointer;
           outline: none;
           text-align: center;
@@ -394,8 +493,10 @@ const Navbar = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 0 5px;
+          width: 52px; /* Match select height */
+          height: 52px; /* Match select height */
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(20px);
         }
       `}</style>
     </>

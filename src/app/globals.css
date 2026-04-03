@@ -26,10 +26,13 @@
   
   --nav-height: 80px;
   --bottom-nav-height: 70px;
+  
+  --teaser-overlay-start: rgba(255, 255, 255, 0.4);
+  --teaser-overlay-end: rgba(255, 255, 255, 0.85);
 }
 
 [data-theme='dark'] {
-  --background: var(--background);
+  --background: #020617;
   --foreground: #f8fafc;
   --text-secondary: rgba(248, 250, 252, 0.6);
   --text-tertiary: rgba(248, 250, 252, 0.3);
@@ -43,6 +46,9 @@
   --card-bg: rgba(15, 23, 42, 0.4);
   --card-border: rgba(255, 255, 255, 0.08);
   --glass-bg: rgba(10, 12, 16, 0.7);
+  
+  --teaser-overlay-start: rgba(15, 23, 42, 0.7);
+  --teaser-overlay-end: rgba(2, 6, 23, 0.95);
 }
 
 * {
@@ -88,7 +94,7 @@ button {
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 1rem; /* Reduced from 1.5rem for better mobile fit */
+  padding: 0 1rem;
 }
 
 /* Animations */
@@ -113,7 +119,7 @@ button {
   .mobile-only { display: none !important; }
 }
 
-/* Common utilities for non-Tailwind environment */
+/* Common utilities */
 .relative { position: relative; }
 .z-10 { z-index: 10; }
 .z-20 { z-index: 20; }
@@ -132,16 +138,12 @@ section {
   overflow: hidden;
 }
 
-/* ========================================= */
-/* ADMIN DASHBOARD RESPONSIVE STYLES         */
-/* ========================================= */
-
+/* ADMIN STYLES */
 .admin-layout {
   display: flex;
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  flex-direction: row;
 }
 
 .admin-sidebar {
@@ -162,61 +164,24 @@ section {
 .admin-bar {
   background: var(--card-bg);
   color: var(--foreground);
-  padding: 12px 24px;
+  padding: 0 1rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  border-bottom: 3px solid #f97316;
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 99999;
-  font-family: sans-serif;
-  flex-direction: row;
-}
-
-.admin-bar-links {
-  display: flex;
-  gap: 30px;
-  align-items: center;
-}
-
-.admin-bar-separator {
-  color: rgba(255,255,255,0.4);
+  left: 0;
+  right: 0;
+  height: 80px; /* Match navbar height */
+  z-index: 500; /* Behind navbar (1000) */
+  font-size: 0.8rem;
+  pointer-events: none;
+  border-bottom: 1px solid rgba(249, 115, 22, 0.2);
 }
 
 @media (max-width: 768px) {
-  .admin-layout {
-    flex-direction: column;
-  }
-  
-  .admin-sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--card-border);
-    padding: 1.5rem;
-  }
-  
-  .admin-sidebar h2 {
-    margin-bottom: 1rem !important;
-  }
-  
-  .admin-main {
-    padding: 1.5rem;
-  }
-
-  .admin-bar {
-    flex-direction: column;
-    gap: 15px;
-    padding: 15px;
-    text-align: center;
-  }
-  
-  .admin-bar-links {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .admin-bar-separator {
-    display: none;
-  }
+  .admin-layout { flex-direction: column; }
+  .admin-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--card-border); }
+  .admin-main { padding: 1.5rem; }
+  .admin-bar { flex-direction: column; gap: 10px; }
 }

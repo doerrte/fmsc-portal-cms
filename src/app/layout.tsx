@@ -20,23 +20,44 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "FMSC Königshoven 1975 e.V.",
   description: "Modellflugsport in Bedburg",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "FMSC",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },
       { url: '/icon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon.png', sizes: '192x192', type: 'image/png' },
     ],
     apple: [
-      { url: '/logo.png' },
+      { url: '/icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/icon.png',
+      },
     ],
   },
 };
 
 export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
 };
+
+import PageWrapper from "@/components/PageWrapper";
+import Navbar from "@/components/Navbar";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 export default async function RootLayout({
   children,
@@ -53,7 +74,11 @@ export default async function RootLayout({
           <AdminProvider isAdmin={isAdmin}>
             <GlobalBackground />
             <AdminBar />
-            {children}
+            <Navbar />
+            <PageWrapper>
+              {children}
+            </PageWrapper>
+            <PWAInstallPrompt />
           </AdminProvider>
         </ThemeProvider>
       </body>
