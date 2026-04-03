@@ -170,6 +170,25 @@ export default function PushNotificationManager() {
     }
   }
 
+  async function forceUpdateWorker() {
+    if (!confirm('Dies erzwingt ein Update der Hintergrund-Dienste. Fortfahren?')) return;
+    setLoading(true);
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const reg of registrations) {
+        await reg.update();
+      }
+      // Re-register with cache-busting
+      await navigator.serviceWorker.register('/sw.js?v=' + Date.now(), { scope: '/' });
+      alert('Update erfolgreich angestoßen. Bitte laden Sie die Seite nun einmal neu.');
+    } catch (err) {
+      console.error('Update error:', err);
+      alert('Update fehlgeschlagen.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function unsubscribeFromPush() {
     console.log('Deaktivieren button clicked');
     setLoading(true);
@@ -318,13 +337,19 @@ export default function PushNotificationManager() {
             {loading ? <span className="animate-spin text-lg">🌀</span> : <Bell size={20} />}
             Jetzt Aktivieren
           </button>
-          <button 
-            onClick={showDebugInfo}
-            className="text-[10px] text-gray-600 underline hover:text-gray-400 block mx-auto py-2"
-          >
-            System-Check (Diagnose)
-          </button>
-        </div>
+            <button 
+              onClick={showDebugInfo}
+              className="text-[10px] text-gray-600 underline hover:text-gray-400 block mx-auto py-2"
+            >
+              System-Check (Diagnose)
+            </button>
+            <button 
+              onClick={forceUpdateWorker}
+              className="text-[10px] text-gray-500 underline hover:text-gray-400 block mx-auto py-1"
+            >
+              Update erzwingen (Cache-Leeren)
+            </button>
+          </div>
       )}
       
       {message && (

@@ -12,43 +12,25 @@ self.addEventListener('push', function(event) {
     try {
       data = event.data.json();
     } catch (e) {
-      console.warn('Push data is not JSON, treating as text');
       data = { title: 'FMSC Nachricht', body: event.data.text() };
     }
 
     const title = data.title || 'FMSC Portal ✈️';
-    const body = data.body || 'Neue Nachricht empfangen.';
-    const iconUrl = new URL('/icon.png', self.location.origin).href;
+    const body = data.body || 'Neue Nachricht!';
     
     // Notify the UI if it's open (Foreground Alert)
     const channel = new BroadcastChannel('push-channel');
-    channel.postMessage({ title, body, icon: iconUrl });
+    channel.postMessage({ title, body });
 
-    // Fallback options for high compatibility (iOS/Mobile)
+    // ULTRA-MINIMALIST Fallback options
     const options = {
       body: body,
-      icon: iconUrl,
-      badge: iconUrl,
-      tag: 'fmsc-push-notification',
-      renotify: true,
-      vibrate: [200, 100, 200],
-      data: {
-        url: data.url || '/dashboard?tab=nachrichten'
-      }
+      // No icon, no badge, no vibrate, no tags
     };
 
-    // Attempt to show the complex notification
     event.waitUntil(
-      self.registration.showNotification(title, options).catch(err => {
-        console.error('Complex notification failed, showing simple fallback:', err);
-        return self.registration.showNotification(title, { body: body });
-      })
+      self.registration.showNotification(title, options)
     );
-
-    // Update App Badge if supported
-    if ('setAppBadge' in navigator) {
-      navigator.setAppBadge(data.badgeCount || 1).catch(err => {});
-    }
   }
 });
 
