@@ -74,11 +74,13 @@ function createVapidToken(header: Record<string, string>, payload: Record<string
   const unsignedToken = `${headerEncoded}.${payloadEncoded}`;
 
   // EC Private Key should be raw 32 bytes for the prime256v1 curve
+  // Correct PKCS#8 DER wrapper for 32-byte raw EC private key (prime256v1)
+  const rawKey = base64UrlDecode(privateKeyBase64);
   const privateKey = crypto.createPrivateKey({
     key: Buffer.concat([
-      Buffer.from([0x30, 0x31, 0x02, 0x01, 0x01, 0x04, 0x20]),
-      base64UrlDecode(privateKeyBase64),
-      Buffer.from([0xa0, 0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07])
+      Buffer.from([0x30, 0x2e, 0x02, 0x01, 0x01, 0x04, 0x20]), // Version 1, 32-byte octet string
+      rawKey,
+      Buffer.from([0xa0, 0x07, 0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x0a]) // OID prime256v1
     ]),
     format: 'der',
     type: 'pkcs8'
