@@ -72,7 +72,9 @@ function generateVapidHeader(endpoint: string, privateKey: string, publicKey: st
   };
 
   const token = createVapidToken(header, payload, privateKey, publicKey);
-  return `vapid t=${token}, k=${publicKey}`;
+  // VAPID header must NOT have a space after the comma and MUST NOT have padding in the 'k' parameter
+  const cleanPublicKey = publicKey.replace(/=/g, '');
+  return `vapid t=${token},k=${cleanPublicKey}`;
 }
 
 /**
