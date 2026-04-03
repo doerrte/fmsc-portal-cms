@@ -32,7 +32,8 @@ export async function sendNotification(subscription: PushSubscription, payload: 
   const response = await fetch(subscription.endpoint, {
     method: 'POST',
     headers: {
-      'TTL': '86400',
+      'TTL': '0', // Immediate delivery
+      'Urgency': 'high', // High priority for mobile wake-up
       'Content-Encoding': 'aes128gcm',
       'Authorization': vapidHeader,
       'Content-Type': 'application/octet-stream'
