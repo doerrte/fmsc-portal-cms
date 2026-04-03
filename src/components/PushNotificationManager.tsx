@@ -167,7 +167,14 @@ export default function PushNotificationManager() {
                   {subscription ? 'AKTIV' : 'INAKTIV'}
                 </span>
               </div>
-              <p className="text-xs text-gray-400">{subscription ? 'Empfängt administrative Alarme.' : 'Push aktivieren für neue Anfragen.'}</p>
+              {subscription && (
+                <div className="flex-1 min-w-0 mt-2">
+                  <p className="text-xs font-mono text-slate-400 truncate">
+                    ...{subscription.endpoint.substring(Math.max(0, subscription.endpoint.length - 20))}
+                  </p>
+                </div>
+              )}
+              <p className="text-xs text-gray-400 mt-2">{subscription ? 'Empfängt administrative Alarme.' : 'Push aktivieren für neue Anfragen.'}</p>
             </div>
             <div className="bg-blue-500/5 border border-blue-500/20 p-3 rounded-lg flex justify-between items-center">
               <span className="text-[10px] text-gray-500 font-mono">ID: {userId || '...'}</span>
