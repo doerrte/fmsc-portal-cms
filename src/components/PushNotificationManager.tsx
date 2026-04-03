@@ -131,11 +131,36 @@ export default function PushNotificationManager() {
       if (sub) {
         await sub.unsubscribe();
       }
+      
+      // Also try to unregister the worker for a clean state
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const reg of registrations) {
+        await reg.unregister();
+      }
+      
       setSubscription(null);
-      setMessage({ text: 'Push-Benachrichtigungen deaktiviert.', type: 'success' });
+      setMessage({ text: 'Push-Benachrichtigungen deaktiviert und zurückgesetzt.', type: 'success' });
     } catch (err) {
       console.error('Unsubscribe error:', err);
       setMessage({ text: 'Deaktivierung fehlgeschlagen.', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function hardReset() {
+    if (!confirm('Dies löscht alle Browser-Registrierungen für Push auf diesem Gerät. Fortfahren?')) return;
+    setLoading(true);
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const reg of registrations) {
+        await reg.unregister();
+      }
+      localStorage.removeItem('fmsc_push_last_sub'); // Optional cleanup
+      window.location.reload();
+    } catch (err) {
+      console.error('Reset error:', err);
+      alert('Reset fehlgeschlagen.');
     } finally {
       setLoading(false);
     }
@@ -214,6 +239,17 @@ export default function PushNotificationManager() {
             >
               <BellOff size={18} />
               Deaktivieren
+            </button>
+          </div>
+          <div className="pt-2">
+            <p className="text-[10px] text-gray-500 font-mono break-all opacity-50">
+              ID: {subscription.endpoint.split('/').pop()?.substring(0, 20)}...
+            </p>
+            <button 
+              onClick={hardReset}
+              className="text-[10px] text-gray-600 underline hover:text-gray-400 mt-1"
+            >
+              Probleme? Service-Worker Reset
             </button>
           </div>
         </div>
