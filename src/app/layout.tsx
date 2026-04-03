@@ -57,6 +57,7 @@ export const viewport: Viewport = {
 
 import Navbar from "@/components/Navbar";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import CookieConsent from "@/components/CookieConsent";
 
 export default async function RootLayout({
   children,
@@ -76,6 +77,7 @@ export default async function RootLayout({
             <Navbar />
             {children}
             <PWAInstallPrompt />
+            <CookieConsent />
           </AdminProvider>
         </ThemeProvider>
       </body>
