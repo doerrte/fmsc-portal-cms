@@ -168,9 +168,9 @@ export default function PushNotificationManager() {
                 </span>
               </div>
               {subscription && (
-                <div className="flex-1 min-w-0 mt-2">
+                <div className="flex-1 min-w-0">
                   <p className="text-xs font-mono text-slate-400 truncate">
-                    ...{subscription.endpoint.substring(Math.max(0, subscription.endpoint.length - 20))}
+                    ...{subscription.endpoint.substring(Math.max(0, (subscription.endpoint.length || 20) - 20))}
                   </p>
                 </div>
               )}
