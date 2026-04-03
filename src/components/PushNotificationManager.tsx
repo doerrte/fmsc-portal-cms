@@ -130,7 +130,7 @@ export default function PushNotificationManager() {
       console.log('Server response:', response);
       if (response.success) {
         setMessage({ 
-          text: `Test-Push gesendet (an ${response.count} Geräte)! [ID: ${response.debugId || '?'}]`, 
+          text: `Test-Push: ${response.count} gesendet. [Pool: ${response.poolCount}, Gesamt: ${response.totalInDb}, ID: ${response.debugId}]`, 
           type: 'success' 
         });
       } else {

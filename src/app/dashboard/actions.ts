@@ -311,5 +311,15 @@ export async function testPushAction() {
   }));
 
   const successCount = results.filter(r => r.success).length;
-  return { success: true, count: successCount, debugId: userId };
+  const totalInDb = db.push_subscriptions?.length || 0;
+  
+  console.log(`[TEST PUSH] Success: ${successCount}, Found in pool: ${subs.length}, Total in DB: ${totalInDb}`);
+  
+  return { 
+    success: true, 
+    count: successCount, 
+    debugId: userId,
+    totalInDb: totalInDb,
+    poolCount: subs.length 
+  };
 }
