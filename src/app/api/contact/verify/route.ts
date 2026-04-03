@@ -63,28 +63,36 @@ export async function POST(request: Request) {
           });
 
           // Identify valid admin/board IDs (case-insensitive for safety)
-          const authorizedUserIds = new Set(
-            dbData.members
-              .filter((m: MemberItem) => {
-                const role = (m.role || '').toLowerCase();
-                return role === 'admin' || role === 'board';
-              })
-              .map((m: MemberItem) => m.id)
-          );
-
+          const admins = dbData.members.filter((m: MemberItem) => {
+            const role = (m.role || '').toLowerCase();
+            return role === 'admin' || role === 'board';
+          });
+          
+          const authorizedUserIds = new Set(admins.map((m: MemberItem) => m.id));
+          
           // Always include 'admin_initial' as an authorized ID just in case
           authorizedUserIds.add('admin_initial');
 
+          console.log(`[CONTACT PUSH] Authorized Admin IDs:`, Array.from(authorizedUserIds));
+
           const targetSubscriptions = dbData.push_subscriptions.filter(
-            (sub: PushSubscriptionItem) => authorizedUserIds.has(sub.userId)
+            (sub: PushSubscriptionItem) => {
+              const matches = authorizedUserIds.has(sub.userId);
+              if (!matches) {
+                console.log(`[CONTACT PUSH] Skipping sub ${sub.id} (User ${sub.userId} is not an authorized admin)`);
+              }
+              return matches;
+            }
           );
 
-          console.log(`[CONTACT PUSH] Targeting ${targetSubscriptions.length} admin devices from ${authorizedUserIds.size} authorized accounts.`);
+          console.log(`[CONTACT PUSH] Found ${targetSubscriptions.length} subscriptions for authorized admins.`);
 
           // Use a map to avoid duplicate endpoints
           const uniqueEndpoints = new Map();
           targetSubscriptions.forEach(s => uniqueEndpoints.set(s.subscription.endpoint, s));
           const uniqueSubs = Array.from(uniqueEndpoints.values());
+
+          console.log(`[CONTACT PUSH] Final unique delivery targets: ${uniqueSubs.length}`);
 
           // Get VAPID keys
           const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;

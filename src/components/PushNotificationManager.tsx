@@ -16,6 +16,11 @@ export default function PushNotificationManager() {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
       setIsSupported(true);
       checkSubscription();
+      
+      // Reset the Push Badge (red counter) as soon as the manager is loaded
+      if (typeof navigator !== 'undefined' && 'clearAppBadge' in navigator) {
+        (navigator as any).clearAppBadge().catch((err: any) => console.log('Clear badge error:', err));
+      }
     }
     
     if ('BroadcastChannel' in window) {
