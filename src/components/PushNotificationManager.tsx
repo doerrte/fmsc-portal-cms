@@ -150,12 +150,12 @@ export default function PushNotificationManager() {
       if (response.success) {
         if (response.count === 0 && response.error) {
           setMessage({ 
-            text: `Test-Push Fehler: ${response.error} [Total: ${response.totalInDb}]`, 
+            text: `Test-Push Fehler: ${response.error}`, 
             type: 'error' 
           });
         } else {
           setMessage({ 
-            text: `Test-Push: ${response.count} gesendet. [Pool: ${response.poolCount}, Gesamt: ${response.totalInDb}, ID: ${response.debugId}]`, 
+            text: `Test-Push erfolgreich an ${response.count} Gerät(e) gesendet!`, 
             type: 'success' 
           });
         }

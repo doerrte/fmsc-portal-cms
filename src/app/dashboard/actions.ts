@@ -298,31 +298,23 @@ export async function testPushAction() {
   let lastError = null;
   const results = await Promise.all(uniqueSubs.map(async (subData) => {
     try {
-      console.log(`[TEST PUSH] Sending to sub: ${subData.id} (${subData.userId})`);
       await sendNotification(subData.subscription, JSON.stringify({
-        title: 'FMSC Portal Test ✈️',
-        body: 'Verbindung steht! Die Push-Infrastruktur ist jetzt live.',
+        title: 'FMSC Portal ✈️',
+        body: 'Die Push-Benachrichtigungen sind jetzt aktiv!',
         icon: '/icons/icon-192x192.png'
       }));
       return { success: true };
     } catch (err: any) {
-      console.error(`[TEST PUSH] ERROR for sub ${subData.id}:`, err.message || err);
       lastError = err.message || err;
       return { success: false };
     }
   }));
 
   const successCount = results.filter(r => r.success).length;
-  const totalInDb = db.push_subscriptions?.length || 0;
-  
-  console.log(`[TEST PUSH] Success: ${successCount}, Found in pool: ${subs.length}, Total in DB: ${totalInDb}`);
   
   return { 
     success: true, 
     count: successCount, 
-    debugId: userId,
-    totalInDb: totalInDb,
-    poolCount: subs.length,
     error: lastError 
   };
 }
