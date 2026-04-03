@@ -56,7 +56,15 @@ self.addEventListener('notificationclick', function(event) {
 
   if (event.action === 'close') return;
 
-  const urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
+  // Safety check for data URL
+  let urlToOpen = new URL('/', self.location.origin).href;
+  if (event.notification.data && event.notification.data.url) {
+    try {
+      urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
+    } catch (e) {
+      console.warn('Malformed notification URL, using root');
+    }
+  }
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
