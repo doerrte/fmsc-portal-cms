@@ -198,7 +198,31 @@ export default function PushNotificationManager() {
   );
 }
 
-function urlBase64ToUint8Array(base64String: string) {
+function urlBase64ToUint8Array(publicKeyInput: string) {
+  if (!publicKeyInput) {
+    console.error('VAPID Public Key is missing!');
+    return new Uint8Array();
+  }
+
+  let base64String = publicKeyInput.trim();
+  
+  // Robust check for JWK (JSON Web Key) format which we used for Safari
+  if (base64String.startsWith('{')) {
+    try {
+      const jwk = JSON.parse(base64String);
+      const x = Uint8Array.from(window.atob(jwk.x.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+      const y = Uint8Array.from(window.atob(jwk.y.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+      const raw = new Uint8Array(1 + x.length + y.length);
+      raw[0] = 0x04;
+      raw.set(x, 1);
+      raw.set(y, 1 + x.length);
+      return raw;
+    } catch (err) {
+      console.error('JWK parsing failed, falling back to base64', err);
+    }
+  }
+
+  // Standard Base64 handling
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const rawData = window.atob(base64);
