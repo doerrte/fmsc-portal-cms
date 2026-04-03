@@ -52,14 +52,12 @@ export async function POST(request: Request) {
           
           console.log(`[CONTACT PUSH] New message from ${newMessage.name}. Total unread: ${unreadCount}`);
 
-          const cleanTitle = `${newMessage.name} (Kontaktformular)`.replace(/[^\x20-\x7E\xC0-\xFF]/g, '');
-          const cleanBody = `E-Mail: ${newMessage.email}\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 100)}...`.replace(/[^\x20-\x7E\n\xC0-\xFF]/g, '');
-
+          // Use EXACT same structure as the working simulation to guarantee delivery
           const notificationPayload = JSON.stringify({
-            title: cleanTitle,
-            body: cleanBody,
+            title: `${newMessage.name} (Kontaktformular)`,
+            body: `E-Mail: ${newMessage.email}\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 100)}...`,
             url: '/dashboard?tab=nachrichten',
-            badgeCount: unreadCount,
+            badgeCount: unreadCount || 1,
             tag: 'contact-form-message',
             vibrate: [200, 100, 200, 100, 200],
             icon: '/icon.png'
