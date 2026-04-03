@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+/**
+ * Next.js 16 Proxy Convention (formerly Middleware)
+ */
+export function proxy(request: NextRequest) {
   const url = request.nextUrl;
   const authCookie = request.cookies.get('auth')?.value;
   

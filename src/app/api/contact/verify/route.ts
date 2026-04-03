@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDbData, saveDbData, ContactMessage } from '@/lib/db';
+import { getDbData, saveDbData, ContactMessage, MemberItem, PushSubscriptionItem } from '@/lib/db';
 import { sendNotification } from '@/lib/webpush';
 import crypto from 'crypto';
 
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
 
       // 4. Trigger Push Notifications for Admin/Board members
       if (dbData.push_subscriptions && dbData.push_subscriptions.length > 0) {
-        const unreadCount = dbData.messages.filter((m: any) => m.status === 'new').length;
+        const unreadCount = dbData.messages.filter((m: ContactMessage) => m.status === 'new').length;
         
         const notificationPayload = JSON.stringify({
           title: `Neue Nachricht: ${newMessage.subject}`,
@@ -59,18 +59,18 @@ export async function POST(request: Request) {
         // Filter valid subscriptions (users who are admin or board)
         const authorizedUserIds = new Set(
           dbData.members
-            .filter((m: any) => m.role === 'admin' || m.role === 'board')
-            .map((m: any) => m.id)
+            .filter((m: MemberItem) => m.role === 'admin' || m.role === 'board')
+            .map((m: MemberItem) => m.id)
         );
 
         const targetSubscriptions = dbData.push_subscriptions.filter(
-          (sub: any) => authorizedUserIds.has(sub.userId)
+          (sub: PushSubscriptionItem) => authorizedUserIds.has(sub.userId)
         );
 
         // Send notifications in parallel (ignoring failures for individual devices)
         Promise.all(
           targetSubscriptions.map(s => 
-            sendNotification(s.subscription, notificationPayload).catch(err => 
+            sendNotification(s.subscription, notificationPayload).catch((err: unknown) => 
               console.error(`Push failed for subscription ${s.id}:`, err)
             )
           )

@@ -46,7 +46,7 @@ export async function sendNotification(subscription: PushSubscription, payload: 
       'Authorization': `vapid t=${token}, k=${vapidPublicKey}`,
       'Content-Type': 'application/octet-stream'
     },
-    body: encryptionResult as any
+    body: encryptionResult as unknown as BodyInit
   });
 
   if (!response.ok) {
@@ -68,7 +68,7 @@ function base64UrlDecode(str: string): Buffer {
 /**
  * Creates a signed JWT for VAPID
  */
-function createVapidToken(header: object, payload: object, privateKeyBase64: string): string {
+function createVapidToken(header: Record<string, string>, payload: Record<string, unknown>, privateKeyBase64: string): string {
   const headerEncoded = base64UrlEncode(Buffer.from(JSON.stringify(header)));
   const payloadEncoded = base64UrlEncode(Buffer.from(JSON.stringify(payload)));
   const unsignedToken = `${headerEncoded}.${payloadEncoded}`;
@@ -98,12 +98,12 @@ function derToRaw(der: Buffer): Buffer {
   // DER: 0x30 L 0x02 Lr r 0x02 Ls s
   let offset = 2;
   const rLen = der[offset + 1];
-  let r = der.slice(offset + 2, offset + 2 + rLen);
-  if (rLen === 33 && r[0] === 0x00) r = r.slice(1);
+  let r = der.subarray(offset + 2, offset + 2 + rLen);
+  if (rLen === 33 && r[0] === 0x00) r = r.subarray(1);
   offset += 2 + rLen;
   const sLen = der[offset + 1];
-  let s = der.slice(offset + 2, offset + 2 + sLen);
-  if (sLen === 33 && s[0] === 0x00) s = s.slice(1);
+  let s = der.subarray(offset + 2, offset + 2 + sLen);
+  if (sLen === 33 && s[0] === 0x00) s = s.subarray(1);
   
   // Pad r and s to 32 bytes if necessary
   const rPadded = Buffer.alloc(32);

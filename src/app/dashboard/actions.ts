@@ -1,6 +1,6 @@
 'use server';
 
-import { getDbData, saveDbData, hashPassword, InternalDoc } from '@/lib/db';
+import { getDbData, saveDbData, hashPassword, InternalDoc, MemberItem, ContactMessage, PushSubscriptionItem } from '@/lib/db';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { uploadFile } from '@/lib/upload';
@@ -18,7 +18,7 @@ export async function getSafeMembersAction() {
   const db = await getDbData();
   
   // Return only safe fields (no passwords)
-  const safeMembers = db.members.map((m: any) => ({
+  const safeMembers = db.members.map((m: MemberItem) => ({
     id: m.id,
     name: m.name,
     email: m.email,
@@ -38,7 +38,7 @@ export async function getCurrentUserAction() {
 
   const userId = authCookie.split('|')[0];
   const db = await getDbData();
-  const user = db.members.find((m: any) => m.id === userId);
+  const user = db.members.find((m: MemberItem) => m.id === userId);
 
   if (!user) return { success: false, error: 'Nutzer nicht gefunden' };
 
@@ -69,7 +69,7 @@ export async function updateProfileAction(formData: FormData) {
   const profileImage = formData.get('profileImage') as string;
 
   const db = await getDbData();
-  const index = db.members.findIndex(m => m.id === userId);
+  const index = db.members.findIndex((m: MemberItem) => m.id === userId);
   if (index === -1) return { success: false, error: 'Nutzer nicht gefunden' };
 
   // Password Verification Logic
@@ -106,7 +106,7 @@ export async function uploadAvatarAction(formData: FormData) {
   if (!url) return { success: false, error: 'Upload fehlgeschlagen' };
 
   const db = await getDbData();
-  const index = db.members.findIndex(m => m.id === userId);
+  const index = db.members.findIndex((m: MemberItem) => m.id === userId);
   if (index === -1) return { success: false, error: 'Nutzer nicht gefunden' };
 
   db.members[index].profileImage = url;
@@ -165,7 +165,7 @@ export async function deleteInternalDocAction(id: string) {
   }
 
   const db = await getDbData();
-  db.internal_docs = db.internal_docs.filter((d: any) => d.id !== id);
+  db.internal_docs = db.internal_docs.filter((d: InternalDoc) => d.id !== id);
   await saveDbData(db);
   revalidatePath('/dashboard');
   return { success: true };
@@ -196,7 +196,7 @@ export async function deleteMessageAction(id: string) {
   }
 
   const db = await getDbData();
-  db.messages = db.messages.filter((m: any) => m.id !== id);
+  db.messages = db.messages.filter((m: ContactMessage) => m.id !== id);
   await saveDbData(db);
   revalidatePath('/dashboard');
   revalidatePath('/admin/messages');
@@ -214,7 +214,7 @@ export async function updateMessageStatusAction(id: string, status: 'new' | 'rea
   }
 
   const db = await getDbData();
-  const index = db.messages.findIndex((m: any) => m.id === id);
+  const index = db.messages.findIndex((m: ContactMessage) => m.id === id);
   if (index > -1) {
     db.messages[index].status = status;
     await saveDbData(db);
@@ -237,7 +237,7 @@ export async function savePushSubscriptionAction(subscription: any) {
 
   // Check if subscription already exists for this endpoint
   const existingIndex = db.push_subscriptions.findIndex(
-    (s: any) => s.subscription.endpoint === subscription.endpoint
+    (s: PushSubscriptionItem) => s.subscription.endpoint === subscription.endpoint
   );
 
   if (existingIndex > -1) {
@@ -263,7 +263,7 @@ export async function testPushAction() {
   const userId = authCookie.split('|')[0];
   const db = await getDbData();
   
-  const userSubs = db.push_subscriptions.filter((s: any) => s.userId === userId);
+  const userSubs = db.push_subscriptions.filter((s: PushSubscriptionItem) => s.userId === userId);
   
   if (userSubs.length === 0) {
     return { success: false, error: 'Keine Push-Abonnements für diesen Browser gefunden. Bitte aktiviere Benachrichtigungen zuerst.' };

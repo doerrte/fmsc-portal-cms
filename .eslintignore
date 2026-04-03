@@ -1,0 +1,8 @@
+tmp/
+utils/
+scripts/
+node_modules/
+.next/
+dist/
+build/
+*.js
