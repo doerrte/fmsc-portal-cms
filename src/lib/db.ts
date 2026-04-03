@@ -245,9 +245,12 @@ export async function saveDbData(data: DbSchema) {
     const { error } = await supabase.from('app_data').update({ payload: data }).eq('id', 1);
     if (error) {
       console.error('Supabase write error:', error);
+      return error;
     }
+    return null;
   } catch (error) {
     console.error('Error writing DB data:', error);
+    return error;
   }
 }
 

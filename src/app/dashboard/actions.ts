@@ -258,7 +258,12 @@ export async function savePushSubscriptionAction(subscriptionRaw: string) {
     });
   }
 
-  await saveDbData(db);
+  const saveError = await saveDbData(db) as any;
+  if (saveError) {
+    console.error(`[PUSH] Database Error for ${userId}:`, saveError);
+    return { success: false, error: 'Datenbank-Speicherfehler: ' + (saveError?.message || 'Unbekannt') };
+  }
+
   console.log(`[PUSH] Saved subscription for user: ${userId}`);
   return { success: true };
 }
