@@ -13,42 +13,42 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('push', function(event) {
+  // Stage 1: Absolute proof of reception (Badge 1)
+  if (self.navigator.setAppBadge) self.navigator.setAppBadge(1);
+
   if (event.data) {
     let data;
     try {
       data = event.data.json();
+      // Stage 2: Decryption successful (Badge 2)
+      if (self.navigator.setAppBadge) self.navigator.setAppBadge(2);
     } catch (e) {
       data = { title: 'FMSC Nachricht', body: event.data.text() };
     }
 
     const title = data.title || 'FMSC Portal ✈️';
     const body = data.body || 'Neue Nachricht!';
-    const iconUrl = new URL('/icon.png', self.location.origin).href;
     
-    // Notify the UI if it's open (Foreground Alert)
+    // Notify the UI if it's open
     const channel = new BroadcastChannel('push-channel');
     channel.postMessage({ title, body });
 
-    // Identify as 42 for diagnostic proof
     const options = {
       body: body,
-      icon: iconUrl,
-      badge: iconUrl,
       tag: 'fmsc-diag-tag',
       renotify: true,
-      data: {
-        url: '/'
-      }
+      data: { url: data.url || '/' }
     };
 
     event.waitUntil(
       Promise.all([
-        self.registration.showNotification(title, options).catch(err => {
+        self.registration.showNotification(title, options).then(() => {
+           // Stage 3: Display triggered (Badge 42)
+           if (self.navigator.setAppBadge) self.navigator.setAppBadge(42);
+        }).catch(err => {
           const ch = new BroadcastChannel('push-channel');
           ch.postMessage({ title: 'FEHLER', body: 'Anzeige fehlgeschlagen: ' + err.message });
-        }),
-        // Prove delivery by setting badge to 42
-        self.navigator.setAppBadge ? self.navigator.setAppBadge(42) : Promise.resolve()
+        })
       ])
     );
   }
