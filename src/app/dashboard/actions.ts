@@ -341,3 +341,9 @@ export async function testPushAction() {
     error: lastError 
   };
 }
+
+export async function verifySubscriptionAction(endpoint: string) {
+  const db = await getDbData();
+  const exists = db.push_subscriptions?.some((s: any) => s.subscription?.endpoint === endpoint);
+  return { success: true, exists };
+}
