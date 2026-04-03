@@ -385,7 +385,7 @@ export async function testSinglePushAction(subscriptionJson: string) {
     const payload = JSON.stringify({
       title: 'Einzel-Test 🎯',
       body: 'Diese Nachricht wurde nur an DIESES Gerät gesendet.',
-      badgeCount: 42
+      badgeCount: 1
     });
     
     const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -408,6 +408,9 @@ export async function testContactPushAction() {
   const [userId] = authCookie.split('|');
   const db = await getDbData();
   
+  // Calculate real unread count for the simulation
+  const unreadCount = db.messages.filter((m: any) => m.status === 'new').length;
+
   const mySubs = db.push_subscriptions.filter((s: any) => (s.userId || s.user_id) === userId);
   if (mySubs.length === 0) return { success: false, error: 'Kein Abo für diesen User gefunden.' };
 
@@ -419,6 +422,7 @@ export async function testContactPushAction() {
     title: 'Max Mustermann (vom FMSC Kontaktformular)',
     body: 'E-Mail: max@mustermann.de\nBetreff: Schnupperflug\n\nHallo, ich würde gerne mal bei Euch vorbeischauen und mitfliegen!',
     url: '/dashboard?tab=nachrichten',
+    badgeCount: unreadCount || 1, // At least 1 for the simulation preview
     tag: 'contact-form-message',
     icon: '/icon.png'
   });

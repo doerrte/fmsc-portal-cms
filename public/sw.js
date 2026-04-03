@@ -13,15 +13,10 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('push', function(event) {
-  // Stage 1: Absolute proof of reception (Badge 1)
-  if (self.navigator.setAppBadge) self.navigator.setAppBadge(1);
-
   if (event.data) {
     let data;
     try {
       data = event.data.json();
-      // Stage 2: Decryption successful (Badge 2)
-      if (self.navigator.setAppBadge) self.navigator.setAppBadge(2);
     } catch (e) {
       data = { title: 'FMSC Nachricht', body: event.data.text() };
     }
@@ -33,23 +28,20 @@ self.addEventListener('push', function(event) {
     const channel = new BroadcastChannel('push-channel');
     channel.postMessage({ title, body });
 
+    // Set App Badge (Icon Counter)
+    if (self.navigator.setAppBadge && data.badgeCount !== undefined) {
+      self.navigator.setAppBadge(data.badgeCount);
+    }
+
     const options = {
       body: body,
-      tag: 'fmsc-diag-tag',
+      tag: 'fmsc-contact-inquiry',
       renotify: true,
-      data: { url: data.url || '/' }
+      data: { url: data.url || '/dashboard?tab=nachrichten' }
     };
 
     event.waitUntil(
-      Promise.all([
-        self.registration.showNotification(title, options).then(() => {
-           // Stage 3: Display triggered (Badge 42)
-           if (self.navigator.setAppBadge) self.navigator.setAppBadge(42);
-        }).catch(err => {
-          const ch = new BroadcastChannel('push-channel');
-          ch.postMessage({ title: 'FEHLER', body: 'Anzeige fehlgeschlagen: ' + err.message });
-        })
-      ])
+      self.registration.showNotification(title, options)
     );
   }
 });
