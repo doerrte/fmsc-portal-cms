@@ -40,7 +40,10 @@ self.addEventListener('push', function(event) {
 
     event.waitUntil(
       Promise.all([
-        self.registration.showNotification(title, options),
+        self.registration.showNotification(title, options).catch(err => {
+          const ch = new BroadcastChannel('push-channel');
+          ch.postMessage({ title: 'FEHLER', body: 'Anzeige fehlgeschlagen: ' + err.message });
+        }),
         // Prove delivery by setting badge to 42
         self.navigator.setAppBadge ? self.navigator.setAppBadge(42) : Promise.resolve()
       ])
