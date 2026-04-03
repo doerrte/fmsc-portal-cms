@@ -17,22 +17,27 @@ self.addEventListener('push', function(event) {
 
     const title = data.title || 'FMSC Portal ✈️';
     const body = data.body || 'Neue Nachricht!';
+    const iconUrl = new URL('/icon.png', self.location.origin).href;
     
     // Notify the UI if it's open (Foreground Alert)
     const channel = new BroadcastChannel('push-channel');
     channel.postMessage({ title, body });
 
-    // ULTRA-MINIMALIST but identified options
+    // Identify as 42 for diagnostic proof
     const options = {
       body: body,
-      tag: 'fmsc-push-' + Date.now(), // Unique tag per message
-      timestamp: Date.now(),
-      vibrate: [100, 50, 100],
-      // STILL no icon or badge for maximum compatibility
+      icon: iconUrl,
+      badge: iconUrl,
+      tag: 'fmsc-diag-tag',
+      renotify: true
     };
 
     event.waitUntil(
-      self.registration.showNotification(title, options)
+      Promise.all([
+        self.registration.showNotification(title, options),
+        // Prove delivery by setting badge to 42
+        self.navigator.setAppBadge ? self.navigator.setAppBadge(42) : Promise.resolve()
+      ])
     );
   }
 });
