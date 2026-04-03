@@ -40,6 +40,24 @@ export default function PushNotificationManager() {
     }
   }, []);
 
+  async function showDebugInfo() {
+    if (!subscription) {
+      alert('Kein aktives Abonnement auf diesem Gerät gefunden. (Technisch: Subscription-Objekt im Browser-State ist null)');
+      return;
+    }
+    const info = JSON.stringify(subscription.toJSON(), null, 2);
+    const endpoint = subscription.endpoint;
+    
+    // Auto-verify with server
+    try {
+      const actions = await import('@/app/dashboard/actions');
+      const res = await actions.verifySubscriptionAction(endpoint);
+      alert(`TECHNISCHE DATEN:\n\nServer-Check: ${res.exists ? '✅ In Datenbank gefunden' : '❌ FEHLT IN DATENBANK'}\n\nEndpoint: ${endpoint.substring(0, 50)}...\n\nFull JSON: ${info}`);
+    } catch (e: any) {
+      alert(`Fehler beim System-Check: ${e.message}`);
+    }
+  }
+
   async function checkSubscription() {
     try {
       const registration = await navigator.serviceWorker.ready;
@@ -271,6 +289,12 @@ export default function PushNotificationManager() {
               Deaktivieren
             </button>
           </div>
+          <button 
+            onClick={showDebugInfo}
+            className="text-[10px] text-gray-500 underline hover:text-gray-300 block mx-auto py-2"
+          >
+            System-Check (Diagnose)
+          </button>
           <div className="pt-2">
             <p className="text-[10px] text-gray-500 font-mono break-all opacity-50">
               ID: {subscription.endpoint.split('/').pop()?.substring(0, 20)}...
@@ -293,6 +317,12 @@ export default function PushNotificationManager() {
           >
             {loading ? <span className="animate-spin text-lg">🌀</span> : <Bell size={20} />}
             Jetzt Aktivieren
+          </button>
+          <button 
+            onClick={showDebugInfo}
+            className="text-[10px] text-gray-600 underline hover:text-gray-400 block mx-auto py-2"
+          >
+            System-Check (Diagnose)
           </button>
         </div>
       )}
