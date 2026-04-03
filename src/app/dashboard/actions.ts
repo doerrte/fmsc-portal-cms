@@ -225,19 +225,26 @@ export async function updateMessageStatusAction(id: string, status: 'new' | 'rea
   return { success: false, error: 'Nachricht nicht gefunden' };
 }
 
-export async function savePushSubscriptionAction(subscription: any) {
+export async function savePushSubscriptionAction(subscriptionRaw: string) {
   const cookieStore = await cookies();
-  const authCookie = cookieStore.get('auth')?.value;
+  const authCookie = cookieStore.get('auth')?.value || cookieStore.get('admin_auth')?.value;
   if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
 
   const userId = authCookie.split('|')[0];
   const db = await getDbData();
   
+  let subscription: any;
+  try {
+    subscription = typeof subscriptionRaw === 'string' ? JSON.parse(subscriptionRaw) : subscriptionRaw;
+  } catch (e) {
+    return { success: false, error: 'Ungültiges Abonnement-Format' };
+  }
+
   if (!db.push_subscriptions) db.push_subscriptions = [];
 
   // Check if subscription already exists for this endpoint
   const existingIndex = db.push_subscriptions.findIndex(
-    (s: PushSubscriptionItem) => s.subscription.endpoint === subscription.endpoint
+    (s: PushSubscriptionItem) => s.subscription && s.subscription.endpoint === subscription.endpoint
   );
 
   if (existingIndex > -1) {
@@ -252,18 +259,19 @@ export async function savePushSubscriptionAction(subscription: any) {
   }
 
   await saveDbData(db);
+  console.log(`[PUSH] Saved subscription for user: ${userId}`);
   return { success: true };
 }
 
 export async function testPushAction() {
   const cookieStore = await cookies();
-  const authCookie = cookieStore.get('auth')?.value;
+  const authCookie = cookieStore.get('auth')?.value || cookieStore.get('admin_auth')?.value;
   if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
 
   const userId = authCookie.split('|')[0];
   const db = await getDbData();
   
-  const subs = db.push_subscriptions.filter((s: PushSubscriptionItem) => s.userId === userId);
+  const subs = db.push_subscriptions.filter((s: any) => (s.userId || s.user_id) === userId);
   
   console.log(`[TEST PUSH] Found ${subs?.length || 0} subscriptions for user ${userId}`);
 
