@@ -268,30 +268,43 @@ export async function testPushAction() {
   const authCookie = cookieStore.get('auth')?.value || cookieStore.get('admin_auth')?.value;
   if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
 
-  const userId = authCookie.split('|')[0];
+  const [userId, role] = authCookie.split('|');
   const db = await getDbData();
   
-  const subs = db.push_subscriptions.filter((s: any) => (s.userId || s.user_id) === userId);
+  // For the test push, we look for subscriptions of ALL admins or the current user
+  // to be 100% sure we hit the right one.
+  const adminIds = db.members
+    .filter((m: any) => m.role === 'admin' || m.role === 'board')
+    .map((m: any) => m.id);
   
-  console.log(`[TEST PUSH] Found ${subs?.length || 0} subscriptions for user ${userId}`);
+  const subs = db.push_subscriptions.filter((s: any) => {
+    const sId = s.userId || s.user_id;
+    return sId === userId || adminIds.includes(sId);
+  });
+  
+  console.log(`[TEST PUSH] Current User: ${userId}, Role: ${role}`);
+  console.log(`[TEST PUSH] Found ${subs?.length || 0} subscriptions in admin-pool`);
 
-  const results = await Promise.all((subs || []).map(async (subData) => {
+  // Use a map to avoid duplicate endpoints during test
+  const uniqueEndpoints = new Map();
+  subs.forEach(s => uniqueEndpoints.set(s.subscription.endpoint, s));
+  const uniqueSubs = Array.from(uniqueEndpoints.values());
+
+  const results = await Promise.all(uniqueSubs.map(async (subData) => {
     try {
-      console.log(`[TEST PUSH] Starting send to sub: ${subData.id}`);
-      const result = await sendNotification(subData.subscription, JSON.stringify({
-        title: 'FMSC Portal Test',
-        body: 'Dies ist eine Test-Benachrichtigung.',
+      console.log(`[TEST PUSH] Sending to sub: ${subData.id} (${subData.userId})`);
+      await sendNotification(subData.subscription, JSON.stringify({
+        title: 'FMSC Portal Test ✈️',
+        body: 'Verbindung steht! Die Push-Infrastruktur ist jetzt live.',
         icon: '/icons/icon-192x192.png'
       }));
-      console.log(`[TEST PUSH] Success for sub: ${subData.id}`);
-      return { subId: subData.id, success: true };
+      return { success: true };
     } catch (err: any) {
       console.error(`[TEST PUSH] ERROR for sub ${subData.id}:`, err.message || err);
-      return { subId: subData.id, success: false, error: err.message || err };
+      return { success: false };
     }
   }));
 
   const successCount = results.filter(r => r.success).length;
-  console.log(`[TEST PUSH] Completed. Total success: ${successCount}`);
-  return { success: true, count: successCount };
+  return { success: true, count: successCount, debugId: userId };
 }

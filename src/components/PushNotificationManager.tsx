@@ -129,7 +129,10 @@ export default function PushNotificationManager() {
       const response = await testPushAction();
       console.log('Server response:', response);
       if (response.success) {
-        setMessage({ text: `Test-Push gesendet (an ${response.count} Geräte)!`, type: 'success' });
+        setMessage({ 
+          text: `Test-Push gesendet (an ${response.count} Geräte)! [ID: ${response.debugId || '?'}]`, 
+          type: 'success' 
+        });
       } else {
         setMessage({ text: 'Test-Push Fehler: ' + response.error, type: 'error' });
       }
