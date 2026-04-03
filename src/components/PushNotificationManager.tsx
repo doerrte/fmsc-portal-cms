@@ -317,12 +317,6 @@ export default function PushNotificationManager() {
               Deaktivieren
             </button>
           </div>
-          <button 
-            onClick={showDebugInfo}
-            className="text-[10px] text-gray-500 underline hover:text-gray-300 block mx-auto py-2"
-          >
-            System-Check (Diagnose)
-          </button>
           <div className="pt-2">
             <p className="text-[10px] text-gray-500 font-mono break-all opacity-50">
               ID: {subscription.endpoint.split('/').pop()?.substring(0, 20)}...
@@ -346,27 +340,31 @@ export default function PushNotificationManager() {
             {loading ? <span className="animate-spin text-lg">🌀</span> : <Bell size={20} />}
             Jetzt Aktivieren
           </button>
-            <button 
-              onClick={showDebugInfo}
-              className="text-[10px] text-gray-600 underline hover:text-gray-400 block mx-auto py-2"
-            >
-              System-Check (Diagnose)
-            </button>
-            <button 
-              onClick={testVibration}
-              className="text-[10px] text-gray-600 underline hover:text-gray-400 block mx-auto py-1"
-            >
-              Hardware-Test (Vibration)
-            </button>
-            <button 
-              onClick={forceUpdateWorker}
-              className="text-[10px] text-gray-500 underline hover:text-gray-400 block mx-auto py-1"
-            >
-              Update erzwingen (Cache-Leeren)
-            </button>
-          </div>
+        </div>
       )}
       
+      {/* Global Diagnostics - Always visible */}
+      <div className="mt-8 pt-4 border-t border-white/5 flex flex-wrap justify-center gap-x-4 gap-y-1">
+        <button 
+          onClick={showDebugInfo}
+          className="text-[10px] text-gray-500 underline hover:text-gray-300 py-1"
+        >
+          System-Check (Diagnose)
+        </button>
+        <button 
+          onClick={testVibration}
+          className="text-[10px] text-gray-500 underline hover:text-gray-300 py-1"
+        >
+          Hardware-Test
+        </button>
+        <button 
+          onClick={forceUpdateWorker}
+          className="text-[10px] text-gray-500 underline hover:text-gray-300 py-1"
+        >
+          Update erzwingen
+        </button>
+      </div>
+
       {message && (
         <p className={`mt-4 text-xs font-medium px-3 py-2 rounded-lg ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
           {message.text}
