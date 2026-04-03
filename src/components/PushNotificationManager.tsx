@@ -41,7 +41,26 @@ export default function PushNotificationManager() {
     }
   }
 
-  function urlBase64ToUint8Array(base64String: string) {
+  function urlBase64ToUint8Array(publicKeyInput: string) {
+    let base64String = publicKeyInput.trim();
+    
+    // Check if it's a JWK
+    if (base64String.startsWith('{')) {
+      try {
+        const jwk = JSON.parse(base64String);
+        // Standard P-256 raw point is 0x04 + x + y
+        const x = Uint8Array.from(window.atob(jwk.x.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+        const y = Uint8Array.from(window.atob(jwk.y.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+        const raw = new Uint8Array(1 + x.length + y.length);
+        raw[0] = 0x04;
+        raw.set(x, 1);
+        raw.set(y, 1 + x.length);
+        return raw;
+      } catch (e) {
+        console.error('Failed to parse JWK public key', e);
+      }
+    }
+
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
       .replace(/-/g, '+')

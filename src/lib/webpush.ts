@@ -61,7 +61,7 @@ function base64UrlDecode(str: string): Buffer {
 /**
  * Generates the VAPID Authorization header
  */
-function generateVapidHeader(endpoint: string, privateKeyBase64: string, publicKeyBase64: string): string {
+function generateVapidHeader(endpoint: string, privateKeyInput: string, publicKeyInput: string): string {
   const url = new URL(endpoint);
   const origin = `${url.protocol}//${url.host}`;
   
@@ -72,19 +72,26 @@ function generateVapidHeader(endpoint: string, privateKeyBase64: string, publicK
     sub: 'mailto:info@fmsc-koenigshoven.de'
   };
 
-  const token = createVapidToken(header, payload, privateKeyBase64);
+  const token = createVapidToken(header, payload, privateKeyInput);
   
-  // k parameter must be the RAW uncompressed public key (65 bytes) in base64url
-  // Since our publicKeyBase64 is now a full SPKI DER, we need to extract the raw key
-  const publicKeyObject = crypto.createPublicKey({
-    key: base64UrlDecode(publicKeyBase64),
-    format: 'der',
-    type: 'spki'
-  });
-  // Cast to any because TS might not know 'x9.62' type even if Node supports it
-  const rawPubKey = publicKeyObject.export({ type: 'x9.62', format: 'der' } as any);
-  // ASN.1 for P-256 usually starts with 0x04 for uncompressed point
-  const cleanPublicKey = base64UrlEncode(rawPubKey as Buffer);
+  // Extract raw uncompressed public key point
+  let cleanPublicKey: string;
+  if (publicKeyInput.startsWith('{')) {
+    // It's a JWK
+    const jwk = JSON.parse(publicKeyInput);
+    const x = base64UrlDecode(jwk.x);
+    const y = base64UrlDecode(jwk.y);
+    cleanPublicKey = base64UrlEncode(Buffer.concat([Buffer.from([0x04]), x, y]));
+  } else {
+    // Legacy/DER fallback
+    const publicKeyObject = crypto.createPublicKey({
+      key: base64UrlDecode(publicKeyInput),
+      format: 'der',
+      type: 'spki'
+    });
+    const rawPubKey = (publicKeyObject.export({ type: 'x9.62', format: 'der' } as any)) as Buffer;
+    cleanPublicKey = base64UrlEncode(rawPubKey);
+  }
 
   return `vapid t=${token},k=${cleanPublicKey}`;
 }
@@ -92,21 +99,29 @@ function generateVapidHeader(endpoint: string, privateKeyBase64: string, publicK
 /**
  * Creates a signed JWT for VAPID
  */
-function createVapidToken(header: Record<string, string>, payload: Record<string, unknown>, privateKeyBase64: string): string {
+function createVapidToken(header: Record<string, string>, payload: Record<string, unknown>, privateKeyInput: string): string {
   const headerEncoded = base64UrlEncode(Buffer.from(JSON.stringify(header)));
   const payloadEncoded = base64UrlEncode(Buffer.from(JSON.stringify(payload)));
   const unsignedToken = `${headerEncoded}.${payloadEncoded}`;
 
-  // Import full PKCS#8 DER private key
-  const privateKeyObject = crypto.createPrivateKey({
-    key: base64UrlDecode(privateKeyBase64),
-    format: 'der',
-    type: 'pkcs8'
-  });
+  let privateKeyObject: crypto.KeyObject;
+  if (privateKeyInput.startsWith('{')) {
+    // It's a JWK
+    privateKeyObject = crypto.createPrivateKey({
+      key: JSON.parse(privateKeyInput),
+      format: 'jwk'
+    });
+  } else {
+    // Legacy/DER fallback
+    privateKeyObject = crypto.createPrivateKey({
+      key: base64UrlDecode(privateKeyInput),
+      format: 'der',
+      type: 'pkcs8'
+    });
+  }
 
   const signer = crypto.createSign('SHA256');
   signer.update(unsignedToken);
-  // ASN.1 DER signature from crypto.sign must be converted to raw (r, s) for JWT
   const derSignature = signer.sign(privateKeyObject);
   const rawSignature = derToRaw(derSignature);
 
@@ -114,7 +129,6 @@ function createVapidToken(header: Record<string, string>, payload: Record<string
 }
 
 function derToRaw(der: Buffer): Buffer {
-  // DER: 0x30 L 0x02 Lr r 0x02 Ls s
   let offset = 2;
   const rLen = der[offset + 1];
   let r = der.subarray(offset + 2, offset + 2 + rLen);
@@ -124,7 +138,6 @@ function derToRaw(der: Buffer): Buffer {
   let s = der.subarray(offset + 2, offset + 2 + sLen);
   if (sLen === 33 && s[0] === 0x00) s = s.subarray(1);
   
-  // Pad r and s to 32 bytes
   const rPadded = Buffer.alloc(32);
   r.copy(rPadded, 32 - r.length);
   const sPadded = Buffer.alloc(32);
@@ -138,43 +151,23 @@ function derToRaw(der: Buffer): Buffer {
  */
 function encryptPayload(payload: string, p256dhBase64: string, authBase64: string): Buffer {
   const payloadBuf = Buffer.from(payload, 'utf8');
-  
-  // Add padding: RFC 8188 requires a single 0x02 byte for "aes128gcm" at the end of the data,
-  // before any actual padding.
   const recordBuf = Buffer.concat([payloadBuf, Buffer.from([0x02])]);
-
-  // Use a random salt (16 bytes)
   const salt = crypto.randomBytes(16);
 
-  // Generate ephemeral server keys
   const serverEcdh = crypto.createECDH('prime256v1');
   const serverPublicKey = serverEcdh.generateKeys();
-  
-  // Derive shared secret
   const clientPublicKey = base64UrlDecode(p256dhBase64);
   const sharedSecret = serverEcdh.computeSecret(clientPublicKey);
-  
   const authSecret = base64UrlDecode(authBase64);
 
-  // Derive PRK and then content encryption key (CEK) and nonce
-  // HKDF keys as per RFC 8291
-  const infoInner = Buffer.concat([
-    Buffer.from('WebPush: info\0', 'utf8'),
-    clientPublicKey,
-    serverPublicKey
-  ]);
-
   const prk = Buffer.from(crypto.hkdfSync('sha256', sharedSecret, authSecret, Buffer.from('Content-Encoding: auth\0', 'utf8'), 32));
-  const cek = Buffer.from(crypto.hkdfSync('sha256', prk, salt, Buffer.concat([Buffer.from('Content-Encoding: aes128gcm\0', 'utf8'), infoInner]), 16));
-  const nonce = Buffer.from(crypto.hkdfSync('sha256', prk, salt, Buffer.concat([Buffer.from('Content-Encoding: nonce\0', 'utf8'), infoInner]), 12));
+  const cek = Buffer.from(crypto.hkdfSync('sha256', prk, salt, Buffer.concat([Buffer.from('Content-Encoding: aes128gcm\0', 'utf8'), Buffer.from('WebPush: info\0', 'utf8'), clientPublicKey, serverPublicKey]), 16));
+  const nonce = Buffer.from(crypto.hkdfSync('sha256', prk, salt, Buffer.concat([Buffer.from('Content-Encoding: nonce\0', 'utf8'), Buffer.from('WebPush: info\0', 'utf8'), clientPublicKey, serverPublicKey]), 12));
 
-  // AES-128-GCM encryption
   const cipher = crypto.createCipheriv('aes-128-gcm', cek, nonce);
   const ciphertext = Buffer.concat([cipher.update(recordBuf), cipher.final()]);
   const tag = cipher.getAuthTag();
 
-  // Construct the "aes128gcm" binary record
-  // Salt (16) + record size (4, usually 4096) + pubkey size (1) + pubkey (65) + ciphertext + tag
   const rs = 4096;
   const rsBuf = Buffer.alloc(4);
   rsBuf.writeUInt32BE(rs, 0);
