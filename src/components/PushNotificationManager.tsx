@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bell, BellOff, Send, Smartphone } from 'lucide-react';
+import { Bell, BellOff, Send, Smartphone, CheckCircle } from 'lucide-react';
 import { savePushSubscriptionAction, testPushAction } from '@/app/dashboard/actions';
 
 export default function PushNotificationManager() {
@@ -31,14 +31,14 @@ export default function PushNotificationManager() {
     }
   }, []);
 
-  if (!hasMounted) {
-    return <div className="p-4 bg-white/5 rounded-xl border border-white/10 animate-pulse text-gray-500 text-sm">Lade Push-Einstellungen...</div>;
-  }
-
   async function checkSubscription() {
-    const registration = await navigator.serviceWorker.ready;
-    const sub = await registration.pushManager.getSubscription();
-    setSubscription(sub);
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const sub = await registration.pushManager.getSubscription();
+      setSubscription(sub);
+    } catch (err) {
+      console.error('Error checking subscription:', err);
+    }
   }
 
   function urlBase64ToUint8Array(base64String: string) {
@@ -56,139 +56,149 @@ export default function PushNotificationManager() {
     return outputArray;
   }
 
-  async function subscribe() {
+  async function subscribeToPush() {
     setLoading(true);
     setMessage(null);
+    console.log('Starting push subscription process...');
     try {
-      // 1. Register Service Worker (if not already)
+      // 1. Ensure sw is registered
       await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-      
       const registration = await navigator.serviceWorker.ready;
 
-      // 2. Request permission (though subscribe handles it)
+      // 2. Request permission
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        throw new Error('Berechtigung für Benachrichtigungen wurde verweigert.');
+        throw new Error('Berechtigung verweigert.');
       }
 
       // 3. Subscribe
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!vapidKey) {
-        throw new Error('VAPID Public Key ist im Browser nicht konfiguriert (NEXT_PUBLIC_VAPID_PUBLIC_KEY fehlt).');
-      }
+      if (!vapidKey) throw new Error('VAPID Key fehlt.');
 
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidKey)
       });
 
-      // 4. Send to server
+      // 4. Save to DB
       const res = await savePushSubscriptionAction(sub.toJSON());
       if (res.success) {
         setSubscription(sub);
-        setMessage({ text: 'Erfolgreich abonniert!', type: 'success' });
+        setMessage({ text: 'Abonniert!', type: 'success' });
       } else {
-        throw new Error(res.error || 'Fehler beim Speichern des Abonnements.');
+        throw new Error(res.error || 'Serverfehler beim Speichern.');
       }
     } catch (err: any) {
-      console.error('Push subscription error:', err);
-      setMessage({ text: err.message || 'Fehler beim Aktivieren der Benachrichtigungen.', type: 'error' });
+      console.error('Subscription error:', err);
+      setMessage({ text: err.message || 'Fehler beim Aktivieren.', type: 'error' });
     } finally {
       setLoading(false);
     }
   }
 
-  async function unsubscribe() {
+  async function unsubscribeFromPush() {
+    console.log('Deaktivieren button clicked');
     setLoading(true);
     try {
-      if (subscription) {
-        await subscription.unsubscribe();
-        setSubscription(null);
-        setMessage({ text: 'Benachrichtigungen deaktiviert.', type: 'success' });
+      const registration = await navigator.serviceWorker.ready;
+      const sub = await registration.pushManager.getSubscription();
+      if (sub) {
+        await sub.unsubscribe();
       }
+      setSubscription(null);
+      setMessage({ text: 'Push-Benachrichtigungen deaktiviert.', type: 'success' });
     } catch (err) {
       console.error('Unsubscribe error:', err);
-      setMessage({ text: 'Fehler beim Deaktivieren.', type: 'error' });
+      setMessage({ text: 'Deaktivierung fehlgeschlagen.', type: 'error' });
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleTestPush() {
+  async function sendTestPush() {
+    console.log('Test-Push button clicked');
     setLoading(true);
     try {
-      const res = await testPushAction();
-      if (res.success) {
-        setMessage({ text: `Test-Push gesendet (an ${res.count} Geräte)!`, type: 'success' });
+      const response = await testPushAction();
+      console.log('Server response:', response);
+      if (response.success) {
+        setMessage({ text: `Test-Push gesendet (an ${response.count} Geräte)!`, type: 'success' });
       } else {
-        setMessage({ text: res.error || 'Fehler beim Test-Push.', type: 'error' });
+        setMessage({ text: 'Test-Push Fehler: ' + response.error, type: 'error' });
       }
     } catch (err) {
-      setMessage({ text: 'Ein Fehler ist aufgetreten.', type: 'error' });
+      console.error('Test Push Error:', err);
+      setMessage({ text: 'Test-Push fehlgeschlagen (Client-Fehler)', type: 'error' });
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!hasMounted) {
+    return <div className="p-4 bg-white/5 rounded-xl border border-white/10 animate-pulse text-gray-500 text-sm">Lade Push-Einstellungen...</div>;
   }
 
   if (!isSupported) {
     return (
-      <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-500 text-sm">
-        <Smartphone className="w-5 h-5 mb-2" />
-        Push-Benachrichtigungen werden von diesem Browser nicht unterstützt. 
-        Hinweis für iOS: Bitte fügen Sie die App zuerst zum Home-Bildschirm hinzu.
+      <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-center gap-3">
+        <BellOff className="text-yellow-500 shrink-0" size={24} />
+        <p className="text-sm text-yellow-200/80">Push-Benachrichtigungen werden von diesem Browser nicht unterstützt.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${subscription ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-            {subscription ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
-          </div>
-          <div>
-            <h4 className="font-medium text-white">Push-Benachrichtigungen</h4>
-            <p className="text-sm text-gray-400">
-              {subscription ? 'Aktiviert auf diesem Gerät' : 'Aktuell deaktiviert'}
-            </p>
-          </div>
+    <div className="p-5 bg-white/5 rounded-2xl border border-white/10 glass shadow-xl">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-orange-500/20 rounded-lg">
+          <Bell className="text-orange-500" size={20} />
         </div>
-
-        <div className="flex items-center gap-2">
-          {subscription ? (
-            <>
-              <button
-                onClick={handleTestPush}
-                disabled={loading}
-                className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg text-sm transition-colors flex items-center gap-2"
-              >
-                <Send className="w-4 h-4" /> Test-Push
-              </button>
-              <button
-                onClick={unsubscribe}
-                disabled={loading}
-                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm transition-colors"
-              >
-                Deaktivieren
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={subscribe}
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors shadow-lg shadow-blue-600/20"
-            >
-              Aktivieren
-            </button>
-          )}
-        </div>
+        <h3 className="font-bold text-lg">Push-Benachrichtigungen</h3>
       </div>
-
-      {message && (
-        <div className={`p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-          {message.text}
+      
+      {subscription ? (
+        <div className="space-y-4">
+          <p className="text-sm text-green-400 font-medium flex items-center gap-2">
+            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            Aktiviert auf diesem Gerät
+          </p>
+          <div className="flex flex-wrap gap-4 pt-2">
+            <button 
+              onClick={sendTestPush} 
+              disabled={loading}
+              className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white rounded-xl font-bold flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/20"
+            >
+              {loading ? <span className="animate-spin text-lg">🌀</span> : <Send size={18} />}
+              Test-Push
+            </button>
+            <button 
+              onClick={unsubscribeFromPush} 
+              disabled={loading}
+              className="px-5 py-2.5 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-white border border-white/10 rounded-xl font-bold flex items-center gap-2 transition-all"
+            >
+              <BellOff size={18} />
+              Deaktivieren
+            </button>
+          </div>
         </div>
+      ) : (
+        <div className="space-y-4">
+          <p className="text-sm text-gray-400">Bleiben Sie über neue Kontaktanfragen informiert, auch wenn das Portal geschlossen ist.</p>
+          <button 
+            onClick={subscribeToPush} 
+            disabled={loading}
+            className="w-full sm:w-auto px-6 py-3 bg-white text-black hover:bg-gray-100 disabled:opacity-50 rounded-xl font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-white/10"
+          >
+            {loading ? <span className="animate-spin text-lg">🌀</span> : <Bell size={20} />}
+            Jetzt Aktivieren
+          </button>
+        </div>
+      )}
+      
+      {message && (
+        <p className={`mt-4 text-xs font-medium px-3 py-2 rounded-lg ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+          {message.text}
+        </p>
       )}
     </div>
   );
