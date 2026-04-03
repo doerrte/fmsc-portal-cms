@@ -14,6 +14,13 @@ export default function PushNotificationManager() {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
       setIsSupported(true);
       checkSubscription();
+      
+      // Diagnostic check for the Public Key
+      if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
+        console.warn('VAPID public key is missing! Check Vercel Environment Variables.');
+      } else {
+        console.log('VAPID public key found in browser.');
+      }
     }
   }, []);
 
@@ -54,9 +61,14 @@ export default function PushNotificationManager() {
       }
 
       // 3. Subscribe
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidKey) {
+        throw new Error('VAPID Public Key ist im Browser nicht konfiguriert (NEXT_PUBLIC_VAPID_PUBLIC_KEY fehlt).');
+      }
+
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
+        applicationServerKey: urlBase64ToUint8Array(vapidKey)
       });
 
       // 4. Send to server
