@@ -244,19 +244,32 @@ export async function testSinglePushAction(subscriptionJson: string) {
 }
 
 export async function testContactPushAction() {
-  const authCookie = (await cookies()).get('auth')?.value || (await cookies()).get('admin_auth')?.value;
-  if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
-  const [userId] = authCookie.split('|');
   const db = await getDbData();
-  const unreadCount = db.messages.filter((m: any) => m.status === 'new').length;
-  const mySubs = (db.push_subscriptions || []).filter((s: any) => (s.userId || s.user_id) === userId);
+  const adminIds = db.members.filter((m: any) => m.role === 'admin' || m.role === 'board').map((m: any) => m.id);
   
+  const subs = (db.push_subscriptions || []).filter((s: any) => {
+    const sId = s.userId || s.user_id;
+    return adminIds.includes(sId);
+  });
+
+  const auditTrail = {
+    targetRoles: ['admin', 'board'],
+    adminIdsFound: adminIds,
+    totalSubsInDb: (db.push_subscriptions || []).length,
+    matchingAdminSubs: subs.length
+  };
+
+  if (subs.length === 0) {
+    return { success: true, pushAttempted: false, auditTrail, results: { successCount: 0, errorCount: 0 } };
+  }
+
+  const unreadCount = db.messages.filter((m: any) => m.status === 'new').length;
   const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
   const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
   if (!vapidP || !vapidPr) return { success: false, error: 'VAPID missing' };
 
   let count = 0;
-  for (const sub of mySubs) {
+  for (const sub of subs) {
     try {
       await sendNotification(sub.subscription, JSON.stringify({ title: 'Max Mustermann (vom FMSC Kontaktformular)', body: 'E-Mail: max@mustermann.de\nBetreff: Hilfe\n\nHallo!', url: '/dashboard?tab=nachrichten', badgeCount: unreadCount || 1, vibrate: [200, 100, 200, 100, 200], tag: 'contact-form-message', icon: '/icon.png' }), vapidPr, vapidP);
       count++;

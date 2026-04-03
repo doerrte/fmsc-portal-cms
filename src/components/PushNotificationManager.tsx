@@ -157,7 +157,7 @@ export default function PushNotificationManager() {
           <Bell size={24} />
         </div>
         <div>
-          <h2 className="text-xl font-bold title-gradient">Benachrichtigungen</h2>
+          <h2 className="text-xl font-bold title-gradient">Benachrichtigungen <span className="text-[10px] opacity-40 font-mono">v2.2</span></h2>
           <p className="text-sm text-gray-400">PWA Push Center & Diagnose</p>
         </div>
       </div>
