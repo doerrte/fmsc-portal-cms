@@ -148,21 +148,23 @@ export async function updateMessageStatusAction(id: string, status: 'new' | 'rea
   return { success: false, error: 'Nicht gefunden' };
 }
 
-export async function savePushSubscriptionAction(subscriptionRaw: string) {
+export async function savePushSubscriptionAction(subscriptionJson: string) {
   const authCookie = (await cookies()).get('auth')?.value || (await cookies()).get('admin_auth')?.value;
   if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
+  
   const userId = authCookie.split('|')[0];
-  const db = await getDbData();
-  let subscription = typeof subscriptionRaw === 'string' ? JSON.parse(subscriptionRaw) : subscriptionRaw;
-  if (subscription?.endpoint) subscription.endpoint = subscription.endpoint.trim();
-  if (!db.push_subscriptions) db.push_subscriptions = [];
-  const existingIndex = db.push_subscriptions.findIndex((s: PushSubscriptionItem) => s.subscription?.endpoint === subscription.endpoint);
-  if (existingIndex > -1) {
-    db.push_subscriptions[existingIndex].subscription = subscription;
-    db.push_subscriptions[existingIndex].userId = userId;
-  } else {
-    db.push_subscriptions.push({ id: crypto.randomUUID(), userId, subscription });
+  const subscription = JSON.parse(subscriptionJson);
+  
+  // CRITICAL VALIDATION: Ensure subscription has an endpoint
+  if (!subscription || !subscription.endpoint) {
+    console.error('[PUSH] Invalid subscription object received:', subscription);
+    return { success: false, error: 'Ungültige Abonnement-Daten' };
   }
+
+  const db = await getDbData();
+  if (!db.push_subscriptions) db.push_subscriptions = [];
+  
+  db.push_subscriptions.push({ id: crypto.randomUUID(), userId, subscription });
   await saveDbData(db);
   console.log(`[PUSH] Saved for user: ${userId}`);
   return { success: true, userId };
