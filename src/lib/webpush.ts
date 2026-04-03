@@ -36,7 +36,7 @@ export async function sendNotification(subscription: PushSubscription, payload: 
       'Authorization': vapidHeader,
       'Content-Type': 'application/octet-stream'
     },
-    body: encryptionResult
+    body: encryptionResult as any
   });
 
   if (!response.ok) {
