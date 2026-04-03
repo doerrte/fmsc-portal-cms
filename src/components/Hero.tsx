@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Play, ArrowRight } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
@@ -69,12 +70,12 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
             transition={{ duration: 0.8, delay: 0.6 }}
             className="hero-actions"
           >
-            <button className="btn-primary">
+            <Link href="/contact" className="btn-primary">
               Jetzt Mitfliegen <ArrowRight size={20} />
-            </button>
-            <button className="btn-secondary">
+            </Link>
+            <Link href="/gallery" className="btn-secondary">
               < Play size={20} className="fill-current" /> Verein Entdecken
-            </button>
+            </Link>
           </motion.div>
         </div>
       </div>
@@ -230,9 +231,9 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           }
         }
 
-        .btn-primary {
+        :global(.btn-primary) {
           background: #567eb6;
-          color: var(--foreground);
+          color: var(--foreground) !important;
           padding: 18px 36px;
           border-radius: 16px;
           font-weight: 700;
@@ -244,17 +245,18 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           width: 260px !important;
           white-space: nowrap !important;
           transition: all 0.3s;
+          text-decoration: none !important;
         }
 
-        .btn-primary:hover {
+        :global(.btn-primary:hover) {
           background: #45689a;
           transform: translateY(-4px);
           box-shadow: 0 12px 24px rgba(86, 126, 182, 0.3);
         }
 
-        .btn-secondary {
+        :global(.btn-secondary) {
           background: rgba(255, 255, 255, 0.05);
-          color: var(--foreground);
+          color: var(--foreground) !important;
           padding: 18px 36px;
           border-radius: 16px;
           font-weight: 700;
@@ -267,9 +269,10 @@ const Hero = ({ title, subtitle, bgImage }: { title?: string, subtitle?: string,
           white-space: nowrap !important;
           border: 1px solid var(--card-border);
           transition: all 0.3s;
+          text-decoration: none !important;
         }
 
-        .btn-secondary:hover {
+        :global(.btn-secondary:hover) {
           background: rgba(255, 255, 255, 0.1);
           border-color: rgba(255, 255, 255, 0.2);
         }

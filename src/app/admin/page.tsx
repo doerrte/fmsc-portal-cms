@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Reorder } from 'framer-motion';
-import { Settings, Newspaper, Calendar, Users, Info, Image as ImageIcon, FileText, Archive, Home, LayoutDashboard } from 'lucide-react';
-import ThemeToggle from '@/components/ThemeToggle';
+import { Settings, Newspaper, Calendar, Users, Info, Image as ImageIcon, FileText, Archive, Home, LayoutDashboard, Mail } from 'lucide-react';
 
 const tileIcons: Record<string, React.ReactNode> = {
   website: <Home size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
@@ -18,7 +17,8 @@ const tileIcons: Record<string, React.ReactNode> = {
   gallery: <ImageIcon size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
   bauberichte: <FileText size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
   archiv: <Archive size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
-  dashboard: <LayoutDashboard size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />
+  dashboard: <LayoutDashboard size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />,
+  messages: <Mail size={32} style={{ color: '#f97316', marginBottom: '1rem' }} />
 };
 
 const DEFAULT_TILES = [
@@ -33,6 +33,7 @@ const DEFAULT_TILES = [
   { id: 'gallery', title: 'Galerie verwalten', desc: 'Lade neue Bilder hoch oder organisiere bestehende Alben.', href: '/admin/gallery', btn: 'Bilder hochladen' },
   { id: 'bauberichte', title: 'Bauberichte verwalten', desc: 'Erstelle Konstruktions-Logs und aktualisiere Baufortschritte.', href: '/admin/bauberichte', btn: 'Zu Bauberichten' },
   { id: 'archiv', title: 'Archiv verwalten', desc: 'Historische Dokumente, Meilensteine und das digitale Vereinsarchiv.', href: '/admin/archiv', btn: 'Archiv öffnen' },
+  { id: 'messages', title: 'Nachrichten', desc: 'Sieh dir eingegangene Kontaktanfragen und Nachrichten an.', href: '/admin/messages', btn: 'Nachrichten lesen' },
   { id: 'dashboard', title: 'Mitgliederbereich', desc: 'Wechsle direkt in das interne Dashboard der Vereinsmitglieder.', href: '/dashboard', btn: 'Dashboard öffnen' }
 ];
 
@@ -69,7 +70,6 @@ export default function AdminDashboard() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: 0 }}>Willkommen im Admin-Bereich</h1>
-        <ThemeToggle />
       </div>
       <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>
         Hier kannst du die Inhalte der Webseite ganz einfach ohne Code-Kenntnisse verwalten.
@@ -154,26 +154,24 @@ function TileItem({ tile }: { tile: typeof DEFAULT_TILES[0] }) {
       {isMobile && (
         <div 
           onPointerDown={handleDragInitiate}
-          onClick={(e) => e.stopPropagation()} // Verhindert dass ein Klick auf den Grip die Seite öffnet
+          onClick={(e) => e.stopPropagation()}
           style={{
             position: 'absolute',
-            top: '0',
-            right: '0',
-            padding: '1.5rem',
+            top: '0.5rem',
+            right: '0.5rem',
+            padding: '1rem',
             cursor: 'grab',
-            touchAction: 'none', // Erlaubt Dragging NUR auf diesem Element!
-            color: 'rgba(255,255,255,0.3)',
+            touchAction: 'none',
+            color: '#f97316', // Orange match for visibility
+            background: 'rgba(249, 115, 22, 0.05)',
+            borderRadius: '12px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'transparent',
-            zIndex: 20,
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            WebkitTouchCallout: 'none'
+            zIndex: 20
           }}
         >
-          <GripHorizontal size={28} />
+          <GripHorizontal size={24} />
         </div>
       )}
 

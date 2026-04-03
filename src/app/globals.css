@@ -159,29 +159,104 @@ section {
   flex: 1;
   padding: 3rem;
   overflow-y: auto;
+  width: 100%;
 }
 
-.admin-bar {
-  background: var(--card-bg);
-  color: var(--foreground);
-  padding: 0 1rem;
-  display: flex;
-  justify-content: flex-start;
+.admin-back-btn {
+  display: inline-flex;
   align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 80px; /* Match navbar height */
-  z-index: 500; /* Behind navbar (1000) */
-  font-size: 0.8rem;
-  pointer-events: none;
-  border-bottom: 1px solid rgba(249, 115, 22, 0.2);
+  gap: 8px;
+  color: #f97316;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 16px;
+  background: rgba(249, 115, 22, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.admin-back-btn:hover {
+  background: rgba(249, 115, 22, 0.2);
+  transform: translateX(-4px);
+}
+
+/* Responsive Admin Utilities */
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 3rem;
+  gap: 1.5rem;
+}
+
+.admin-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-card-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .admin-main {
+    padding: 1.5rem 1rem !important;
+    padding-top: 140px !important;
+  }
+
+  .admin-sub-header {
+    padding: 1rem !important;
+  }
+
+  .admin-back-btn span {
+    display: none;
+  }
+
+  .admin-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .admin-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-card-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .admin-card-item > div {
+    width: 100%;
+  }
+
+  .admin-card-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
 }
 
 @media (max-width: 768px) {
   .admin-layout { flex-direction: column; }
   .admin-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--card-border); }
-  .admin-main { padding: 1.5rem; }
   .admin-bar { flex-direction: column; gap: 10px; }
 }

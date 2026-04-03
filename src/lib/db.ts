@@ -103,6 +103,16 @@ export interface InternalDoc {
   uploadedBy: string; // Member name
 }
 
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  date: string;
+  status: 'new' | 'read' | 'replied';
+}
+
 export interface InfoSafetyRule {
   id: string;
   title: string;
@@ -135,6 +145,12 @@ export interface MemberItem {
   phone?: string;
 }
 
+export interface PushSubscriptionItem {
+  id: string; // Subscription ID
+  userId: string;
+  subscription: any; // Sub-Object from browser
+}
+
 export interface DbSchema {
   settings: Settings;
   about: AboutSettings;
@@ -148,6 +164,8 @@ export interface DbSchema {
   archiv_milestones: ArchiveMilestone[];
   members: MemberItem[];
   internal_docs: InternalDoc[];
+  messages: ContactMessage[];
+  push_subscriptions: PushSubscriptionItem[];
 }
 
 const dbPath = path.join(process.cwd(), 'data.json');
@@ -212,6 +230,8 @@ export async function getDbData(): Promise<DbSchema> {
     }
 
     if (!data.internal_docs) data.internal_docs = [];
+    if (!data.messages) data.messages = [];
+    if (!data.push_subscriptions) data.push_subscriptions = [];
     
     return data;
   } catch (error) {
@@ -258,6 +278,8 @@ function createEmptyDb(): DbSchema {
       archiv_docs: [],
       archiv_milestones: [],
       members: [],
-      internal_docs: []
+      internal_docs: [],
+      messages: [],
+      push_subscriptions: []
     };
 }

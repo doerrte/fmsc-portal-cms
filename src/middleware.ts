@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   const role = authCookie ? authCookie.split('|')[1] : null;
 
   if (url.pathname.startsWith('/admin')) {
-    if (!role || role !== 'admin') {
+    if (!role || (role !== 'admin' && role !== 'board')) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }

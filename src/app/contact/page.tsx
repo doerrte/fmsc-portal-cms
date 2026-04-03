@@ -1,12 +1,79 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Mail, Phone, MapPin, Send, MessageSquare, Shield, Radio, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Mail, Phone, MapPin, Send, MessageSquare, Shield, Radio, ArrowRight, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const ContactPage = () => {
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: 'Gastflug-Anfrage',
+    message: ''
+  });
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('sending');
+    setErrorMessage('');
+
+    try {
+      let token: string | null | undefined = null;
+
+      // Local development bypass OR normal execution
+      if (window.location.hostname === 'localhost' && !process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+        console.warn('reCAPTCHA site key missing, using dev bypass');
+        token = 'dev-token-bypass';
+      } else {
+        // Wrap executeAsync in a timeout to prevent hanging if reCAPTCHA fails to load
+        const executePromise = recaptchaRef.current?.executeAsync();
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000));
+        
+        token = await Promise.race([executePromise, timeoutPromise]);
+
+        // If it timed out or failed on localhost, allow bypass for testing
+        if (!token && window.location.hostname === 'localhost') {
+          console.warn('reCAPTCHA timed out or failed on localhost, bypassing for testing.');
+          token = 'dev-token-localhost';
+        }
+      }
+      
+      if (!token) {
+        setStatus('error');
+        setErrorMessage('Captcha-Verifizierung fehlgeschlagen oder Zeitüberschreitung. Bitte lade die Seite neu.');
+        return;
+      }
+
+      // Verify token on server (The server will also need to handle 'dev-token-localhost')
+      const verifyRes = await fetch('/api/contact/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, formData })
+      });
+
+      const verifyData = await verifyRes.json();
+
+      if (verifyData.success) {
+        // Success
+        setStatus('success');
+        setFormData({ name: '', email: '', subject: 'Gastflug-Anfrage', message: '' });
+      } else {
+        setStatus('error');
+        setErrorMessage(verifyData.error || 'Verifizierung fehlgeschlagen.');
+      }
+    } catch (error) {
+      console.error('Contact Error:', error);
+      setStatus('error');
+      setErrorMessage('Ein Fehler ist aufgetreten. Bitte versuche es später erneut.');
+    }
+  };
+
   return (
     <main className="contact-page">
       <Navbar />
@@ -15,7 +82,7 @@ const ContactPage = () => {
         <div className="hero-image-overlay" />
         <div className="tech-scan-lines" />
         <div className="container relative z-10">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -37,7 +104,7 @@ const ContactPage = () => {
         <div className="container">
           <div className="contact-grid">
             {/* Contact Form - "The Data Terminal" */}
-            <motion.div 
+            <motion.div
               className="contact-form-container glass"
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -45,45 +112,106 @@ const ContactPage = () => {
             >
               <div className="card-header">
                 <MessageSquare size={20} className="text-secondary" />
-                <h2 className="title-gradient">Übertragung Senden</h2>
+                <h2 className="title-gradient">Nachricht senden</h2>
               </div>
-              
-              <form className="tech-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>RUFZEICHEN / NAME</label>
-                    <input type="text" placeholder="Pilot Name" className="tech-input" />
-                  </div>
-                  <div className="form-group">
-                    <label>FREQUENZ / E-MAIL</label>
-                    <input type="email" placeholder="email@beispiel.de" className="tech-input" />
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <label>BETREFF</label>
-                  <select className="tech-select">
-                    <option>Gastflug-Anfrage</option>
-                    <option>Mitgliedschaft</option>
-                    <option>Technik & Support</option>
-                    <option>Allgemeine Info</option>
-                  </select>
-                </div>
 
-                <div className="form-group">
-                  <label>NACHRICHT</label>
-                  <textarea placeholder="Deine Nachricht an uns..." rows={5} className="tech-textarea"></textarea>
-                </div>
+              <AnimatePresence mode="wait">
+                {status === 'success' ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="success-message"
+                  >
+                    <CheckCircle2 size={64} color="#22c55e" />
+                    <h3>Nachricht empfangen!</h3>
+                    <p>Vielen Dank für deine Nachricht. Wir werden uns so schnell wie möglich bei dir melden.</p>
+                    <button onClick={() => setStatus('idle')} className="btn-send" style={{ width: 'auto', paddingInline: '2rem' }}>
+                      Weitere Nachricht senden
+                    </button>
+                  </motion.div>
+                ) : (
+                  <form className="tech-form" onSubmit={handleSubmit}>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>NAME *</label>
+                        <input
+                          type="text"
+                          placeholder="Dein Name"
+                          className="tech-input"
+                          required
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>E-MAIL *</label>
+                        <input
+                          type="email"
+                          placeholder="email@beispiel.de"
+                          className="tech-input"
+                          required
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
+                      </div>
+                    </div>
 
-                <button type="submit" className="btn-send">
-                  SIGNAL SENDEN <Send size={18} />
-                </button>
-              </form>
+                    <div className="form-group">
+                      <label>BETREFF *</label>
+                      <select
+                        className="tech-select"
+                        required
+                        value={formData.subject}
+                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      >
+                        <option value="Gastflug-Anfrage">Gastflug-Anfrage</option>
+                        <option value="Mitgliedschaft">Mitgliedschaft</option>
+                        <option value="Technik & Support">Technik & Support</option>
+                        <option value="Allgemeine Info">Allgemeine Info</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>NACHRICHT *</label>
+                      <textarea
+                        placeholder="Deine Nachricht an uns..."
+                        rows={5}
+                        className="tech-textarea"
+                        required
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      ></textarea>
+                    </div>
+
+                    {status === 'error' && (
+                      <div className="error-message">
+                        <AlertCircle size={18} />
+                        <span>{errorMessage}</span>
+                      </div>
+                    )}
+
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      size="invisible"
+                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                    />
+
+                    <button type="submit" className="btn-send" disabled={status === 'sending'}>
+                      {status === 'sending' ? (
+                        <><Loader2 className="spin" size={20} /> SENDE NACHRICHT...</>
+                      ) : (
+                        <>NACHRICHT SENDEN <Send size={18} /></>
+                      )}
+                    </button>
+                  </form>
+                )}
+              </AnimatePresence>
             </motion.div>
 
             {/* Contact Info - "The Station Info" */}
             <div className="contact-info-aside">
-              <motion.div 
+              <motion.div
                 className="info-card glass"
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -117,10 +245,10 @@ const ContactPage = () => {
 
                 <div className="map-preview">
                   <div className="coordinate-overlay">51.0218° N, 6.5547° E</div>
-                  <img 
-                    src="https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/6.5547,51.0218,15,0/800x400?access_token=YOUR_MAPBOX_TOKEN_HERE" 
-                    alt="Map" 
-                    className="map-img" 
+                  <img
+                    src="https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/6.5547,51.0218,15,0/800x400?access_token=YOUR_MAPBOX_TOKEN_HERE"
+                    alt="Map"
+                    className="map-img"
                   />
                 </div>
               </motion.div>
@@ -307,6 +435,36 @@ const ContactPage = () => {
           transform: translateY(-4px);
           box-shadow: 0 10px 25px rgba(192, 0, 0, 0.3);
         }
+
+        .success-message {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 2rem;
+          gap: 1rem;
+          color: var(--foreground);
+        }
+
+        .success-message h3 { font-size: 1.5rem; font-weight: 800; }
+        .success-message p { color: var(--text-secondary); margin-bottom: 1rem; }
+
+        .error-message {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 1rem;
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          border-radius: 12px;
+          color: #f87171;
+          font-size: 0.9rem;
+          font-weight: 600;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin { animation: spin 1s linear infinite; }
 
         .contact-info-aside {
           display: flex;

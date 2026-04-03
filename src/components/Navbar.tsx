@@ -84,10 +84,12 @@ const Navbar = () => {
   const handleMobileNav = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const href = e.target.value;
     if (href === 'logout') {
-      await logoutAction();
-      setIsLoggedIn(false);
-      setUserRole(null);
-      router.push('/');
+      if (window.confirm('Möchtest du dich wirklich abmelden?')) {
+        await logoutAction();
+        window.location.href = '/';
+      } else {
+        e.target.value = pathname;
+      }
     } else if (href) {
       router.push(href);
     }
@@ -171,11 +173,20 @@ const Navbar = () => {
             
             {isLoggedIn ? (
               <div className="auth-links">
-                <Link href={userRole === 'admin' ? '/admin' : '/dashboard'} className="dashboard-btn">
+                <Link href={userRole === 'admin' ? '/admin' : '/dashboard'} className="dashboard-btn" title={userRole === 'admin' ? 'Admin' : 'Mitglieder-Dashboard'}>
                   {userRole === 'admin' ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
-                  <span>{userRole === 'admin' ? 'Admin' : 'Dashboard'}</span>
+                  <span className="btn-text-desktop">{userRole === 'admin' ? 'Admin' : 'Dashboard'}</span>
                 </Link>
-                <button onClick={() => { logoutAction(); setIsLoggedIn(false); router.push('/'); }} className="logout-inline-btn">
+                <button 
+                  onClick={async () => { 
+                    if (window.confirm('Möchtest du dich wirklich abmelden?')) {
+                      await logoutAction(); 
+                      window.location.href = '/';
+                    }
+                  }} 
+                  className="logout-inline-btn"
+                  title="Abmelden"
+                >
                   <LogOut size={16} />
                 </button>
               </div>

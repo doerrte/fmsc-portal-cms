@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, ArrowRight, Share2, MessageSquare, Radio, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -13,8 +13,13 @@ const NewsClient = ({ news }: { news: any[] }) => {
   const [activeFilter, setActiveFilter] = useState<string>('Alle');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [loading, setLoading] = useState(false);
+  const containerRef = useRef(null);
 
-  const filters = ['Alle', 'Events', 'Technik', 'Platz'];
+  // Dynamic Categories: Derive from news data, keeping 'Alle' as the primary filter
+  const filters = React.useMemo(() => {
+    const uniqueTags = Array.from(new Set(news.map(item => item.tag).filter(Boolean)));
+    return ['Alle', ...uniqueTags.sort((a, b) => a.localeCompare(b))];
+  }, [news]);
 
   const filteredNews = activeFilter === 'Alle'
     ? news
@@ -69,16 +74,24 @@ const NewsClient = ({ news }: { news: any[] }) => {
         <div className="container">
           <div className="feed-header">
             <h2 className="title-gradient">Letzte Updates</h2>
-            <div className="filter-chips">
-              {filters.map(filter => (
-                <button
-                  key={filter}
-                  className={`chip ${activeFilter === filter ? 'active' : ''}`}
-                  onClick={() => handleFilterChange(filter)}
-                >
-                  {filter}
-                </button>
-              ))}
+            <div className="filter-chips-container" ref={containerRef}>
+              <motion.div 
+                className="filter-chips"
+                drag="x"
+                dragConstraints={containerRef}
+                dragElastic={0.1}
+                whileTap={{ cursor: 'grabbing' }}
+              >
+                {filters.map(filter => (
+                  <button
+                    key={filter}
+                    className={`chip ${activeFilter === filter ? 'active' : ''}`}
+                    onClick={() => handleFilterChange(filter)}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </motion.div>
             </div>
           </div>
 
@@ -259,26 +272,22 @@ const NewsClient = ({ news }: { news: any[] }) => {
           -webkit-text-fill-color: transparent;
         }
 
+        .filter-chips-container {
+          overflow: hidden;
+          width: 100%;
+          mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent 100%);
+        }
+
         .filter-chips {
           display: flex;
-          gap: 10px;
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-          padding-bottom: 4px;
-          flex-shrink: 0;
-        }
-
-        .filter-chips::-webkit-scrollbar {
-          display: none;
+          gap: 12px;
+          padding: 10px 0;
+          cursor: grab;
+          width: max-content;
         }
 
         .chip {
           flex-shrink: 0;
-        }
-
-        .chip {
           padding: 8px 20px;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 99px;

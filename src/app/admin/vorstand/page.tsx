@@ -23,33 +23,33 @@ export default function VorstandAdminPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
+      <div className="admin-page-header">
         <div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Vorstand verwalten</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Bearbeite die Liste der Vorstandsmitglieder.</p>
         </div>
         {!editingItem && (
-          <button onClick={handleCreate} style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+          <button onClick={handleCreate} style={{ background: '#f97316', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
             + Mitglied hinzufügen
           </button>
         )}
       </div>
 
       {editingItem ? (
-        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div className="glass" style={{ padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
           <form action={async (fd) => {
              await saveVorstand(fd);
              window.location.reload();
-          }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          }} className="admin-list">
             
             <input type="hidden" name="id" value={editingItem.id} />
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="admin-grid-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Name</label>
                 <input name="name" defaultValue={editingItem.name} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: 'bold' }}>Rolle (z.B. Vorsitzender)</label>
                 <input name="role" defaultValue={editingItem.role} style={{ padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--foreground)' }} required />
               </div>
@@ -79,26 +79,28 @@ export default function VorstandAdminPage() {
           </form>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="admin-list">
           {vorstand.length === 0 ? (
             <p>Keine Mitglieder vorhanden.</p>
           ) : vorstand.map(item => (
-            <div key={item.id} style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div key={item.id} className="admin-card-item">
               <div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{item.name}</h3>
-                <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                   <span>{item.role}</span>
                   <span>•</span>
                   <span>Typ: {item.type === 'main' ? 'Geschäftsführend' : 'Erweitert'}</span>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className="admin-card-actions">
                 <button onClick={() => handleEdit(item)} style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}>
                   Bearbeiten
                 </button>
                 <form action={async (fd) => {
-                    await saveVorstand(fd);
-                    window.location.reload();
+                    if(confirm('Wirklich löschen?')) {
+                      await saveVorstand(fd);
+                      window.location.reload();
+                    }
                 }}>
                   <input type="hidden" name="id" value={item.id} />
                   <input type="hidden" name="action" value="delete" />

@@ -4,6 +4,8 @@ import { getDbData, saveDbData, hashPassword, InternalDoc } from '@/lib/db';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { uploadFile } from '@/lib/upload';
+import { sendNotification } from '@/lib/webpush';
+import crypto from 'crypto';
 
 export async function getSafeMembersAction() {
   const cookieStore = await cookies();
@@ -16,7 +18,7 @@ export async function getSafeMembersAction() {
   const db = await getDbData();
   
   // Return only safe fields (no passwords)
-  const safeMembers = db.members.map(m => ({
+  const safeMembers = db.members.map((m: any) => ({
     id: m.id,
     name: m.name,
     email: m.email,
@@ -36,7 +38,7 @@ export async function getCurrentUserAction() {
 
   const userId = authCookie.split('|')[0];
   const db = await getDbData();
-  const user = db.members.find(m => m.id === userId);
+  const user = db.members.find((m: any) => m.id === userId);
 
   if (!user) return { success: false, error: 'Nutzer nicht gefunden' };
 
@@ -163,8 +165,123 @@ export async function deleteInternalDocAction(id: string) {
   }
 
   const db = await getDbData();
-  db.internal_docs = db.internal_docs.filter(d => d.id !== id);
+  db.internal_docs = db.internal_docs.filter((d: any) => d.id !== id);
   await saveDbData(db);
   revalidatePath('/dashboard');
   return { success: true };
+}
+
+export async function getMessagesAction() {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('auth')?.value;
+  if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
+
+  const role = authCookie.split('|')[1];
+  if (role !== 'admin' && role !== 'board') {
+    return { success: false, error: 'Keine Berechtigung' };
+  }
+
+  const db = await getDbData();
+  return { success: true, messages: db.messages || [] };
+}
+
+export async function deleteMessageAction(id: string) {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('auth')?.value;
+  if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
+
+  const role = authCookie.split('|')[1];
+  if (role !== 'admin' && role !== 'board') {
+    return { success: false, error: 'Keine Berechtigung' };
+  }
+
+  const db = await getDbData();
+  db.messages = db.messages.filter((m: any) => m.id !== id);
+  await saveDbData(db);
+  revalidatePath('/dashboard');
+  revalidatePath('/admin/messages');
+  return { success: true };
+}
+
+export async function updateMessageStatusAction(id: string, status: 'new' | 'read' | 'replied') {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('auth')?.value;
+  if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
+
+  const role = authCookie.split('|')[1];
+  if (role !== 'admin' && role !== 'board') {
+    return { success: false, error: 'Keine Berechtigung' };
+  }
+
+  const db = await getDbData();
+  const index = db.messages.findIndex((m: any) => m.id === id);
+  if (index > -1) {
+    db.messages[index].status = status;
+    await saveDbData(db);
+    revalidatePath('/dashboard');
+    revalidatePath('/admin/messages');
+    return { success: true };
+  }
+  return { success: false, error: 'Nachricht nicht gefunden' };
+}
+
+export async function savePushSubscriptionAction(subscription: any) {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('auth')?.value;
+  if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
+
+  const userId = authCookie.split('|')[0];
+  const db = await getDbData();
+  
+  if (!db.push_subscriptions) db.push_subscriptions = [];
+
+  // Check if subscription already exists for this endpoint
+  const existingIndex = db.push_subscriptions.findIndex(
+    (s: any) => s.subscription.endpoint === subscription.endpoint
+  );
+
+  if (existingIndex > -1) {
+    db.push_subscriptions[existingIndex].subscription = subscription;
+    db.push_subscriptions[existingIndex].userId = userId;
+  } else {
+    db.push_subscriptions.push({
+      id: crypto.randomUUID(),
+      userId,
+      subscription
+    });
+  }
+
+  await saveDbData(db);
+  return { success: true };
+}
+
+export async function testPushAction() {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('auth')?.value;
+  if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
+
+  const userId = authCookie.split('|')[0];
+  const db = await getDbData();
+  
+  const userSubs = db.push_subscriptions.filter((s: any) => s.userId === userId);
+  
+  if (userSubs.length === 0) {
+    return { success: false, error: 'Keine Push-Abonnements für diesen Browser gefunden. Bitte aktiviere Benachrichtigungen zuerst.' };
+  }
+
+  let successCount = 0;
+  for (const subItem of userSubs) {
+    try {
+      await sendNotification(subItem.subscription, JSON.stringify({
+        title: 'Test-Benachrichtigung ✈️',
+        body: 'Dies ist ein Test der FMSC Push-Technologie. Sie funktioniert!',
+        url: '/dashboard'
+      }));
+      successCount++;
+    } catch (err) {
+      console.error('Push test error for sub:', subItem.id, err);
+    }
+  }
+
+  return { success: true, count: successCount };
 }

@@ -1,11 +1,23 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plane, Calendar, Clock, Plus, History, LogOut, LayoutDashboard, Database, Users, Files, UserCircle, Camera, Download, Trash2, Search } from 'lucide-react';
+import { 
+  BarChart3, Users, Settings, LogOut, ChevronRight, MessageSquare, 
+  Files, Plus, Trash2, Download, Search, LayoutGrid, Calendar, 
+  MapPin, Clock, User, Mail, Phone, Shield, Edit, Camera, 
+  Activity, Zap, Info, Play, FolderClosed, Bell, CheckCircle, 
+  X, AtSign, UserCircle, Send, Globe, AlertTriangle, CloudSun, 
+  Wind, Droplets, Thermometer, Map, Menu, UserCheck, ShieldCheck, 
+  Smartphone, Database, ArrowLeft, Plane, GripHorizontal, History,
+  LayoutDashboard
+} from 'lucide-react';
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
+import PushNotificationManager from '@/components/PushNotificationManager';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { logoutAction } from '@/app/login/actions';
-import { getSafeMembersAction, getCurrentUserAction, updateProfileAction, getInternalDocsAction, addInternalDocAction, deleteInternalDocAction, uploadAvatarAction } from './actions';
+import { getSafeMembersAction, getCurrentUserAction, updateProfileAction, getInternalDocsAction, addInternalDocAction, deleteInternalDocAction, uploadAvatarAction, getMessagesAction, deleteMessageAction, updateMessageStatusAction } from './actions';
+import { ContactMessage } from '@/lib/db';
 
 interface MemberData {
   id: string;
@@ -33,11 +45,26 @@ interface FlightRecord {
   notes: string;
 }
 
+const DASHBOARD_TILES = [
+  { id: 'flugbuch', title: 'Flugbuch', desc: 'Erfasse deine Flugzeiten und sieh dir die Historie an.', icon: <Database size={32} />, color: '#f97316' },
+  { id: 'mitglieder', title: 'Mitglieder', desc: 'Kontaktliste aller aktiven Piloten im Verein.', icon: <Users size={32} />, color: '#0ea5e9' },
+  { id: 'dokumente', title: 'Dokumente', desc: 'Interne Unterlagen, Satzung und Protokolle.', icon: <Files size={32} />, color: '#8b5cf6' },
+  { id: 'nachrichten', title: 'Nachrichten', desc: 'Eingegangene Kontaktanfragen (Vorstand).', icon: <Mail size={32} />, color: '#ef4444', role: ['admin', 'board'] },
+  { id: 'profil', title: 'Mein Profil', desc: 'Verwalte deine Daten und dein Passwort.', icon: <UserCircle size={32} />, color: '#22c55e' },
+];
+
 const DashboardPage = () => {
-  const [activeTab, setActiveTab] = useState('flugbuch');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [tiles, setTiles] = useState(DASHBOARD_TILES);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [members, setMembers] = useState<MemberData[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [internalDocs, setInternalDocs] = useState<InternalDoc[]>([]);
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  const [isDeletingMsg, setIsDeletingMsg] = useState<string | null>(null);
+  const [isMobileMsgOpen, setIsMobileMsgOpen] = useState(false);
+
   const [flights, setFlights] = useState<FlightRecord[]>([
     { id: '1', pilot_name: 'Max Mustermann', aircraft_name: 'Stuka JU-87', date: '2026-03-28', duration: 15, notes: 'Erfolgreicher Erstflug nach Reparatur.' },
     { id: '2', pilot_name: 'Erika Musterfrau', aircraft_name: 'ASW 28 Glider', date: '2026-03-27', duration: 45, notes: 'Gute Thermik am Nachmittag.' },
@@ -59,14 +86,43 @@ const DashboardPage = () => {
       const res = await getInternalDocsAction();
       if (res.success) setInternalDocs(res.docs);
     }
+    async function loadMessages() {
+      const res = await getMessagesAction();
+      if (res.success && res.messages) setMessages(res.messages);
+    }
     loadMembers();
     loadUser();
     loadDocs();
+    loadMessages();
+
+    const savedOrder = localStorage.getItem('fmscDashboardTilesOrder');
+    if (savedOrder) {
+      try {
+        const orderIds: string[] = JSON.parse(savedOrder);
+        const ordered = orderIds.map(id => DASHBOARD_TILES.find(t => t.id === id)).filter(Boolean) as typeof DASHBOARD_TILES;
+        DASHBOARD_TILES.forEach(dT => { if (!ordered.find(o => o.id === dT.id)) ordered.push(dT); });
+        setTiles(ordered);
+      } catch (e) {
+        console.error('Error loading tile order', e);
+      }
+    }
+    setIsLoaded(true);
   }, []);
+
+  const handleReorder = (newTiles: typeof DASHBOARD_TILES) => {
+    setTiles(newTiles);
+    localStorage.setItem('fmscDashboardTilesOrder', JSON.stringify(newTiles.map(t => t.id)));
+  };
 
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [profileData, setProfileData] = useState({ name: '', email: '', password: '', oldPassword: '', confirmPassword: '', phone: '' });
   
+  useEffect(() => {
+    if (activeTab === 'nachrichten' && 'clearAppBadge' in navigator) {
+      (navigator as any).clearAppBadge().catch((err: any) => console.error('Clear badge error:', err));
+    }
+  }, [activeTab]);
+
   useEffect(() => {
     if (currentUser) {
       setProfileData({ ...profileData, name: currentUser.name, email: currentUser.email, phone: currentUser.phone || '' });
@@ -153,6 +209,27 @@ const DashboardPage = () => {
     }
   };
 
+  const handleDeleteMessage = async (id: string) => {
+    if (confirm('Nachricht wirklich löschen?')) {
+      setIsDeletingMsg(id);
+      const res = await deleteMessageAction(id);
+      if (res.success) {
+        setMessages(messages.filter(m => m.id !== id));
+        if (selectedMessage?.id === id) setSelectedMessage(null);
+      }
+      setIsDeletingMsg(null);
+    }
+  };
+
+  const handleToggleRead = async (msg: ContactMessage) => {
+    const newStatus = msg.status === 'new' ? 'read' : 'new';
+    const res = await updateMessageStatusAction(msg.id, newStatus);
+    if (res.success) {
+      setMessages(messages.map(m => m.id === msg.id ? { ...m, status: newStatus } : m));
+      if (selectedMessage?.id === msg.id) setSelectedMessage({ ...selectedMessage, status: newStatus });
+    }
+  };
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [newFlight, setNewFlight] = useState({
     pilot_name: '',
@@ -180,27 +257,57 @@ const DashboardPage = () => {
   return (
     <main className="dashboard-page">
       <Navbar />
-      
-      <div className="container dashboard-container">
-        <aside className="sidebar glass">
-          <div className="sidebar-header">
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
-          </div>
-          <nav className="sidebar-nav">
-            <button onClick={() => setActiveTab('flugbuch')} className={`nav-item ${activeTab === 'flugbuch' ? 'active' : ''}`} style={{ border: 'none', background: activeTab === 'flugbuch' ? 'rgba(251, 146, 60, 0.1)' : 'transparent', width: '100%', cursor: 'pointer', textAlign: 'left', color: activeTab === 'flugbuch' ? 'var(--primary)' : 'var(--text-secondary)' }}><Database size={18} /> Flugbuch</button>
-            <button onClick={() => setActiveTab('mitglieder')} className={`nav-item ${activeTab === 'mitglieder' ? 'active' : ''}`} style={{ border: 'none', background: activeTab === 'mitglieder' ? 'rgba(251, 146, 60, 0.1)' : 'transparent', width: '100%', cursor: 'pointer', textAlign: 'left', color: activeTab === 'mitglieder' ? 'var(--primary)' : 'var(--text-secondary)' }}><Users size={18} /> Mitglieder</button>
-            <button onClick={() => setActiveTab('dokumente')} className={`nav-item ${activeTab === 'dokumente' ? 'active' : ''}`} style={{ border: 'none', background: activeTab === 'dokumente' ? 'rgba(251, 146, 60, 0.1)' : 'transparent', width: '100%', cursor: 'pointer', textAlign: 'left', color: activeTab === 'dokumente' ? 'var(--primary)' : 'var(--text-secondary)' }}><Files size={18} /> Dokumente</button>
-            <button onClick={() => setActiveTab('profil')} className={`nav-item ${activeTab === 'profil' ? 'active' : ''}`} style={{ border: 'none', background: activeTab === 'profil' ? 'rgba(251, 146, 60, 0.1)' : 'transparent', width: '100%', cursor: 'pointer', textAlign: 'left', color: activeTab === 'profil' ? 'var(--primary)' : 'var(--text-secondary)' }}><UserCircle size={18} /> Profil</button>
-            <form action={logoutAction} style={{ margin: 0, padding: 0 }}>
-              <button type="submit" className="nav-item logout" style={{ background: 'transparent', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <LogOut size={18} /> Abmelden
-              </button>
-            </form>
-          </nav>
-        </aside>
 
-        <section className="main-content">
+      <div className="container dashboard-container">
+        <section className="main-content-full">
+          {activeTab === 'overview' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="overview-grid-container">
+              <div className="overview-header" style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '0.5rem' }}>Hallo{currentUser ? `, ${currentUser.name.split(' ')[0]}` : ''}! ✈️</h1>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Willkommen zurück im internen FMSC Mitgliederbereich.</p>
+                </div>
+              </div>
+              <p style={{ color: '#f97316', marginBottom: '3rem', fontSize: '0.9rem', fontWeight: 800 }}>Tipp: Kacheln können per Klick geöffnet oder per Grip-Icon (rechts oben) verschoben werden.</p>
+
+              <Reorder.Group 
+                axis="y" 
+                values={tiles} 
+                onReorder={handleReorder} 
+                className="tiles-grid" 
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem', listStyle: 'none', padding: 0 }}
+              >
+                {tiles.filter(t => !t.role || (currentUser && t.role.includes(currentUser.role))).map((tile) => (
+                  <DashboardTile key={tile.id} tile={tile} setActiveTab={setActiveTab} messages={messages} />
+                ))}
+              </Reorder.Group>
+            </motion.div>
+          )}
+
+          {activeTab !== 'overview' && (
+            <div className="tab-header-nav" style={{ marginBottom: '2rem' }}>
+              <button 
+                onClick={() => setActiveTab('overview')}
+                className="back-to-overview-btn"
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  color: 'var(--text-secondary)', 
+                  padding: '10px 15px', 
+                  borderRadius: '12px', 
+                  background: 'rgba(255,255,255,0.03)', 
+                  border: '1px solid var(--card-border)',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  transition: 'all 0.2s'
+                }}
+              >
+                <ArrowLeft size={18} /> Zurück zur Übersicht
+              </button>
+            </div>
+          )}
+
           {activeTab === 'flugbuch' && (
             <>
               <header className="content-header">
@@ -432,6 +539,171 @@ const DashboardPage = () => {
             </>
           )}
 
+          {activeTab === 'nachrichten' && (currentUser?.role === 'admin' || currentUser?.role === 'board') && (
+            <>
+              <header className="content-header">
+                <div>
+                  <h1>Nachrichten Center</h1>
+                  <p>Verwalte eingegangene Kontaktanfragen von der Webseite.</p>
+                </div>
+                <div>
+                  <PushNotificationManager />
+                </div>
+              </header>
+
+              <div className="messages-container" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '2rem', height: '600px' }}>
+                <div className="glass message-list-sidebar" style={{ borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--card-border)' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--text-secondary)' }}>Posteingang ({messages.length})</h3>
+                  </div>
+                  <div style={{ flex: 1, overflowY: 'auto' }}>
+                    {messages.length === 0 ? (
+                      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>Keine Nachrichten.</div>
+                    ) : (
+                      messages.map(msg => (
+                        <div 
+                          key={msg.id} 
+                          onClick={() => {
+                            setSelectedMessage(msg);
+                            if (window.innerWidth < 1024) {
+                              setIsMobileMsgOpen(true);
+                            }
+                          }}
+                          className={`msg-item ${selectedMessage?.id === msg.id ? 'active' : ''} ${msg.status === 'new' ? 'unread' : ''}`}
+                          style={{
+                            padding: '1.25rem',
+                            borderBottom: '1px solid var(--card-border)',
+                            cursor: 'pointer',
+                            position: 'relative',
+                            background: selectedMessage?.id === msg.id ? 'rgba(249, 115, 22, 0.1)' : 'transparent',
+                            borderLeft: selectedMessage?.id === msg.id ? '4px solid #f97316' : 'none'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{msg.name}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{new Date(msg.date).toLocaleDateString()}</span>
+                          </div>
+                          <div style={{ fontSize: '0.85rem', color: '#f97316', fontWeight: 600, marginBottom: '4px' }}>{msg.subject}</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{msg.message}</div>
+                          {msg.status === 'new' && <span style={{ position: 'absolute', top: '1.25rem', right: '1rem', width: '8px', height: '8px', background: '#f97316', borderRadius: '50%' }} />}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="glass message-detail-view" style={{ borderRadius: '20px', padding: '2rem', overflowY: 'auto' }}>
+                  <AnimatePresence mode="wait">
+                    {selectedMessage ? (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={selectedMessage.id}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--card-border)' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+                               <UserCircle size={16} /> <strong>{selectedMessage.name}</strong>
+                             </div>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+                               <AtSign size={16} /> <a href={`mailto:${selectedMessage.email}`} style={{ color: '#567eb6' }}>{selectedMessage.email}</a>
+                             </div>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                               <Calendar size={16} /> {new Date(selectedMessage.date).toLocaleString()}
+                             </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={() => handleToggleRead(selectedMessage)} className="action-btn-dash" title={selectedMessage.status === 'new' ? "Als gelesen markieren" : "Als ungelesen markieren"} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--card-border)', borderRadius: '8px', padding: '8px', cursor: 'pointer', color: selectedMessage.status === 'new' ? '#22c55e' : 'var(--text-secondary)' }}>
+                              {selectedMessage.status === 'new' ? <CheckCircle size={20} /> : <Clock size={20} />}
+                            </button>
+                            <button onClick={() => handleDeleteMessage(selectedMessage.id)} className="action-btn-dash" disabled={isDeletingMsg === selectedMessage.id} style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', padding: '8px', cursor: 'pointer', color: '#ef4444' }}>
+                              <Trash2 size={20} />
+                            </button>
+                          </div>
+                        </div>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>{selectedMessage.subject}</h2>
+                        <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '1.05rem', whiteSpace: 'pre-wrap' }}>
+                          {selectedMessage.message}
+                        </div>
+                        <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--card-border)' }}>
+                          <a href={`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject}`} style={{ background: '#f97316', color: 'white', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: 700, display: 'inline-block' }}>Antworten</a>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-tertiary)', textAlign: 'center' }}>
+                        <Mail size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                        <p>Wähle eine Nachricht aus dem Posteingang, um sie hier anzuzeigen.</p>
+                      </div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              {/* Mobile Message Modal */}
+              <AnimatePresence>
+                {isMobileMsgOpen && selectedMessage && (
+                  <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }}
+                    className="modal-overlay"
+                    style={{ zIndex: 3000 }}
+                  >
+                    <motion.div 
+                      initial={{ scale: 0.9, y: 20 }}
+                      animate={{ scale: 1, y: 0 }}
+                      exit={{ scale: 0.9, y: 20 }}
+                      className="glass add-modal"
+                      style={{ padding: '2rem', maxWidth: '90%', width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                    >
+                      <div className="modal-header">
+                        <h2 style={{ fontSize: '1.25rem' }}>Nachricht Details</h2>
+                        <button onClick={() => setIsMobileMsgOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>×</button>
+                      </div>
+
+                      <div style={{ flex: 1, overflowY: 'auto', paddingRight: '5px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingBottom: '1.5rem', borderBottom: '1px solid var(--card-border)', marginBottom: '1.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem' }}>
+                            <UserCircle size={18} color="#f97316" /> <strong>{selectedMessage.name}</strong>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem' }}>
+                            <AtSign size={18} color="#567eb6" /> <a href={`mailto:${selectedMessage.email}`} style={{ color: '#567eb6' }}>{selectedMessage.email}</a>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
+                            <Calendar size={18} /> {new Date(selectedMessage.date).toLocaleString()}
+                          </div>
+                        </div>
+
+                        <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--foreground)' }}>{selectedMessage.subject}</h3>
+                        <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '1rem', whiteSpace: 'pre-wrap' }}>
+                          {selectedMessage.message}
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--card-border)', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                        <a 
+                          href={`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject}`} 
+                          style={{ flex: 1, background: '#f97316', color: 'white', padding: '12px', borderRadius: '12px', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                        >
+                          Antworten
+                        </a>
+                        <button 
+                          onClick={() => handleToggleRead(selectedMessage)} 
+                          style={{ flex: '0 0 auto', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--card-border)', borderRadius: '12px', padding: '12px', cursor: 'pointer', color: selectedMessage.status === 'new' ? '#22c55e' : 'var(--text-secondary)' }}
+                        >
+                          {selectedMessage.status === 'new' ? <CheckCircle size={20} /> : <Clock size={20} />}
+                        </button>
+                        <button 
+                          onClick={() => { handleDeleteMessage(selectedMessage.id); setIsMobileMsgOpen(false); }} 
+                          disabled={isDeletingMsg === selectedMessage.id}
+                          style={{ flex: '0 0 auto', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', padding: '12px', cursor: 'pointer', color: '#ef4444' }}
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </>
+          )}
+
           {activeTab === 'profil' && currentUser && (
             <>
               <header className="content-header">
@@ -507,10 +779,26 @@ const DashboardPage = () => {
         }
 
         .dashboard-container {
-          display: grid;
-          grid-template-columns: 250px 1fr;
-          gap: 2rem;
-          padding: 120px 20px 60px;
+          padding: 160px 20px 60px;
+          max-width: 1400px;
+          margin: 0 auto;
+          position: relative;
+        }
+
+        .dashboard-tile:hover .tile-icon {
+          transform: scale(1.1);
+          transition: transform 0.3s;
+        }
+
+        .back-to-overview-btn:hover {
+          background: rgba(255,255,255,0.08) !important;
+          border-color: var(--primary) !important;
+          color: var(--primary) !important;
+        }
+
+        .tab-header-nav {
+          display: flex;
+          align-items: center;
         }
 
         @media (max-width: 1024px) {
@@ -518,6 +806,8 @@ const DashboardPage = () => {
             grid-template-columns: 1fr;
           }
           .sidebar { display: none; }
+          .message-detail-view { display: none !important; }
+          .messages-container { grid-template-columns: 1fr !important; height: auto !important; }
         }
 
         .sidebar {
@@ -751,6 +1041,75 @@ const DashboardPage = () => {
         }
       `}</style>
     </main>
+  );
+};
+
+const DashboardTile = ({ tile, setActiveTab, messages }: { tile: any, setActiveTab: any, messages: any }) => {
+  const controls = useDragControls();
+  const [isHolding, setIsHolding] = useState(false);
+
+  return (
+    <Reorder.Item
+      value={tile}
+      dragListener={false}
+      dragControls={controls}
+      whileDrag={{ scale: 1.05, zIndex: 10, cursor: 'grabbing', boxShadow: '0 25px 30px -5px rgba(0, 0, 0, 0.7)' }}
+      animate={isHolding ? { scale: 1.05, opacity: 0.9 } : { scale: 1, opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      onPointerUp={() => setIsHolding(false)}
+      onPointerCancel={() => setIsHolding(false)}
+      onClick={() => setActiveTab(tile.id)}
+      className="glass dashboard-tile"
+      style={{ 
+        padding: '2.5rem', 
+        borderRadius: '24px', 
+        cursor: 'pointer', 
+        border: '1px solid var(--card-border)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      <div 
+        onPointerDown={(e) => { setIsHolding(true); controls.start(e); }}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: 'absolute',
+          top: '1rem',
+          right: '1rem',
+          padding: '0.5rem',
+          cursor: 'grab',
+          touchAction: 'none',
+          color: tile.color,
+          background: `${tile.color}10`,
+          borderRadius: '10px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 20
+        }}
+      >
+        <GripHorizontal size={20} />
+      </div>
+
+      <div className="tile-icon" style={{ color: tile.color, background: `${tile.color}15`, width: '64px', height: '64px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {tile.icon}
+      </div>
+      <div style={{ marginTop: '0.5rem' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '0.5rem' }}>{tile.title}</h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.5 }}>{tile.desc}</p>
+      </div>
+      <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '8px', color: tile.color, fontWeight: 700, fontSize: '0.9rem' }}>
+         Öffnen <ChevronRight size={18} />
+      </div>
+      {tile.id === 'nachrichten' && messages.some((m: any) => m.status === 'new') && (
+         <div style={{ position: 'absolute', bottom: '20px', right: '20px', background: '#ef4444', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 900 }}>
+           {messages.filter((m: any) => m.status === 'new').length} NEU
+         </div>
+      )}
+    </Reorder.Item>
   );
 };
 

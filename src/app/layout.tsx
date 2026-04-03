@@ -55,7 +55,6 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-import PageWrapper from "@/components/PageWrapper";
 import Navbar from "@/components/Navbar";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
@@ -75,9 +74,7 @@ export default async function RootLayout({
             <GlobalBackground />
             <AdminBar />
             <Navbar />
-            <PageWrapper>
-              {children}
-            </PageWrapper>
+            {children}
             <PWAInstallPrompt />
           </AdminProvider>
         </ThemeProvider>

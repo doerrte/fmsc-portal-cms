@@ -10,12 +10,16 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Texte anpassen</h1>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '3rem', fontSize: '1.2rem' }}>
-        Passe die Haupttexte auf der Startseite an. Änderungen sind sofort nach dem Speichern sichtbar.
-      </p>
+      <div className="admin-page-header">
+        <div>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Texte anpassen</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>
+            Passe die Haupttexte auf der Startseite an. Änderungen sind sofort nach dem Speichern sichtbar.
+          </p>
+        </div>
+      </div>
 
-      <div style={{ background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: '800px' }}>
+      <div className="glass" style={{ padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: '800px', width: '100%', margin: '0 auto' }}>
         <form action={saveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>

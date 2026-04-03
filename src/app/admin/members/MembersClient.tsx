@@ -90,6 +90,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
       {!isAdding ? (
         <button 
           onClick={() => setIsAdding(true)}
+          className="admin-tile-btn"
           style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--primary)', color: 'var(--foreground)', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', border: 'none', marginBottom: '3rem' }}
         >
           <UserPlus size={20} /> Neues Mitglied anlegen
@@ -99,8 +100,8 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
           <h2 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <UserPlus size={20} color="var(--primary)" /> Neuen Account erstellen
           </h2>
-          <form onSubmit={handleAddSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <form onSubmit={handleAddSubmit} className="admin-list">
+            <div className="admin-grid-2">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Vor- und Nachname</label>
                 <input 
@@ -156,20 +157,20 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
       )}
 
       {/* Member List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="admin-list">
         {members.map(m => (
-          <div key={m.id} className="glass" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div key={m.id} className="admin-card-item">
             
             {editingId === m.id ? (
               // Edit Mode
-              <div style={{ display: 'flex', gap: '1.5rem', width: '100%', alignItems: 'flex-end' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+              <div className="admin-grid-2" style={{ width: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Account von</span>
                   <strong>{m.name} ({m.email})</strong>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Neues Passwort (leer lassen zum Behalten)</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Neues Passwort</label>
                   <input 
                     type="text" placeholder="Passwort ändern"
                     value={editData.password} onChange={(e) => setEditData({...editData, password: e.target.value})}
@@ -177,14 +178,14 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                   />
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Handy</label>
                   <input 
                     type="text" value={editData.phone} onChange={(e) => setEditData({...editData, phone: e.target.value})}
                     style={{ padding: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: 'var(--foreground)', width: '100%' }}
                   />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Rolle</label>
                   <select 
                     value={editData.role} onChange={(e) => setEditData({...editData, role: e.target.value as 'admin'|'board'|'member'})}
@@ -196,12 +197,12 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                   </select>
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="admin-card-actions" style={{ gridColumn: '1 / -1' }}>
                   <button onClick={() => handleEditSubmit(m)} style={{ padding: '8px 12px', background: '#22c55e', color: 'var(--foreground)', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Check size={16} /> Speichern
                   </button>
                   <button onClick={() => setEditingId(null)} style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.1)', color: 'var(--foreground)', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <X size={16} />
+                    <X size={16} /> Abbrechen
                   </button>
                 </div>
               </div>
@@ -209,7 +210,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
               // View Mode
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', overflow: 'hidden', background: m.role === 'admin' ? 'rgba(249, 115, 22, 0.1)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: m.role === 'admin' ? '#f97316' : 'rgba(255,255,255,0.6)' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', overflow: 'hidden', background: m.role === 'admin' ? 'rgba(249, 115, 22, 0.1)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: m.role === 'admin' ? '#f97316' : 'rgba(255,255,255,0.6)', flexShrink: 0 }}>
                     {m.profileImage ? (
                       <img src={m.profileImage} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
@@ -218,19 +219,17 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                   </div>
                   <div>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{m.name}</h3>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
                       <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{m.email}</span>
                       {m.phone && <span style={{ color: '#567eb6', fontSize: '0.85rem', fontWeight: '600' }}>{m.phone}</span>}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '0.8rem', padding: '4px 10px', background: m.role === 'admin' ? '#f97316' : (m.role === 'board' ? '#567eb6' : 'rgba(255,255,255,0.1)'), borderRadius: '99px', fontWeight: 'bold' }}>
-                      {m.role === 'admin' ? 'Administrator' : (m.role === 'board' ? 'Vorstand' : 'Mitglied')}
-                    </span>
-                  </div>
+                <div className="admin-card-actions">
+                  <span style={{ fontSize: '0.8rem', padding: '4px 10px', background: m.role === 'admin' ? '#f97316' : (m.role === 'board' ? '#567eb6' : 'rgba(255,255,255,0.1)'), borderRadius: '99px', fontWeight: 'bold' }}>
+                    {m.role === 'admin' ? 'Administrator' : (m.role === 'board' ? 'Vorstand' : 'Mitglied')}
+                  </span>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button onClick={() => handleEditInit(m)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', padding: '8px', color: 'var(--foreground)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Bearbeiten">
                       <Edit2 size={16} />
