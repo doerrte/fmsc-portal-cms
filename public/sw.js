@@ -22,10 +22,13 @@ self.addEventListener('push', function(event) {
     const channel = new BroadcastChannel('push-channel');
     channel.postMessage({ title, body });
 
-    // ULTRA-MINIMALIST Fallback options
+    // ULTRA-MINIMALIST but identified options
     const options = {
       body: body,
-      // No icon, no badge, no vibrate, no tags
+      tag: 'fmsc-push-' + Date.now(), // Unique tag per message
+      timestamp: Date.now(),
+      vibrate: [100, 50, 100],
+      // STILL no icon or badge for maximum compatibility
     };
 
     event.waitUntil(
