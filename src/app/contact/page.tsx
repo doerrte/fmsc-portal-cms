@@ -61,6 +61,7 @@ const ContactPage = () => {
 
       if (verifyData.success) {
         // Success
+        console.log(`[PUSH STATUS] Attempted: ${verifyData.pushAttempted}, Success: ${verifyData.successCount}, Error: ${verifyData.errorCount}`);
         setStatus('success');
         setFormData({ name: '', email: '', subject: 'Gastflug-Anfrage', message: '' });
       } else {

@@ -113,27 +113,39 @@ export async function POST(request: Request) {
           if (!vapidPublicKey || !vapidPrivateKey) {
             console.error('[CONTACT PUSH] VAPID keys are missing from environment');
           } else {
-            console.log(`[CONTACT PUSH] Starting delivery to ${finalDeliveryPool.length} devices...`);
+            console.log(`[CONTACT PUSH] Starting sequential delivery to ${finalDeliveryPool.length} devices...`);
             
-            // CRITICAL: We MUST await the promises to ensure the function doesn't exit early on Vercel
-            await Promise.all(
-              finalDeliveryPool.map(s => 
-                sendNotification(s.subscription, notificationPayload, vapidPrivateKey, vapidPublicKey)
-                  .then(() => console.log(`[CONTACT PUSH] Success for ${s.id}`))
-                  .catch((err: unknown) => 
-                    console.error(`[CONTACT PUSH] Failed for device ${s.id}:`, err)
-                  )
-              )
-            );
+            let successCount = 0;
+            let errorCount = 0;
+            
+            // CRITICAL: Using for...of with await instead of Promise.all to ensure 
+            // the serverless function doesn't kill the process mid-broadcast.
+            for (const s of finalDeliveryPool) {
+              try {
+                await sendNotification(s.subscription, notificationPayload, vapidPrivateKey, vapidPublicKey);
+                console.log(`[CONTACT PUSH] ✅ Success for device ${s.id}`);
+                successCount++;
+              } catch (err: unknown) {
+                console.error(`[CONTACT PUSH] ❌ Error for device ${s.id}:`, err);
+                errorCount++;
+              }
+            }
+            
+            console.log(`[CONTACT PUSH] Dispatch finished. Success: ${successCount}, Errors: ${errorCount}`);
+            
+            return NextResponse.json({ 
+              success: true, 
+              pushAttempted: true, 
+              successCount, 
+              errorCount 
+            });
           }
-          
-          console.log(`[CONTACT PUSH] Dispatch completed.`);
         }
       } catch (pushErr) {
         console.error('[CONTACT PUSH] Fatal error in push cycle:', pushErr);
       }
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, pushAttempted: false });
     } else {
       return NextResponse.json({ success: false, error: 'Captcha verification failed' }, { status: 400 });
     }
