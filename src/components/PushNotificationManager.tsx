@@ -114,35 +114,37 @@ export default function PushNotificationManager() {
     setMessage(null);
     console.log('Starting push subscription process...');
     try {
-      // 1. Ensure sw is registered and ACTIVE
+      // 1. Ensure Service Worker is registered and ACTIVE
       const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       let registration = await navigator.serviceWorker.ready;
-
-      // Force wait for the 'active' state if it's still installing/waiting
+      
+      // Extra safety check for iOS: explicitly wait for registration.active to exist
       if (!registration.active) {
-        console.log('SW not active yet, waiting for activation...');
+        console.log('SW ready but not yet active, waiting...');
         await new Promise<void>((resolve) => {
-          const checkActive = () => {
+          const checkReady = () => {
             if (reg.active) {
               registration = reg;
               resolve();
             } else {
-              setTimeout(checkActive, 100);
+              setTimeout(checkReady, 100);
             }
           };
-          checkActive();
+          checkReady();
         });
       }
 
-      // 2. Request permission
-      const permission = await Notification.requestPermission();
-      if (permission !== 'granted') {
-        throw new Error('Berechtigung verweigert.');
+      // 2. Request permission (if not already granted)
+      if (Notification.permission !== 'granted') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          throw new Error('Berechtigung für Mitteilungen verweigert.');
+        }
       }
 
       // 3. Subscribe
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!vapidKey) throw new Error('VAPID Key fehlt.');
+      if (!vapidKey) throw new Error('VAPID Key fehlt in Umgebungsvariablen.');
 
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
