@@ -58,6 +58,7 @@ export async function POST(request: Request) {
             url: '/dashboard?tab=nachrichten',
             badgeCount: unreadCount,
             tag: 'contact-form-message',
+            vibrate: [200, 100, 200, 100, 200], // S-O-S style or double tap for better attention
             icon: '/icon.png'
           });
 

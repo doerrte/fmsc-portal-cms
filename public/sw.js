@@ -26,7 +26,7 @@ self.addEventListener('push', function(event) {
     
     // Notify the UI if it's open
     const channel = new BroadcastChannel('push-channel');
-    channel.postMessage({ title, body });
+    channel.postMessage({ title, body, data });
 
     // Set App Badge (Icon Counter)
     if (self.navigator.setAppBadge && data.badgeCount !== undefined) {
@@ -35,9 +35,17 @@ self.addEventListener('push', function(event) {
 
     const options = {
       body: body,
-      tag: 'fmsc-contact-inquiry',
+      icon: data.icon || '/icon.png',
+      badge: '/badge-icon.png', // Small monochrome icon for Android status bar
+      image: data.image || null, // Large image support for Chrome/Android
+      vibrate: data.vibrate || [200, 100, 200], // Vibration pattern
+      tag: data.tag || 'fmsc-contact-inquiry',
       renotify: true,
-      data: { url: data.url || '/dashboard?tab=nachrichten' }
+      data: { url: data.url || '/dashboard?tab=nachrichten' },
+      actions: data.actions || [
+        { action: 'view', title: 'Ansehen' },
+        { action: 'close', title: 'Schließen' }
+      ]
     };
 
     event.waitUntil(
@@ -51,26 +59,25 @@ self.addEventListener('notificationclick', function(event) {
 
   if (event.action === 'close') return;
 
-  // Safety check for data URL
+  // Default behavior or 'view' action
   let urlToOpen = new URL('/', self.location.origin).href;
   if (event.notification.data && event.notification.data.url) {
     try {
       urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
     } catch (e) {
-      console.warn('Malformed notification URL, using root');
+      console.warn('Malformed notification URL');
     }
   }
 
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
-      // Check if there is already a window open with this URL
-      for (let i = 0; i < windowClients.length; i++) {
-        const client = windowClients[i];
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // If a window is already open at this URL, focus it
+      for (let client of windowClients) {
         if (client.url === urlToOpen && 'focus' in client) {
           return client.focus();
         }
       }
-      // If no window found, open a new one
+      // Otherwise, open a new window
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }

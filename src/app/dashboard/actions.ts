@@ -385,7 +385,8 @@ export async function testSinglePushAction(subscriptionJson: string) {
     const payload = JSON.stringify({
       title: 'Einzel-Test 🎯',
       body: 'Diese Nachricht wurde nur an DIESES Gerät gesendet.',
-      badgeCount: 1
+      badgeCount: 1,
+      vibrate: [200, 100, 200]
     });
     
     const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -423,6 +424,7 @@ export async function testContactPushAction() {
     body: 'E-Mail: max@mustermann.de\nBetreff: Schnupperflug\n\nHallo, ich würde gerne mal bei Euch vorbeischauen und mitfliegen!',
     url: '/dashboard?tab=nachrichten',
     badgeCount: unreadCount || 1, // At least 1 for the simulation preview
+    vibrate: [200, 100, 200, 100, 200], // Cross-browser vibration
     tag: 'contact-form-message',
     icon: '/icon.png'
   });
