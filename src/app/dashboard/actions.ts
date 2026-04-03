@@ -195,11 +195,19 @@ export async function testPushAction() {
   if (!authCookie) return { success: false, error: 'Nicht eingeloggt' };
   const [userId, role] = authCookie.split('|');
   const db = await getDbData();
-  const adminIds = db.members.filter((m: any) => m.role === 'admin' || m.role === 'board').map((m: any) => m.id);
+  const currentUserId = userId.trim();
+  
   const subs = (db.push_subscriptions || []).filter((s: any) => {
-    const sId = s.userId || s.user_id;
-    return sId === userId || adminIds.includes(sId);
+    const dbUserId = (s.userId || s.user_id || '').trim();
+    console.log(`[PUSH AUDIT] Comparing session:${currentUserId} with db:${dbUserId}`);
+    return dbUserId === currentUserId;
   });
+
+  if (subs.length === 0) {
+    console.warn(`[PUSH AUDIT] No matching devices for user ${currentUserId}. Found IDs:`, (db.push_subscriptions || []).map((s:any) => s.userId || s.user_id));
+    return { success: true, pushAttempted: false, results: { successCount: 0, errorCount: 0 } };
+  }
+
   const uniqueSubs = Array.from(new Map(subs.map(s => [s.subscription.endpoint, s])).values());
   
   // VAPID KEY CLEANSING (Synchronized with route.ts)
