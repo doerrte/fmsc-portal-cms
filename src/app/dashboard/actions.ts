@@ -272,14 +272,17 @@ export async function testPushAction() {
   let successCount = 0;
   for (const subItem of userSubs) {
     try {
+      console.log(`Attempting test push to subscription ${subItem.id} for user ${userId}`);
       await sendNotification(subItem.subscription, JSON.stringify({
         title: 'Test-Benachrichtigung ✈️',
         body: 'Dies ist ein Test der FMSC Push-Technologie. Sie funktioniert!',
         url: '/dashboard'
       }));
       successCount++;
-    } catch (err) {
-      console.error('Push test error for sub:', subItem.id, err);
+      console.log(`Test push successful for ${subItem.id}`);
+    } catch (err: any) {
+      console.error(`VAPID ERROR for sub ${subItem.id}:`, err.message || err);
+      if (err.stack) console.error(err.stack);
     }
   }
 

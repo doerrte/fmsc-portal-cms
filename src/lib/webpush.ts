@@ -73,17 +73,15 @@ function createVapidToken(header: Record<string, string>, payload: Record<string
   const payloadEncoded = base64UrlEncode(Buffer.from(JSON.stringify(payload)));
   const unsignedToken = `${headerEncoded}.${payloadEncoded}`;
 
-  // EC Private Key should be raw 32 bytes for the prime256v1 curve
-  // Correct PKCS#8 DER wrapper for 32-byte raw EC private key (prime256v1)
-  const rawKey = base64UrlDecode(privateKeyBase64);
+  // Use JWK (JSON Web Key) import which is more robust than manual ASN.1 wrapping
+  // The private key in VAPID is the 'd' parameter of the EC key
   const privateKey = crypto.createPrivateKey({
-    key: Buffer.concat([
-      Buffer.from([0x30, 0x2e, 0x02, 0x01, 0x01, 0x04, 0x20]), // Version 1, 32-byte octet string
-      rawKey,
-      Buffer.from([0xa0, 0x07, 0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x0a]) // OID prime256v1
-    ]),
-    format: 'der',
-    type: 'pkcs8'
+    key: {
+      kty: 'EC',
+      crv: 'P-256',
+      d: base64UrlEncode(base64UrlDecode(privateKeyBase64)) // Ensure it is base64-url encoded
+    },
+    format: 'jwk'
   });
 
   const signer = crypto.createSign('SHA256');
@@ -96,7 +94,6 @@ function createVapidToken(header: Record<string, string>, payload: Record<string
 }
 
 function derToRaw(der: Buffer): Buffer {
-  // Very basic DER parser for EC signatures (r, s)
   // DER: 0x30 L 0x02 Lr r 0x02 Ls s
   let offset = 2;
   const rLen = der[offset + 1];
@@ -107,7 +104,7 @@ function derToRaw(der: Buffer): Buffer {
   let s = der.subarray(offset + 2, offset + 2 + sLen);
   if (sLen === 33 && s[0] === 0x00) s = s.subarray(1);
   
-  // Pad r and s to 32 bytes if necessary
+  // Pad r and s to 32 bytes
   const rPadded = Buffer.alloc(32);
   r.copy(rPadded, 32 - r.length);
   const sPadded = Buffer.alloc(32);
