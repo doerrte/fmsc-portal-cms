@@ -32,7 +32,7 @@ export async function sendNotification(subscription: PushSubscription, payload: 
   const response = await fetch(subscription.endpoint, {
     method: 'POST',
     headers: {
-      'TTL': '0', // Immediate delivery
+      'TTL': '43200', // 12 hours delivery window
       'Urgency': 'high', // High priority for mobile wake-up
       'Content-Encoding': 'aes128gcm',
       'Authorization': vapidHeader,
@@ -94,7 +94,7 @@ function generateVapidHeader(endpoint: string, privateKeyInput: string, publicKe
     cleanPublicKey = base64UrlEncode(rawPubKey);
   }
 
-  return `vapid t=${token},k=${cleanPublicKey}`;
+  return `VAPID t=${token}, k=${cleanPublicKey}`;
 }
 
 /**
