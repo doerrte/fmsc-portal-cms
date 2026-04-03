@@ -5,6 +5,7 @@ import { Bell, BellOff, Send, Smartphone } from 'lucide-react';
 import { savePushSubscriptionAction, testPushAction } from '@/app/dashboard/actions';
 
 export default function PushNotificationManager() {
+  const [hasMounted, setHasMounted] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [loading, setLoading] = useState(false);
@@ -12,7 +13,10 @@ export default function PushNotificationManager() {
 
   useEffect(() => {
     console.log('PushNotificationManager mounted');
+    setHasMounted(true);
+    
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
+      console.log('Push notifications ARE supported by this browser');
       setIsSupported(true);
       checkSubscription();
       
@@ -20,12 +24,16 @@ export default function PushNotificationManager() {
       if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
         console.warn('VAPID public key is missing! Check Vercel Environment Variables.');
       } else {
-        console.log('VAPID public key found in browser.');
+        console.log('VAPID public key found in browser:', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY.substring(0, 10) + '...');
       }
     } else {
-      console.log('Push notifications not supported or serviceWorker missing in navigator');
+      console.log('Push notifications NOT supported or serviceWorker missing in navigator');
     }
   }, []);
+
+  if (!hasMounted) {
+    return <div className="p-4 bg-white/5 rounded-xl border border-white/10 animate-pulse text-gray-500 text-sm">Lade Push-Einstellungen...</div>;
+  }
 
   async function checkSubscription() {
     const registration = await navigator.serviceWorker.ready;

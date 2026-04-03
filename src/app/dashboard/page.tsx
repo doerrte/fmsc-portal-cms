@@ -546,10 +546,11 @@ const DashboardPage = () => {
                   <h1>Nachrichten Center</h1>
                   <p>Verwalte eingegangene Kontaktanfragen von der Webseite.</p>
                 </div>
-                <div>
-                  <PushNotificationManager />
-                </div>
               </header>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <PushNotificationManager />
+              </div>
 
               <div className="messages-container" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '2rem', height: '600px' }}>
                 <div className="glass message-list-sidebar" style={{ borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
