@@ -30,7 +30,7 @@ export async function POST(request: Request) {
           
           const notificationPayload = JSON.stringify({
             title: 'Max Mustermann (VOM ECHTEN FORMULAR)',
-            body: `DIAGNOSE: reCAPTCHA wurde umgangen.\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 80)}...`,
+            body: `DIAGNOSE: reCAPTCHA wurde umgangen.\nBetreff: ${newMessage.subject}\n\n${(newMessage.message || '').substring(0, 80)}...`,
             url: '/dashboard?tab=nachrichten',
             badgeCount: unreadCount,
             tag: 'contact-form-message',
@@ -60,8 +60,8 @@ export async function POST(request: Request) {
               try {
                 await sendNotification(s.subscription, notificationPayload, cleanPr, cleanP);
                 successCount++;
-                const ep = String(s.subscription.endpoint);
-                targetsInfo.push(ep.substring(ep.length - 15));
+                const ep = String(s.subscription?.endpoint || 'unknown');
+                targetsInfo.push(ep.substring(Math.max(0, ep.length - 15)));
               } catch (e) {
                 console.error('[PUSH] Loop error:', e);
               }
@@ -80,6 +80,7 @@ export async function POST(request: Request) {
           });
         }
       } catch (pushErr: any) {
+        console.error('[PUSH] Fatal error:', pushErr);
         return NextResponse.json({ success: true, pushAttempted: true, pushError: pushErr.message });
       }
 
@@ -88,6 +89,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Captcha verification failed (Bypass inactive)' }, { status: 400 });
     }
   } catch (error: any) {
+    console.error('API Error:', error);
     return NextResponse.json({ success: false, error: error.message || 'Internal Error' }, { status: 500 });
   }
 }

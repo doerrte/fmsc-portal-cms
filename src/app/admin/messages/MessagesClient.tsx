@@ -80,7 +80,8 @@ export default function MessagesClient({ initialMessages }: MessagesClientProps)
                     <span className="msg-date">{new Date(msg.date).toLocaleDateString('de-DE')}</span>
                   </div>
                   <div className="msg-subject">{msg.subject}</div>
-                  <div className="msg-teaser">{msg.message.substring(0, 60)}...</div>
+                  {/* Safe substring for message teaser */}
+                  <div className="msg-teaser">{msg.message?.substring(0, 60) || ''}...</div>
                   {msg.status === 'new' && <span className="unread-dot" />}
                 </div>
               ))
