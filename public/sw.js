@@ -35,7 +35,10 @@ self.addEventListener('push', function(event) {
       icon: iconUrl,
       badge: iconUrl,
       tag: 'fmsc-diag-tag',
-      renotify: true
+      renotify: true,
+      data: {
+        url: '/'
+      }
     };
 
     event.waitUntil(
