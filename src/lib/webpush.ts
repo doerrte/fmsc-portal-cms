@@ -81,9 +81,10 @@ function generateVapidHeader(endpoint: string, privateKeyBase64: string, publicK
     format: 'der',
     type: 'spki'
   });
-  const rawPubKey = publicKeyObject.export({ type: 'x9.62', format: 'der' });
+  // Cast to any because TS might not know 'x9.62' type even if Node supports it
+  const rawPubKey = publicKeyObject.export({ type: 'x9.62', format: 'der' } as any);
   // ASN.1 for P-256 usually starts with 0x04 for uncompressed point
-  const cleanPublicKey = base64UrlEncode(rawPubKey);
+  const cleanPublicKey = base64UrlEncode(rawPubKey as Buffer);
 
   return `vapid t=${token},k=${cleanPublicKey}`;
 }

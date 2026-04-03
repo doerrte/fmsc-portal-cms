@@ -81,7 +81,7 @@ export default function PushNotificationManager() {
       });
 
       // 4. Save to DB
-      const res = await savePushSubscriptionAction(sub.toJSON());
+      const res = await savePushSubscriptionAction(JSON.stringify(sub.toJSON()));
       if (res.success) {
         setSubscription(sub);
         setMessage({ text: 'Abonniert!', type: 'success' });
