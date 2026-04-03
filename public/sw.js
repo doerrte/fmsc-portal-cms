@@ -8,30 +8,41 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('push', function(event) {
   if (event.data) {
-    const data = event.data.json();
+    let data;
+    try {
+      data = event.data.json();
+    } catch (e) {
+      console.warn('Push data is not JSON, treating as text');
+      data = { title: 'FMSC Nachricht', body: event.data.text() };
+    }
+
+    const title = data.title || 'FMSC Portal ✈️';
+    const body = data.body || 'Neue Nachricht empfangen.';
+    
+    // Fallback options for high compatibility (iOS/Mobile)
     const options = {
-      body: data.body,
+      body: body,
       icon: '/icon.png',
       badge: '/icon.png',
-      vibrate: [100, 50, 100],
+      tag: 'fmsc-push-notification',
+      renotify: true,
       data: {
         url: data.url || '/dashboard?tab=nachrichten'
-      },
-      actions: [
-        { action: 'open', title: 'Ansehen' },
-        { action: 'close', title: 'Schließen' }
-      ]
+      }
     };
 
+    // Attempt to show the complex notification
     event.waitUntil(
-      self.registration.showNotification(data.title, options)
+      self.registration.showNotification(title, options).catch(err => {
+        console.error('Complex notification failed, showing simple fallback:', err);
+        // Absolute fallback: Only title and body
+        return self.registration.showNotification(title, { body: body });
+      })
     );
 
     // Update App Badge if supported
     if ('setAppBadge' in navigator) {
-      navigator.setAppBadge(data.badgeCount || 1).catch(err => {
-        console.error('Error setting badge:', err);
-      });
+      navigator.setAppBadge(data.badgeCount || 1).catch(err => {});
     }
   }
 });

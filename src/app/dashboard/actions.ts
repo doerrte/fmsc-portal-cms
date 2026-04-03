@@ -310,7 +310,11 @@ export async function testPushAction() {
       console.error(`[PUSH] Error for sub ${subData.id}:`, errMsg);
       
       // If the error is terminal (Mismatch or Gone), mark for deletion
-      if (errMsg.includes('VapidPkHashMismatch') || errMsg.includes('410') || errMsg.includes('404')) {
+      if (errMsg.includes('VapidPkHashMismatch') || 
+          errMsg.includes('do not correspond to the credentials') ||
+          errMsg.includes('410') || 
+          errMsg.includes('403') || 
+          errMsg.includes('404')) {
         staleSubIds.push(subData.id);
       }
       
