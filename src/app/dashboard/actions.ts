@@ -416,8 +416,8 @@ export async function testContactPushAction() {
   if (!vapidPublicKey || !vapidPrivateKey) throw new Error('VAPID keys not configured');
 
   const payload = JSON.stringify({
-    title: '✈️ FMSC: Test-Kontaktanfrage',
-    body: 'Max Mustermann: Dies ist eine simulierte Anfrage zur Überprüfung des Push-Systems.',
+    title: '✈️ FMSC: Max Mustermann',
+    body: 'E-Mail: max@mustermann.de\nBetreff: Schnupperflug\n\nHallo, ich würde gerne mal bei Euch vorbeischauen und mitfliegen!',
     url: '/dashboard?tab=nachrichten',
     tag: 'contact-form-message',
     icon: '/icon.png'
