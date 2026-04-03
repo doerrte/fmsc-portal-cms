@@ -62,24 +62,28 @@ export async function POST(request: Request) {
             icon: '/icon.png'
           });
 
-          // Identify valid admin/board IDs (case-insensitive for safety)
-          const admins = dbData.members.filter((m: MemberItem) => {
+          // Identify valid admin/board IDs (Robust string matching)
+          const admins = dbData.members.filter((m: any) => {
             const role = (m.role || '').toLowerCase();
             return role === 'admin' || role === 'board';
           });
           
-          const authorizedUserIds = new Set(admins.map((m: MemberItem) => m.id));
+          // Ensure all IDs are strings for reliable Set matching
+          const authorizedUserIds = new Set(admins.map((m: any) => String(m.id)));
           
-          // Always include 'admin_initial' as an authorized ID just in case
+          // Always include 'admin_initial'
           authorizedUserIds.add('admin_initial');
 
-          console.log(`[CONTACT PUSH] Authorized Admin IDs:`, Array.from(authorizedUserIds));
+          console.log(`[CONTACT PUSH] Authorized Admin IDs (as strings):`, Array.from(authorizedUserIds));
 
           const targetSubscriptions = dbData.push_subscriptions.filter(
-            (sub: PushSubscriptionItem) => {
-              const matches = authorizedUserIds.has(sub.userId);
+            (sub: any) => {
+              const subUserId = String(sub.userId || sub.user_id || '');
+              const matches = authorizedUserIds.has(subUserId);
               if (!matches) {
-                console.log(`[CONTACT PUSH] Skipping sub ${sub.id} (User ${sub.userId} is not an authorized admin)`);
+                console.log(`[CONTACT PUSH] Skipping sub ${sub.id} (User ID "${subUserId}" not in authorized list)`);
+              } else {
+                console.log(`[CONTACT PUSH] MATCH FOUND for sub ${sub.id} (User ID "${subUserId}")`);
               }
               return matches;
             }
