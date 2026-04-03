@@ -236,6 +236,9 @@ export async function savePushSubscriptionAction(subscriptionRaw: string) {
   let subscription: any;
   try {
     subscription = typeof subscriptionRaw === 'string' ? JSON.parse(subscriptionRaw) : subscriptionRaw;
+    if (subscription && typeof subscription.endpoint === 'string') {
+      subscription.endpoint = subscription.endpoint.trim();
+    }
   } catch (e) {
     return { success: false, error: 'Ungültiges Abonnement-Format' };
   }
@@ -309,12 +312,13 @@ export async function testPushAction() {
       const errMsg = err.message || '';
       console.error(`[PUSH] Error for sub ${subData.id}:`, errMsg);
       
-      // If the error is terminal (Mismatch or Gone), mark for deletion
+      // If the error is terminal (Mismatch, Gone, or Invalid URL), mark for deletion
       if (errMsg.includes('VapidPkHashMismatch') || 
           errMsg.includes('do not correspond to the credentials') ||
           errMsg.includes('410') || 
           errMsg.includes('403') || 
-          errMsg.includes('404')) {
+          errMsg.includes('404') ||
+          errMsg.toLowerCase().includes('invalid url')) {
         staleSubIds.push(subData.id);
       }
       
