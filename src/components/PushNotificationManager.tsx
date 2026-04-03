@@ -155,7 +155,7 @@ export default function PushNotificationManager() {
           });
         } else {
           setMessage({ 
-            text: `Test-Push erfolgreich an ${response.count} Gerät(e) gesendet!`, 
+            text: `Test-Push: ${response.count} erfolgreich, ${response.failed || 0} fehlgeschlagen.`, 
             type: 'success' 
           });
         }

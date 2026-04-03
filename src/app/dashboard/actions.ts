@@ -311,10 +311,12 @@ export async function testPushAction() {
   }));
 
   const successCount = results.filter(r => r.success).length;
+  const failCount = results.filter(r => !r.success).length;
   
   return { 
     success: true, 
     count: successCount, 
+    failed: failCount,
     error: lastError 
   };
 }
