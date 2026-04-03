@@ -302,7 +302,7 @@ export async function testPushAction() {
       await sendNotification(subData.subscription, JSON.stringify({
         title: 'FMSC Portal ✈️',
         body: 'Die Push-Benachrichtigungen sind jetzt aktiv!',
-        icon: '/icons/icon-192x192.png'
+        icon: '/icon.png'
       }));
       return { success: true };
     } catch (err: any) {

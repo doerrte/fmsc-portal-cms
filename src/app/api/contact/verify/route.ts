@@ -57,7 +57,7 @@ export async function POST(request: Request) {
             body: `${newMessage.subject}: ${newMessage.message.substring(0, 60)}${newMessage.message.length > 60 ? '...' : ''}`,
             url: '/dashboard?tab=nachrichten',
             badgeCount: unreadCount,
-            icon: '/icons/icon-192x192.png'
+            icon: '/icon.png'
           });
 
           // Identify valid admin/board IDs
