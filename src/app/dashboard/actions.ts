@@ -295,6 +295,7 @@ export async function testPushAction() {
   subs.forEach(s => uniqueEndpoints.set(s.subscription.endpoint, s));
   const uniqueSubs = Array.from(uniqueEndpoints.values());
 
+  let lastError = null;
   const results = await Promise.all(uniqueSubs.map(async (subData) => {
     try {
       console.log(`[TEST PUSH] Sending to sub: ${subData.id} (${subData.userId})`);
@@ -306,6 +307,7 @@ export async function testPushAction() {
       return { success: true };
     } catch (err: any) {
       console.error(`[TEST PUSH] ERROR for sub ${subData.id}:`, err.message || err);
+      lastError = err.message || err;
       return { success: false };
     }
   }));
@@ -320,6 +322,7 @@ export async function testPushAction() {
     count: successCount, 
     debugId: userId,
     totalInDb: totalInDb,
-    poolCount: subs.length 
+    poolCount: subs.length,
+    error: lastError 
   };
 }

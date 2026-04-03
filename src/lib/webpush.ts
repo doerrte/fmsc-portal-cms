@@ -14,8 +14,8 @@ interface PushSubscription {
 }
 
 export async function sendNotification(subscription: PushSubscription, payload: string) {
-  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim().replace(/\s/g, '');
+  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY?.trim().replace(/\s/g, '');
 
   if (!vapidPublicKey || !vapidPrivateKey) {
     throw new Error('VAPID keys not configured in environment variables');

@@ -126,13 +126,20 @@ export default function PushNotificationManager() {
     console.log('Test-Push button clicked');
     setLoading(true);
     try {
-      const response = await testPushAction();
+      const response = await testPushAction() as any;
       console.log('Server response:', response);
       if (response.success) {
-        setMessage({ 
-          text: `Test-Push: ${response.count} gesendet. [Pool: ${response.poolCount}, Gesamt: ${response.totalInDb}, ID: ${response.debugId}]`, 
-          type: 'success' 
-        });
+        if (response.count === 0 && response.error) {
+          setMessage({ 
+            text: `Test-Push Fehler: ${response.error} [Total: ${response.totalInDb}]`, 
+            type: 'error' 
+          });
+        } else {
+          setMessage({ 
+            text: `Test-Push: ${response.count} gesendet. [Pool: ${response.poolCount}, Gesamt: ${response.totalInDb}, ID: ${response.debugId}]`, 
+            type: 'success' 
+          });
+        }
       } else {
         setMessage({ text: 'Test-Push Fehler: ' + response.error, type: 'error' });
       }
