@@ -11,6 +11,7 @@ export default function PushNotificationManager() {
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
+    console.log('PushNotificationManager mounted');
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
       setIsSupported(true);
       checkSubscription();
@@ -21,6 +22,8 @@ export default function PushNotificationManager() {
       } else {
         console.log('VAPID public key found in browser.');
       }
+    } else {
+      console.log('Push notifications not supported or serviceWorker missing in navigator');
     }
   }, []);
 

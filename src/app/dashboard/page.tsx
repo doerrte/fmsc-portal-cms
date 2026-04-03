@@ -860,6 +860,14 @@ const DashboardPage = () => {
           justify-content: space-between;
           align-items: flex-end;
           margin-bottom: 3rem;
+          gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+          .content-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
         }
 
         h1 {
