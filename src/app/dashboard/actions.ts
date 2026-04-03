@@ -199,13 +199,17 @@ export async function testPushAction() {
     return sId === userId || adminIds.includes(sId);
   });
   const uniqueSubs = Array.from(new Map(subs.map(s => [s.subscription.endpoint, s])).values());
-  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-  if (!vapidPublicKey || !vapidPrivateKey) return { success: false, error: 'VAPID missing' };
+  
+  // VAPID KEY CLEANSING (Synchronized with route.ts)
+  const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
+  const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
+  
+  if (!vapidP || !vapidPr) return { success: false, error: 'VAPID missing' };
+  
   let successCount = 0;
   for (const subData of uniqueSubs) {
     try {
-      await sendNotification(subData.subscription, JSON.stringify({ title: 'Test-Zustellung', body: `Erfolgreich um ${new Date().toLocaleTimeString()}!`, icon: '/icon.png' }), vapidPrivateKey, vapidPublicKey);
+      await sendNotification(subData.subscription, JSON.stringify({ title: 'Test-Zustellung', body: `Erfolgreich um ${new Date().toLocaleTimeString()}!`, icon: '/icon.png' }), vapidPr, vapidP);
       successCount++;
     } catch (e) { console.error(`[PUSH] Error:`, e); }
   }
@@ -215,10 +219,10 @@ export async function testPushAction() {
 export async function testSinglePushAction(subscriptionJson: string) {
   try {
     const subscription = JSON.parse(subscriptionJson);
-    const vapidKeyP = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-    const vapidKeyPr = process.env.VAPID_PRIVATE_KEY;
-    if (!vapidKeyP || !vapidKeyPr) throw new Error('VAPID missing');
-    await sendNotification(subscription, JSON.stringify({ title: 'Einzel-Test 🎯', body: 'Nur für dieses Gerät.', badgeCount: 1, vibrate: [200, 100, 200] }), vapidKeyPr, vapidKeyP);
+    const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
+    const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
+    if (!vapidP || !vapidPr) throw new Error('VAPID missing');
+    await sendNotification(subscription, JSON.stringify({ title: 'Einzel-Test 🎯', body: 'Nur für dieses Gerät.', badgeCount: 1, vibrate: [200, 100, 200] }), vapidPr, vapidP);
     return { success: true };
   } catch (err: any) { return { success: false, error: err.message }; }
 }
@@ -230,13 +234,15 @@ export async function testContactPushAction() {
   const db = await getDbData();
   const unreadCount = db.messages.filter((m: any) => m.status === 'new').length;
   const mySubs = (db.push_subscriptions || []).filter((s: any) => (s.userId || s.user_id) === userId);
-  const vapidKeyP = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const vapidKeyPr = process.env.VAPID_PRIVATE_KEY;
-  if (!vapidKeyP || !vapidKeyPr) return { success: false, error: 'VAPID missing' };
+  
+  const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
+  const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
+  if (!vapidP || !vapidPr) return { success: false, error: 'VAPID missing' };
+
   let count = 0;
   for (const sub of mySubs) {
     try {
-      await sendNotification(sub.subscription, JSON.stringify({ title: 'Max Mustermann (vom FMSC Kontaktformular)', body: 'E-Mail: max@mustermann.de\nBetreff: Hilfe\n\nHallo!', url: '/dashboard?tab=nachrichten', badgeCount: unreadCount || 1, vibrate: [200, 100, 200, 100, 200], tag: 'contact-form-message', icon: '/icon.png' }), vapidKeyPr, vapidKeyP);
+      await sendNotification(sub.subscription, JSON.stringify({ title: 'Max Mustermann (vom FMSC Kontaktformular)', body: 'E-Mail: max@mustermann.de\nBetreff: Hilfe\n\nHallo!', url: '/dashboard?tab=nachrichten', badgeCount: unreadCount || 1, vibrate: [200, 100, 200, 100, 200], tag: 'contact-form-message', icon: '/icon.png' }), vapidPr, vapidP);
       count++;
     } catch (e) { console.error(e); }
   }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDbData, saveDbData, ContactMessage, MemberItem } from '@/lib/db';
+import { getDbData, saveDbData, ContactMessage } from '@/lib/db';
 import { sendNotification } from '@/lib/webpush';
 
 export async function POST(request: Request) {
@@ -20,7 +20,6 @@ export async function POST(request: Request) {
     if (verifyData.success) {
       const dbData = await getDbData();
       
-      // 2. Add message to database
       const newMessage: ContactMessage = {
         id: Math.random().toString(36).substr(2, 9),
         ...formData,
@@ -30,24 +29,17 @@ export async function POST(request: Request) {
 
       if (!dbData.messages) dbData.messages = [];
       dbData.messages.push(newMessage);
-      
-      // 3. Save DB
-      const saveError = await saveDbData(dbData);
-      if (saveError) {
-        return NextResponse.json({ success: false, error: 'Datenbankfehler' }, { status: 500 });
-      }
+      await saveDbData(dbData);
 
-      // 4. TRIGGER PUSH (BROADCAST MODE FOR TESTING)
+      // TRIGGER PUSH
       try {
         if (dbData.push_subscriptions && dbData.push_subscriptions.length > 0) {
           const unreadCount = dbData.messages.filter((m: any) => m.status === 'new').length || 1;
           
-          console.log(`[CONTACT PUSH] New message from ${newMessage.name}. Broadcasting to everyone.`);
-
-          // Standard Payload (Simulation-Style)
+          // EXACT SAME PAYLOAD AS SIMULATION
           const notificationPayload = JSON.stringify({
-            title: `${newMessage.name} (Kontakt)`,
-            body: `Betreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 80)}...`,
+            title: 'Max Mustermann (vom FMSC Kontaktformular)',
+            body: `E-Mail: ${newMessage.email}\nBetreff: ${newMessage.subject}\n\n${newMessage.message.substring(0, 80)}...`,
             url: '/dashboard?tab=nachrichten',
             badgeCount: unreadCount,
             tag: 'contact-form-message',
@@ -55,7 +47,7 @@ export async function POST(request: Request) {
             icon: '/icon.png'
           });
 
-          // Identify UNIQUE endpoints to avoid double-sending
+          // UNIQUE ENDPOINTS ONLY
           const uniqueEndpoints = new Map();
           dbData.push_subscriptions.forEach((s: any) => {
             if (s.subscription && s.subscription.endpoint) {
@@ -64,21 +56,25 @@ export async function POST(request: Request) {
           });
           const deliveryPool = Array.from(uniqueEndpoints.values());
           
-          let successCount = 0;
-          let errorCount = 0;
-          const vapidP = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-          const vapidPr = process.env.VAPID_PRIVATE_KEY;
+          // VAPID KEY CLEANSING (Critical for environment stability)
+          const cleanP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
+          const cleanPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
           
-          if (!vapidP || !vapidPr) {
-            console.error('[PUSH] VAPID Keys missing');
+          let successCount = 0;
+          let targetsInfo: string[] = [];
+
+          if (!cleanP || !cleanPr) {
+            console.error('[PUSH] VAPID Keys Missing/Invalid');
           } else {
             for (const s of deliveryPool) {
               try {
-                await sendNotification(s.subscription, notificationPayload, vapidPr, vapidP);
+                await sendNotification(s.subscription, notificationPayload, cleanPr, cleanP);
                 successCount++;
+                // Track last 15 chars of endpoint for client identification
+                const ep = String(s.subscription.endpoint);
+                targetsInfo.push(ep.substring(ep.length - 15));
               } catch (e) {
                 console.error('[PUSH] Loop error:', e);
-                errorCount++;
               }
             }
           }
@@ -86,20 +82,22 @@ export async function POST(request: Request) {
           return NextResponse.json({ 
             success: true, 
             pushAttempted: true, 
-            results: { successCount, errorCount, targeted: deliveryPool.length } 
+            results: { 
+              successCount, 
+              targets: targetsInfo,
+              totalPool: dbData.push_subscriptions.length 
+            } 
           });
         }
       } catch (pushErr: any) {
-        console.error('[PUSH] Fatal error:', pushErr);
         return NextResponse.json({ success: true, pushAttempted: true, pushError: pushErr.message });
       }
 
-      return NextResponse.json({ success: true, pushAttempted: false, reason: 'No subscriptions' });
+      return NextResponse.json({ success: true, pushAttempted: false });
     } else {
       return NextResponse.json({ success: false, error: 'Captcha verification failed' }, { status: 400 });
     }
   } catch (error: any) {
-    console.error('API Error:', error);
     return NextResponse.json({ success: false, error: error.message || 'Internal Error' }, { status: 500 });
   }
 }
