@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  other: {
+    google: 'notranslate',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },
