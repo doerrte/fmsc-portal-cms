@@ -124,13 +124,14 @@ export default function PushNotificationManager() {
       const res = await testPushAction();
       console.log('[PUSH AUDIT RESULT]', res);
       if (res.success) {
-        if (res.pushAttempted) {
-          alert(`Test-Push an ${res.results.successCount} Geräte gesendet.`);
+        const count = (res as any).count || 0;
+        if (res.pushAttempted && count > 0) {
+          alert(`Test-Push an ${count} Geräte gesendet.`);
         } else {
-          alert('Keine Geräte für diesen Benutzer gefunden. (Details in Console)');
+          alert('Keine Geräte für diesen Benutzer gefunden oder Versand fehlgeschlagen. (Details in Console)');
         }
       } else {
-        alert('Serverfehler beim Testen.');
+        alert('Serverfehler: ' + (res.error || 'Unbekannter Fehler'));
       }
     } catch (e) {
       alert('Verbindung fehlgeschlagen.');

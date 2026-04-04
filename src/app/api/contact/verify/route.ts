@@ -76,6 +76,7 @@ export async function POST(request: Request) {
           return NextResponse.json({ 
             success: true, 
             pushAttempted: true, 
+            count: successCount,
             auditTrail
           });
         }

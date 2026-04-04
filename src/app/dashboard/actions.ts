@@ -243,7 +243,7 @@ export async function testPushAction() {
   (auditTrail as any).errors = errors;
   (auditTrail as any).uniqueEndpointsCount = uniqueSubs.length;
 
-  return { success: true, count: successCount, auditTrail };
+  return { success: true, count: successCount, pushAttempted: true, auditTrail };
 }
 
 export async function testSinglePushAction(subscriptionJson: string) {
@@ -289,7 +289,7 @@ export async function testContactPushAction() {
       count++;
     } catch (e) { console.error(e); }
   }
-  return { success: true, count, auditTrail };
+  return { success: true, count, pushAttempted: true, auditTrail };
 }
 
 export async function verifySubscriptionAction(endpoint: string) {
