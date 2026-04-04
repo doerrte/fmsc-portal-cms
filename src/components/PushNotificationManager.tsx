@@ -12,6 +12,7 @@ export default function PushNotificationManager() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   const addLog = (msg: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -22,6 +23,7 @@ export default function PushNotificationManager() {
 
   useEffect(() => {
     setHasMounted(true);
+    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
       setIsSupported(true);
       checkSubscription();
@@ -255,7 +257,12 @@ export default function PushNotificationManager() {
             </div>
             <div className="bg-blue-500/5 border border-blue-500/20 p-3 rounded-lg flex justify-between items-center">
               <span className="text-[10px] text-gray-500 font-mono">ID: {userId || '...'}</span>
-              <span className="text-[10px] text-blue-400 uppercase font-bold">{userRole}</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] px-1.5 py-0.5 rounded border ${isStandalone ? 'bg-blue-500/20 border-blue-500/30 text-blue-400' : 'bg-orange-500/20 border-orange-500/30 text-orange-400'}`}>
+                  {isStandalone ? 'PWA' : 'BROWSER'}
+                </span>
+                <span className="text-[10px] text-blue-400 uppercase font-bold">{userRole}</span>
+              </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {!subscription ? (
