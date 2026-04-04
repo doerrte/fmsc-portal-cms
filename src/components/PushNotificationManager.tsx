@@ -11,6 +11,14 @@ export default function PushNotificationManager() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  const [logs, setLogs] = useState<string[]>([]);
+
+  const addLog = (msg: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const logMsg = `[${timestamp}] ${msg}`;
+    console.log(logMsg);
+    setLogs(prev => [logMsg, ...prev].slice(0, 50));
+  };
 
   useEffect(() => {
     setHasMounted(true);
@@ -21,7 +29,7 @@ export default function PushNotificationManager() {
       
       // Proactively update Service Worker to clear caches
       navigator.serviceWorker.ready.then(reg => {
-        reg.update().then(() => console.log('[SW] Update check performed'));
+        reg.update().then(() => addLog('SW Update Check completed'));
       });
 
       if (typeof navigator !== 'undefined' && 'clearAppBadge' in navigator) {
@@ -55,8 +63,10 @@ export default function PushNotificationManager() {
       if (sub) {
         const verifyRes = await verifySubscriptionAction(sub.endpoint);
         if (verifyRes.success && verifyRes.exists) {
+          addLog('Status: Aktiviert (Server bestätigt)');
           setSubscription(sub);
         } else {
+          addLog('Status: Inaktiv (Server verweigert)');
           setSubscription(null);
         }
       } else {
@@ -91,8 +101,9 @@ export default function PushNotificationManager() {
       // 1. Check permissions first
       if (typeof Notification !== 'undefined') {
         const currentPermission = Notification.permission;
-        console.log('[PUSH] Current permission state:', currentPermission);
+        addLog(`Permission State: ${currentPermission}`);
         if (currentPermission === 'denied') {
+          addLog('FEHLER: Berechtigung verweigert.');
           alert('Benachrichtigungen sind im Browser gesperrt. Bitte in den Standort-Einstellungen/Berechtigungen freigeben!');
           setIsLoading(false);
           return;
@@ -100,44 +111,43 @@ export default function PushNotificationManager() {
       }
 
       // 2. Check Service Worker
-      console.log('[PUSH] Waiting for Service Worker to be ready...');
+      addLog('Warte auf Service Worker...');
       const registration = await navigator.serviceWorker.ready;
-      console.log('[PUSH] Service Worker ready.');
+      addLog('Service Worker bereit.');
 
       // 3. Prepare VAPID key
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidKey) {
-        console.error('[PUSH] VAPID Public Key missing from environment!');
+        addLog('FEHLER: VAPID Key fehlt!');
         alert('Technischer Fehler: VAPID-Key fehlt.');
         setIsLoading(false);
         return;
       }
-      console.log('[PUSH] VAPID Key found. Converting...');
+      addLog('VAPID gefunden. Registriere...');
       const convertedKey = urlBase64ToUint8Array(vapidKey);
-      console.log('[PUSH] Key converted. Requesting subscription...');
 
       // 4. Request Push Subscription
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: convertedKey
       });
-      console.log('[PUSH] Browser granted subscription:', sub.endpoint);
+      addLog('Browser-Abo erhalten.');
 
       // 5. Save to database
-      console.log('[PUSH] Synchronizing with database...');
+      addLog('Synchronisiere mit Datenbank...');
       const res = await savePushSubscriptionAction(JSON.stringify(sub.toJSON()));
       
       if (res.success) {
-        console.log('[PUSH] Activation complete. Success.');
+        addLog('ERFOLG: Aktiviert! ✅');
         setSubscription(sub);
         alert('Aktiviert! ✅');
       } else {
-        console.error('[PUSH] Database save failed:', res.error);
+        addLog(`FEHLER: DB Save failed: ${res.error}`);
         await sub.unsubscribe();
         alert('Server-Fehler: ' + res.error);
       }
     } catch (error: any) {
-      console.error('[PUSH] Fatal activation error:', error);
+      addLog(`FATALER FEHLER: ${error.message || 'Unbekannt'}`);
       alert('Aktivierung fehlgeschlagen: ' + (error.message || 'Unbekannter Fehler'));
     }
     setIsLoading(false);
@@ -256,6 +266,33 @@ export default function PushNotificationManager() {
               </div>
             </div>
           )}
+
+          {/* Debug Console UI */}
+          <div className="mt-8 border-t border-white/5 pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">System-Protokoll</span>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(logs.join('\n'));
+                  alert('Logs kopiert! ✅');
+                }}
+                className="text-[10px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-slate-400"
+              >
+                Logs kopieren
+              </button>
+            </div>
+            <div className="max-h-[200px] overflow-y-auto bg-black/40 rounded-lg p-3 font-mono text-[10px] space-y-1">
+              {logs.length === 0 ? (
+                <p className="text-gray-600">Noch keine Ereignisse protokolliert.</p>
+              ) : (
+                logs.map((log, i) => (
+                  <div key={i} className={log.includes('ERFOLG') ? 'text-green-500' : log.includes('FEHLER') ? 'text-red-500' : 'text-gray-400'}>
+                    {log}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
