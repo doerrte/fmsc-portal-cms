@@ -217,8 +217,8 @@ export async function testPushAction() {
   const uniqueSubs = Array.from(new Map(subs.map(s => [s.subscription?.endpoint || 'missing-endpoint', s])).values());
   
   // VAPID KEY CLEANSING (Synchronized with route.ts)
-  const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
-  const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
+  const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/^['"]|['"]$/g, '');
+  const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n');
   
   if (!vapidP || !vapidPr) return { success: false, error: 'VAPID missing', auditTrail };
   
@@ -249,8 +249,8 @@ export async function testPushAction() {
 export async function testSinglePushAction(subscriptionJson: string) {
   try {
     const subscription = JSON.parse(subscriptionJson);
-    const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
-    const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
+    const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/^['"]|['"]$/g, '');
+    const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n');
     if (!vapidP || !vapidPr) throw new Error('VAPID missing');
     await sendNotification(subscription, JSON.stringify({ title: 'Einzel-Test 🎯', body: 'Nur für dieses Gerät.', badgeCount: 1, vibrate: [200, 100, 200] }), vapidPr, vapidP);
     return { success: true };
@@ -278,8 +278,8 @@ export async function testContactPushAction() {
   }
 
   const unreadCount = db.messages.filter((m: any) => m.status === 'new').length;
-  const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
-  const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
+  const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/^['"]|['"]$/g, '');
+  const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n');
   if (!vapidP || !vapidPr) return { success: false, error: 'VAPID missing' };
 
   let count = 0;

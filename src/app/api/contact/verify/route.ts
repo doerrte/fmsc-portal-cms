@@ -47,8 +47,8 @@ export async function POST(request: Request) {
           });
           const deliveryPool = Array.from(uniqueEndpoints.values());
           
-          const cleanP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
-          const cleanPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
+          const cleanP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/^['"]|['"]$/g, '');
+          const cleanPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n');
           
           let successCount = 0;
           let targetsInfo: string[] = [];
