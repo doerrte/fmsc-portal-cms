@@ -200,6 +200,21 @@ export default function PushNotificationManager() {
     setIsLoading(false);
   }
 
+  async function testBadgeManual() {
+    if ('setAppBadge' in navigator) {
+      try {
+        await (navigator as any).setAppBadge(1);
+        addLog('Badge auf 1 gesetzt! (Homescreen prüfen)');
+        alert('Badge gesetzt! Bitte Homescreen prüfen. ✅');
+      } catch (e: any) {
+        addLog(`Badge-Fehler: ${e.message}`);
+      }
+    } else {
+      addLog('Badge API nicht unterstützt.');
+      alert('Diese Browser-Plattform unterstützt keine App-Badges.');
+    }
+  }
+
   if (!hasMounted) return null;
 
   return (
@@ -263,6 +278,7 @@ export default function PushNotificationManager() {
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={testPush} disabled={isLoading} className="bg-secondary/10 hover:bg-secondary/20 text-secondary text-xs font-bold py-2 px-3 rounded-lg border border-secondary/20 transition-all">Test-Alarm</button>
                 <button onClick={sendSimulationNotification} disabled={isLoading} className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-bold py-2 px-3 rounded-lg border border-blue-500/20 transition-all underline decoration-dotted">Kontakt-Alarm</button>
+                <button onClick={testBadgeManual} disabled={isLoading} className="col-span-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 text-xs font-bold py-2 px-3 rounded-lg border border-yellow-500/20 transition-all">Badge-Test (Manueller Fix)</button>
               </div>
             </div>
           )}
