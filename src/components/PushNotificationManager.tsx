@@ -85,23 +85,60 @@ export default function PushNotificationManager() {
   }
 
   async function subscribeToPush() {
+    console.log('[PUSH] Starting activation sequence...');
     setIsLoading(true);
     try {
+      // 1. Check permissions first
+      if (typeof Notification !== 'undefined') {
+        const currentPermission = Notification.permission;
+        console.log('[PUSH] Current permission state:', currentPermission);
+        if (currentPermission === 'denied') {
+          alert('Benachrichtigungen sind im Browser gesperrt. Bitte in den Standort-Einstellungen/Berechtigungen freigeben!');
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // 2. Check Service Worker
+      console.log('[PUSH] Waiting for Service Worker to be ready...');
       const registration = await navigator.serviceWorker.ready;
+      console.log('[PUSH] Service Worker ready.');
+
+      // 3. Prepare VAPID key
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidKey) {
+        console.error('[PUSH] VAPID Public Key missing from environment!');
+        alert('Technischer Fehler: VAPID-Key fehlt.');
+        setIsLoading(false);
+        return;
+      }
+      console.log('[PUSH] VAPID Key found. Converting...');
+      const convertedKey = urlBase64ToUint8Array(vapidKey);
+      console.log('[PUSH] Key converted. Requesting subscription...');
+
+      // 4. Request Push Subscription
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
+        applicationServerKey: convertedKey
       });
+      console.log('[PUSH] Browser granted subscription:', sub.endpoint);
+
+      // 5. Save to database
+      console.log('[PUSH] Synchronizing with database...');
       const res = await savePushSubscriptionAction(JSON.stringify(sub.toJSON()));
+      
       if (res.success) {
+        console.log('[PUSH] Activation complete. Success.');
         setSubscription(sub);
         alert('Aktiviert! ✅');
       } else {
+        console.error('[PUSH] Database save failed:', res.error);
         await sub.unsubscribe();
-        alert('Fehler: ' + res.error);
+        alert('Server-Fehler: ' + res.error);
       }
-    } catch (error) {
-      alert('Aktivierung fehlgeschlagen. Berechtigungen prüfen.');
+    } catch (error: any) {
+      console.error('[PUSH] Fatal activation error:', error);
+      alert('Aktivierung fehlgeschlagen: ' + (error.message || 'Unbekannter Fehler'));
     }
     setIsLoading(false);
   }
