@@ -264,7 +264,7 @@ const DashboardPage = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="overview-grid-container">
               <div className="overview-header" style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
-                  <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '0.5rem' }}>Hallo{currentUser ? `, ${currentUser.name.split(' ')[0]}` : ''}! ✈️</h1>
+                  <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '0.5rem' }}>Hallo{currentUser ? `, ${(currentUser.name || '').split(' ')[0]}` : ''}! ✈️</h1>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Willkommen zurück im internen FMSC Mitgliederbereich.</p>
                 </div>
               </div>

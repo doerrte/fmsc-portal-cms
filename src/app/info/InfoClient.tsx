@@ -13,7 +13,7 @@ const ICON_MAP: Record<string, any> = {
 };
 
 export default function InfoClient({ info }: { info: InfoSettings }) {
-  const guestRulesList = info.guestRules.split('\n').map(l => l.trim()).filter(l => l !== '');
+  const guestRulesList = (info.guestRules || '').split('\n').map(l => l.trim()).filter(l => l !== '');
 
   return (
     <main className="info-page">

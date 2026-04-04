@@ -71,7 +71,7 @@ export default function NewsDetailClient({ item, relatedNews }: { item: NewsItem
                   </div>
 
                   <div className="article-body">
-                    {item.content.split('\n').map((paragraph, idx) => (
+                    {(item.content || '').split('\n').map((paragraph, idx) => (
                       <p key={idx}>{paragraph}</p>
                     ))}
                   </div>

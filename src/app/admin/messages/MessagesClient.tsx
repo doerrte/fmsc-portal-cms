@@ -136,7 +136,7 @@ export default function MessagesClient({ initialMessages }: MessagesClientProps)
                 <div className="detail-body">
                   <h2 className="detail-subject">{selectedMessage.subject}</h2>
                   <div className="detail-text">
-                    {selectedMessage.message.split('\n').map((line, i) => (
+                    {(selectedMessage.message || '').split('\n').map((line, i) => (
                       <p key={i}>{line}</p>
                     ))}
                   </div>
