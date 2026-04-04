@@ -42,7 +42,8 @@ self.addEventListener('push', (event) => {
     renotify: true,
     data: {
       url: data.url || '/dashboard'
-    }
+    },
+    number: data.badgeCount || 1
   };
 
   // App Badging API support (Android/Desktop)

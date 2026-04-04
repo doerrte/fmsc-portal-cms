@@ -290,6 +290,17 @@ export default function PushNotificationManager() {
             </div>
           )}
 
+          {/* Launcher Info */}
+          <div className="bg-blue-500/5 border border-blue-500/20 p-4 rounded-lg">
+            <h4 className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Android Badge Info</h4>
+            <p className="text-[10px] text-slate-500 leading-relaxed italic">
+              Zahlen (Badges) auf dem Homescreen hängen vom verwendeten Launcher ab. 
+              Stock Android (Pixel/Emulator) zeigt oft nur einen Punkt (Dot) statt einer Zahl.
+              Samsung/Huawei/Sony unterstützen Zahlen meist nativ. 
+              Ggf. in den <b>Home-Einstellungen</b> des Handys prüfen.
+            </p>
+          </div>
+
           {/* Debug Console UI */}
           <div className="mt-8 border-t border-white/5 pt-4">
             <div className="flex items-center justify-between mb-4">
