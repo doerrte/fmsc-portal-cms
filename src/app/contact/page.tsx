@@ -79,7 +79,7 @@ const ContactPage = () => {
             >
               <div className="card-header">
                 <MessageSquare size={20} className="text-secondary" />
-                <h2 className="title-gradient">Übertragung Senden</h2>
+                <h2 className="title-gradient">Nachricht senden</h2>
               </div>
               
               {status === 'success' ? (
@@ -89,7 +89,7 @@ const ContactPage = () => {
                   className="success-message"
                 >
                   <div className="success-icon">✓</div>
-                  <h3 className="success-title">Übertragung Erfolgreich</h3>
+                  <h3 className="success-title">Nachricht gesendet</h3>
                   <p>Deine Nachricht wurde sicher an unsere Piloten übertragen.</p>
                   <button onClick={() => setStatus('idle')} className="btn-send" style={{ marginTop: '1.5rem', width: 'auto' }}>
                     WEITERE NACHRICHT
@@ -157,7 +157,7 @@ const ContactPage = () => {
                   )}
 
                   <button type="submit" className="btn-send" disabled={status === 'sending'}>
-                    {status === 'sending' ? 'SIGNAL ÜBERTRÄGT...' : 'SIGNAL SENDEN'} <Send size={18} />
+                    {status === 'sending' ? 'NACHRICHT ÜBERTRÄGT...' : 'ANFRAGE SENDEN'} <Send size={18} />
                   </button>
                 </form>
               )}
