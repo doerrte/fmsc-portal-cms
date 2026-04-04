@@ -143,8 +143,12 @@ export default function PushNotificationManager() {
     setIsLoading(true);
     try {
       const res = await testContactPushAction();
-      if (res.success) alert(`Simulation an ${res.count} Geräte gesendet.`);
-      else alert('Fehler: ' + res.error);
+      if (res.success) {
+        const count = (res as any).count || 0;
+        alert(`Simulation an ${count} Geräte gesendet.`);
+      } else {
+        alert('Fehler: ' + (res.error || 'Unbekannter Fehler'));
+      }
     } catch (error) { alert('Fehler bei Simulation.'); }
     setIsLoading(false);
   }
