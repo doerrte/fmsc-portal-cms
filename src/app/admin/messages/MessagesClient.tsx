@@ -31,13 +31,29 @@ export default function MessagesClient({ initialMessages }: MessagesClientProps)
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString('de-DE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return 'Datum unbekannt';
+      return d.toLocaleString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return 'Datum unbekannt';
+    }
+  };
+
+  const formatShortDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return 'Unbekannt';
+      return d.toLocaleDateString('de-DE');
+    } catch (e) {
+      return 'Unbekannt';
+    }
   };
 
   return (
@@ -77,7 +93,7 @@ export default function MessagesClient({ initialMessages }: MessagesClientProps)
                 >
                   <div className="message-item-header">
                     <span className="msg-name">{msg.name}</span>
-                    <span className="msg-date">{new Date(msg.date).toLocaleDateString('de-DE')}</span>
+                    <span className="msg-date">{formatShortDate(msg.date)}</span>
                   </div>
                   <div className="msg-subject">{msg.subject}</div>
                   {/* Safe substring for message teaser */}

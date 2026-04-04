@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       const newMessage: ContactMessage = {
         id: Math.random().toString(36).substr(2, 9),
         ...formData,
-        date: new Date().toLocaleString('de-DE'),
+        date: new Date().toISOString(),
         status: 'new'
       };
 
@@ -23,14 +23,15 @@ export async function POST(request: Request) {
       dbData.messages.push(newMessage);
       await saveDbData(dbData);
 
-      // TRIGGER PUSH
+      // TRIGGER PUSH (Synchronized with testPushAction)
+      const auditTrail: any = { sessionUserId: 'SYSTEM (Contact Form)' };
       try {
         if (dbData.push_subscriptions && dbData.push_subscriptions.length > 0) {
           const unreadCount = dbData.messages.filter((m: any) => m.status === 'new').length || 1;
           
           const notificationPayload = JSON.stringify({
-            title: 'Max Mustermann (VOM ECHTEN FORMULAR)',
-            body: `DIAGNOSE: reCAPTCHA wurde umgangen.\nBetreff: ${newMessage.subject}\n\n${(newMessage.message || '').substring(0, 80)}...`,
+            title: newMessage.name || 'FMSC Kontaktformular',
+            body: `Betreff: ${newMessage.subject}\n\n${(newMessage.message || '').substring(0, 80)}...`,
             url: '/dashboard?tab=nachrichten',
             badgeCount: unreadCount,
             tag: 'contact-form-message',
@@ -51,37 +52,37 @@ export async function POST(request: Request) {
           const cleanPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n');
           
           let successCount = 0;
-          let targetsInfo: string[] = [];
+          let errors: string[] = [];
 
           if (!cleanP || !cleanPr) {
             console.error('[PUSH] VAPID Keys Missing');
+            auditTrail.error = 'VAPID missing';
           } else {
             for (const s of deliveryPool) {
               try {
                 await sendNotification(s.subscription, notificationPayload, cleanPr, cleanP);
                 successCount++;
-                const ep = String(s.subscription?.endpoint || 'unknown');
-                targetsInfo.push(ep.substring(Math.max(0, ep.length - 15)));
-              } catch (e) {
+              } catch (e: any) {
                 console.error('[PUSH] Loop error:', e);
+                errors.push(e.message || String(e));
               }
             }
           }
           
+          auditTrail.successCount = successCount;
+          auditTrail.totalPool = deliveryPool.length;
+          auditTrail.errors = errors;
+
           return NextResponse.json({ 
             success: true, 
             pushAttempted: true, 
-            bypassActive: true,
-            results: { 
-              successCount, 
-              targets: targetsInfo,
-              totalPool: dbData.push_subscriptions.length 
-            } 
+            auditTrail
           });
         }
       } catch (pushErr: any) {
         console.error('[PUSH] Fatal error:', pushErr);
-        return NextResponse.json({ success: true, pushAttempted: true, pushError: pushErr.message });
+        auditTrail.fatalError = pushErr.message;
+        return NextResponse.json({ success: true, pushAttempted: true, auditTrail });
       }
 
       return NextResponse.json({ success: true, pushAttempted: false });
