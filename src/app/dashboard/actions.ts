@@ -214,21 +214,35 @@ export async function testPushAction() {
     return { success: true, pushAttempted: false, auditTrail, results: { successCount: 0, errorCount: 0 } };
   }
 
-  const uniqueSubs = Array.from(new Map(subs.map(s => [s.subscription.endpoint, s])).values());
+  const uniqueSubs = Array.from(new Map(subs.map(s => [s.subscription?.endpoint || 'missing-endpoint', s])).values());
   
   // VAPID KEY CLEANSING (Synchronized with route.ts)
   const vapidP = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim().replace(/['"]/g, '');
   const vapidPr = (process.env.VAPID_PRIVATE_KEY || '').trim().replace(/['"]/g, '').replace(/\\n/g, '\n');
   
-  if (!vapidP || !vapidPr) return { success: false, error: 'VAPID missing' };
+  if (!vapidP || !vapidPr) return { success: false, error: 'VAPID missing', auditTrail };
   
   let successCount = 0;
+  const errors: string[] = [];
+
   for (const subData of uniqueSubs) {
     try {
+      if (!subData.subscription?.endpoint) {
+        errors.push("Missing endpoint in subscription object");
+        continue;
+      }
       await sendNotification(subData.subscription, JSON.stringify({ title: 'Test-Zustellung', body: `Erfolgreich um ${new Date().toLocaleTimeString()}!`, icon: '/icon.png' }), vapidPr, vapidP);
       successCount++;
-    } catch (e) { console.error(`[PUSH] Error:`, e); }
+    } catch (e: any) { 
+      const errMsg = e.message || String(e);
+      console.error(`[PUSH] Error:`, errMsg);
+      errors.push(errMsg);
+    }
   }
+
+  (auditTrail as any).errors = errors;
+  (auditTrail as any).uniqueEndpointsCount = uniqueSubs.length;
+
   return { success: true, count: successCount, auditTrail };
 }
 
