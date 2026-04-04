@@ -229,7 +229,7 @@ export async function testPushAction() {
       successCount++;
     } catch (e) { console.error(`[PUSH] Error:`, e); }
   }
-  return { success: true, count: successCount };
+  return { success: true, count: successCount, auditTrail };
 }
 
 export async function testSinglePushAction(subscriptionJson: string) {
@@ -275,7 +275,7 @@ export async function testContactPushAction() {
       count++;
     } catch (e) { console.error(e); }
   }
-  return { success: true, count };
+  return { success: true, count, auditTrail };
 }
 
 export async function verifySubscriptionAction(endpoint: string) {
