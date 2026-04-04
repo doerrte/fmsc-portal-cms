@@ -35,24 +35,22 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body || 'Neue Nachricht vom FMSC Portal',
-    icon: data.icon || '/icon.png',
-    badge: '/badge.png',
-    vibrate: data.vibrate || [200, 100, 200, 100, 200],
-    tag: data.tag || 'fmsc-general-notification',
+    icon: '/icon.png',
+    badge: '/icon.png',
+    vibrate: [100, 50, 100],
+    tag: data.tag || 'fmsc-notification',
     renotify: true,
     data: {
       url: data.url || '/dashboard'
-    },
-    actions: [
-      { action: 'open', title: 'Ansehen' },
-      { action: 'close', title: 'Schließen' }
-    ]
+    }
   };
 
   // App Badging API support (Android/Desktop)
   if ('setAppBadge' in navigator) {
     const badgeCount = data.badgeCount || 1;
-    navigator.setAppBadge(badgeCount).catch(e => console.error(e));
+    event.waitUntil(
+      navigator.setAppBadge(badgeCount).catch(e => console.error(e))
+    );
   }
 
   event.waitUntil(
