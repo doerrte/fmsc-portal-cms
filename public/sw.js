@@ -49,7 +49,7 @@ self.addEventListener('push', (event) => {
     ]
   };
 
-  // Apple/iOS specific: Set badge if supported
+  // App Badging API support (Android/Desktop)
   if ('setAppBadge' in navigator) {
     const badgeCount = data.badgeCount || 1;
     navigator.setAppBadge(badgeCount).catch(e => console.error(e));
@@ -62,6 +62,11 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+
+  // Clear badge when interacting with notification
+  if ('clearAppBadge' in navigator) {
+    navigator.clearAppBadge().catch((e) => console.error(e));
+  }
   
   if (event.action === 'close') return;
 
